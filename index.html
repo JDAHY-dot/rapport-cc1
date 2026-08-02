@@ -45,6 +45,52 @@
     box-sizing: border-box;
     padding: 24px 24px 0;
   }
+  .sync-panel{
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--hairline);
+  }
+  .sync-row{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .sync-label{
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+  }
+  #sync-code-input{
+    background: var(--panel-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 7px 10px;
+    width: 90px;
+    outline: none;
+  }
+  #sync-code-input:focus{
+    border-color: var(--brass-dim);
+  }
+  .sync-row button{
+    background: var(--panel-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    padding: 7px 12px;
+    cursor: pointer;
+  }
+  .sync-row button:hover{
+    border-color: var(--brass-dim);
+    color: var(--brass);
+  }
   .app{
     width: 100%;
     max-width: 900px;
@@ -720,6 +766,17 @@
       <button class="download-btn" id="download-btn" type="button">⬇ Télécharger la sauvegarde</button>
     </div>
   </header>
+
+  <div class="sync-panel">
+    <div class="sync-row">
+      <span class="sync-label">Synchronisation multi-appareil :</span>
+      <input type="text" id="sync-code-input" maxlength="6" placeholder="CODE" autocomplete="off" spellcheck="false">
+      <button type="button" id="sync-create-btn">Créer un code</button>
+      <button type="button" id="sync-join-btn">Rejoindre</button>
+      <button type="button" id="sync-leave-btn" title="Arrêter la synchronisation">Se déconnecter</button>
+    </div>
+    <div class="month" id="sync-status" style="margin-top:6px;">Non synchronisé (cet appareil uniquement)</div>
+  </div>
 </div>
 
 <div class="tabs-bar">
@@ -986,6 +1043,94 @@
   <footer>Objectif atteint = barre dans la zone verte, au repère 100%</footer>
 </div>
 
+<script type="module">
+  // ==========================================================================
+  // SYNCHRONISATION MULTI-APPAREIL — Firebase (Firestore)
+  // Renseigne firebaseConfig ci-dessous avec les infos de TON propre projet
+  // Firebase (gratuit). Voir les instructions fournies avec ce fichier.
+  // ==========================================================================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD3791Lab-Y1XcvT3562JgsQm8wUuvhNpE",
+    authDomain: "oiv-rag.firebaseapp.com",
+    projectId: "oiv-rag",
+    storageBucket: "oiv-rag.firebasestorage.app",
+    messagingSenderId: "101423050188",
+    appId: "1:101423050188:web:0d5d3036e82d44afc48169"
+  };
+
+  let db = null;
+  let unsubscribeFn = null;
+
+  window.cloudSync = {
+    ready: false,
+    async init(){
+      try{
+        if(!firebaseConfig.apiKey || firebaseConfig.apiKey.indexOf('COLLE_') === 0){
+          console.warn('Synchronisation cloud non configurée (firebaseConfig manquant). L\'appli fonctionne en local uniquement.');
+          return;
+        }
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        const auth = getAuth(app);
+        await signInAnonymously(auth);
+        window.cloudSync.ready = true;
+        if(typeof refreshSyncUI === 'function') refreshSyncUI();
+      } catch(e){
+        console.error('Erreur d\'initialisation Firebase :', e);
+        window.cloudSync.ready = false;
+      }
+    },
+    async save(code, payload){
+      if(!window.cloudSync.ready || !code) return false;
+      try{
+        await setDoc(doc(db, 'suivi-objectifs', code), {
+          payload,
+          updatedAt: serverTimestamp(),
+          deviceId: window.__deviceId
+        });
+        return true;
+      } catch(e){
+        console.error('Erreur de sauvegarde cloud :', e);
+        return false;
+      }
+    },
+    async load(code){
+      if(!window.cloudSync.ready || !code) return null;
+      try{
+        const snap = await getDoc(doc(db, 'suivi-objectifs', code));
+        if(snap.exists()) return snap.data().payload;
+        return null;
+      } catch(e){
+        console.error('Erreur de lecture cloud :', e);
+        return null;
+      }
+    },
+    subscribe(code, callback){
+      if(!window.cloudSync.ready || !code) return;
+      if(unsubscribeFn) unsubscribeFn();
+      unsubscribeFn = onSnapshot(doc(db, 'suivi-objectifs', code), (snap) => {
+        if(snap.exists()){
+          const data = snap.data();
+          if(data.deviceId !== window.__deviceId && data.payload){
+            callback(data.payload);
+          }
+        }
+      }, (e) => console.error('Erreur d\'écoute cloud :', e));
+    },
+    unsubscribeAll(){
+      if(unsubscribeFn){ unsubscribeFn(); unsubscribeFn = null; }
+    }
+  };
+
+  window.cloudSync.init();
+</script>
+
 <script>
 const MOIS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
 const MOIS_COURT = ["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août","Sep","Oct","Nov","Déc"];
@@ -1003,6 +1148,100 @@ const selectedMonths = [true,true,true,true,true,true,true,true,true,true,true,t
 const STORAGE_KEY = 'suivi-objectifs-' + YEAR;
 let saveTimer = null;
 
+// ---- Synchronisation multi-appareil ----
+const DEVICE_ID_KEY = 'suivi-device-id';
+window.__deviceId = localStorage.getItem(DEVICE_ID_KEY) || (() => {
+  const id = 'dev-' + Math.random().toString(36).slice(2, 10);
+  localStorage.setItem(DEVICE_ID_KEY, id);
+  return id;
+})();
+
+const SYNC_CODE_KEY = 'suivi-sync-code';
+let syncCode = localStorage.getItem(SYNC_CODE_KEY) || '';
+let applyingRemoteUpdate = false;
+
+function setSyncStatus(text, isError){
+  const el = document.getElementById('sync-status');
+  if(!el) return;
+  el.textContent = text;
+  el.style.color = isError ? 'var(--danger)' : 'var(--text-muted)';
+}
+
+function randomSyncCode(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sans caractères ambigus
+  let out = '';
+  for(let i=0;i<6;i++) out += chars[Math.floor(Math.random()*chars.length)];
+  return out;
+}
+
+function refreshSyncUI(){
+  const input = document.getElementById('sync-code-input');
+  if(input) input.value = syncCode;
+  if(syncCode){
+    setSyncStatus(window.cloudSync && window.cloudSync.ready ? 'Synchronisé · code ' + syncCode : 'Code enregistré · connexion en cours…', false);
+  } else {
+    setSyncStatus('Non synchronisé (cet appareil uniquement)', false);
+  }
+}
+
+async function createSyncCode(){
+  const code = randomSyncCode();
+  syncCode = code;
+  localStorage.setItem(SYNC_CODE_KEY, code);
+  refreshSyncUI();
+  await persistData(); // pousse immédiatement les données actuelles vers ce nouveau code
+  subscribeToCloud();
+}
+
+async function joinSyncCode(code){
+  code = (code || '').trim().toUpperCase();
+  if(!code) return;
+  syncCode = code;
+  localStorage.setItem(SYNC_CODE_KEY, code);
+  refreshSyncUI();
+  setSyncStatus('Récupération des données…', false);
+  {
+    for(let i=0;i<30 && !(window.cloudSync && window.cloudSync.ready);i++){ await new Promise(r=>setTimeout(r,150)); }
+  }
+  if(window.cloudSync){
+    const cloudPayload = await window.cloudSync.load(syncCode);
+    if(cloudPayload){
+      applyPersistedPayload(cloudPayload);
+      renderTabs();
+      showView();
+      loadMonthIntoInputs();
+      update();
+      setSaveStatus('Données synchronisées chargées', false);
+    } else {
+      // Aucune donnée pour ce code : on pousse les données actuelles pour l'initialiser
+      await persistData();
+    }
+  }
+  subscribeToCloud();
+}
+
+function leaveSyncCode(){
+  syncCode = '';
+  localStorage.removeItem(SYNC_CODE_KEY);
+  if(window.cloudSync) window.cloudSync.unsubscribeAll();
+  refreshSyncUI();
+}
+
+function subscribeToCloud(){
+  if(!syncCode || !window.cloudSync) return;
+  window.cloudSync.subscribe(syncCode, (payload) => {
+    applyingRemoteUpdate = true;
+    applyPersistedPayload(payload);
+    renderTabs();
+    showView();
+    loadMonthIntoInputs();
+    update();
+    setSaveStatus('Mis à jour depuis un autre appareil', false);
+    applyingRemoteUpdate = false;
+  });
+  refreshSyncUI();
+}
+
 function setSaveStatus(text, isError){
   const el = document.getElementById('save-status');
   el.textContent = text;
@@ -1010,6 +1249,7 @@ function setSaveStatus(text, isError){
 }
 
 async function persistData(){
+  if(applyingRemoteUpdate) return; // évite de renvoyer en boucle une donnée qu'on vient de recevoir
   const appTitle = document.getElementById('app-title').textContent;
   const payload = JSON.stringify({ monthsData, selectedMonths, appTitle });
   try{
@@ -1018,6 +1258,14 @@ async function persistData(){
       await window.storage.set(STORAGE_KEY, payload, false);
     } else {
       localStorage.setItem(STORAGE_KEY, payload);
+    }
+    if(syncCode){
+      for(let i=0;i<10 && !(window.cloudSync && window.cloudSync.ready);i++){ await new Promise(r=>setTimeout(r,150)); }
+      if(window.cloudSync){
+        const ok = await window.cloudSync.save(syncCode, payload);
+        refreshSyncUI();
+        if(!ok) setSyncStatus('Échec de synchronisation, données gardées en local', true);
+      }
     }
     const now2 = new Date();
     const hh = String(now2.getHours()).padStart(2,'0');
@@ -1034,42 +1282,63 @@ function scheduleSave(){
   saveTimer = setTimeout(persistData, 500);
 }
 
+function applyPersistedPayload(rawValue){
+  const parsed = JSON.parse(rawValue);
+  if(Array.isArray(parsed.monthsData) && parsed.monthsData.length === 12){
+    for(let i=0;i<12;i++){
+      monthsData[i] = Object.assign(defaultData(), parsed.monthsData[i]);
+      if(!Array.isArray(monthsData[i].journal)) monthsData[i].journal = [];
+      monthsData[i].journal = monthsData[i].journal.map(r => {
+        if(typeof r.margePct === 'number') return r;
+        const ca = parseFloat(r.ca) || 0;
+        const margeEuros = parseFloat(r.marge) || 0;
+        return { id: r.id || uid(), date: r.date || todayISO(), ca, margePct: ca > 0 ? (margeEuros/ca)*100 : 0 };
+      });
+    }
+  }
+  if(Array.isArray(parsed.selectedMonths) && parsed.selectedMonths.length === 12){
+    for(let i=0;i<12;i++) selectedMonths[i] = !!parsed.selectedMonths[i];
+  }
+  if(typeof parsed.appTitle === 'string' && parsed.appTitle.trim() !== ''){
+    document.getElementById('app-title').textContent = parsed.appTitle;
+  }
+}
+
 async function loadPersistedData(){
   try{
     let rawValue = null;
-    if(typeof window.storage !== 'undefined'){
-      const res = await window.storage.get(STORAGE_KEY);
-      if(res && res.value) rawValue = res.value;
-    } else {
-      rawValue = localStorage.getItem(STORAGE_KEY);
+
+    // Priorité au cloud si un code de synchronisation est actif
+    if(syncCode){
+      setSyncStatus('Connexion…', false);
+      for(let i=0;i<30 && !(window.cloudSync && window.cloudSync.ready);i++){ await new Promise(r=>setTimeout(r,150)); }
+      if(window.cloudSync){
+        const cloudPayload = await window.cloudSync.load(syncCode);
+        if(cloudPayload) rawValue = cloudPayload;
+      }
     }
+
+    if(!rawValue){
+      if(typeof window.storage !== 'undefined'){
+        const res = await window.storage.get(STORAGE_KEY);
+        if(res && res.value) rawValue = res.value;
+      } else {
+        rawValue = localStorage.getItem(STORAGE_KEY);
+      }
+    }
+
     if(rawValue){
-      const parsed = JSON.parse(rawValue);
-      if(Array.isArray(parsed.monthsData) && parsed.monthsData.length === 12){
-        for(let i=0;i<12;i++){
-          monthsData[i] = Object.assign(defaultData(), parsed.monthsData[i]);
-          if(!Array.isArray(monthsData[i].journal)) monthsData[i].journal = [];
-          monthsData[i].journal = monthsData[i].journal.map(r => {
-            if(typeof r.margePct === 'number') return r;
-            const ca = parseFloat(r.ca) || 0;
-            const margeEuros = parseFloat(r.marge) || 0;
-            return { id: r.id || uid(), date: r.date || todayISO(), ca, margePct: ca > 0 ? (margeEuros/ca)*100 : 0 };
-          });
-        }
-      }
-      if(Array.isArray(parsed.selectedMonths) && parsed.selectedMonths.length === 12){
-        for(let i=0;i<12;i++) selectedMonths[i] = !!parsed.selectedMonths[i];
-      }
-      if(typeof parsed.appTitle === 'string' && parsed.appTitle.trim() !== ''){
-        document.getElementById('app-title').textContent = parsed.appTitle;
-      }
+      applyPersistedPayload(rawValue);
       setSaveStatus('Données chargées', false);
     } else {
       setSaveStatus('', false);
     }
+    refreshSyncUI();
+    subscribeToCloud();
   } catch(e){
     // Pas de données existantes ou erreur de lecture : on démarre avec les valeurs par défaut
     setSaveStatus('', false);
+    refreshSyncUI();
   }
 }
 
@@ -1756,6 +2025,23 @@ document.getElementById('app-title').addEventListener('keydown', (e) => {
     update();
     renderTabs();
   });
+});
+
+document.getElementById('sync-create-btn').addEventListener('click', () => {
+  createSyncCode();
+});
+document.getElementById('sync-join-btn').addEventListener('click', () => {
+  const val = document.getElementById('sync-code-input').value;
+  joinSyncCode(val);
+});
+document.getElementById('sync-leave-btn').addEventListener('click', () => {
+  leaveSyncCode();
+});
+document.getElementById('sync-code-input').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    joinSyncCode(e.target.value);
+  }
 });
 
 (async function init(){
