@@ -985,6 +985,7 @@
             <span class="legend-item"><span class="legend-swatch swatch-ok"></span>Atteint</span>
             <span class="legend-item"><span class="legend-swatch swatch-warn"></span>Bonne voie</span>
             <span class="legend-item"><span class="legend-swatch swatch-danger"></span>En retard</span>
+            <span class="legend-item"><span class="legend-line" style="background:var(--blue);"></span>Chiffre moyen réalisé</span>
           </div>
         </div>
         <div class="journal-chart-scroll">
@@ -1028,6 +1029,7 @@
             <span class="legend-item"><span class="legend-swatch swatch-ok"></span>Atteint</span>
             <span class="legend-item"><span class="legend-swatch swatch-warn"></span>Bonne voie</span>
             <span class="legend-item"><span class="legend-swatch swatch-danger"></span>En retard</span>
+            <span class="legend-item"><span class="legend-line" style="background:var(--blue);"></span>Chiffre moyen réalisé</span>
           </div>
         </div>
         <div class="journal-chart-scroll">
@@ -1698,7 +1700,7 @@ function renderJournalChart(){
     const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
     svgParts += `<path d="${pathD}" fill="none" stroke="#5FA37E" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />`;
     points.forEach(p => {
-      svgParts += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#5FA37E"><title>${fmtDateShort(p.d.date)} — Taux de marge : ${fmtPct2(p.d.margePct)}</title></circle>`;
+      svgParts += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#5FA37E"><title>${fmtDateShort(p.d.date)} — Taux de marge : ${fmtPct2(p.d.margePct)}</title></circle>`;
     });
   }
 
@@ -1844,7 +1846,7 @@ function renderAnnee(){
   renderAnneeMargeChart();
 }
 
-function renderMonthlyBarChart(svgId, emptyId, data){
+function renderMonthlyBarChart(svgId, emptyId, data, secondary){
   const svg = document.getElementById(svgId);
   const emptyEl = document.getElementById(emptyId);
   if(!svg) return;
@@ -1859,8 +1861,12 @@ function renderMonthlyBarChart(svgId, emptyId, data){
 
   const maxVal = Math.max(...data.map(d => Math.max(d.objectif, d.actuel)), 1);
 
+  const hasSecondary = !!(secondary && secondary.values);
+  const secondaryDefined = hasSecondary ? secondary.values.filter(v => v !== null && v !== undefined) : [];
+  const maxSecondary = secondaryDefined.length ? Math.max(...secondaryDefined, 1) : 1;
+
   const groupWidth = 68;
-  const paddingLeft = 60, paddingRight = 16, paddingTop = 16, paddingBottom = 34;
+  const paddingLeft = 60, paddingRight = hasSecondary ? 100 : 16, paddingTop = 16, paddingBottom = 34;
   const chartHeight = 220;
   const chartWidth = Math.max(data.length * groupWidth, 500);
   const width = chartWidth + paddingLeft + paddingRight;
@@ -1873,10 +1879,11 @@ function renderMonthlyBarChart(svgId, emptyId, data){
     'status-warn': '#D1A23E',
     'status-danger': '#C1543A'
   };
+  const secondaryColor = '#4E8FD6';
 
   let svgParts = '';
 
-  // Grille horizontale + labels d'axe Y
+  // Grille horizontale + labels d'axe Y (gauche)
   const steps = 4;
   for(let i = 0; i <= steps; i++){
     const y = paddingTop + innerH - (innerH * i / steps);
@@ -1885,7 +1892,20 @@ function renderMonthlyBarChart(svgId, emptyId, data){
     svgParts += `<text x="${paddingLeft - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">${fmtEuroShort(val)}</text>`;
   }
 
+  // Labels d'axe Y (droite) — chiffre moyen réalisé
+  if(hasSecondary){
+    for(let i = 0; i <= steps; i++){
+      const y = paddingTop + innerH - (innerH * i / steps);
+      const val = maxSecondary * i / steps;
+      svgParts += `<text x="${width - paddingRight + 8}" y="${(y + 4).toFixed(1)}" text-anchor="start" font-size="10" fill="${secondaryColor}" font-family="'JetBrains Mono', monospace">${fmtEuroShort(val)}</text>`;
+    }
+    const titleX = width - 14;
+    const titleY = paddingTop + innerH / 2;
+    svgParts += `<text x="${titleX}" y="${titleY.toFixed(1)}" text-anchor="middle" font-size="10" fill="${secondaryColor}" font-family="'JetBrains Mono', monospace" letter-spacing="0.5" transform="rotate(90 ${titleX} ${titleY.toFixed(1)})">${secondary.label}</text>`;
+  }
+
   // Barres + labels d'axe X
+  const secondaryPoints = [];
   data.forEach((d, i) => {
     const groupX = paddingLeft + i * groupWidth;
     const centerX = groupX + groupWidth / 2;
@@ -1902,7 +1922,41 @@ function renderMonthlyBarChart(svgId, emptyId, data){
     svgParts += `<rect x="${xObj.toFixed(1)}" y="${yObj.toFixed(1)}" width="${barW}" height="${objH.toFixed(1)}" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>${d.month} — Objectif : ${fmtEuro(d.objectif)}</title></rect>`;
     svgParts += `<rect x="${xAct.toFixed(1)}" y="${yAct.toFixed(1)}" width="${barW}" height="${actH.toFixed(1)}" fill="${color}" rx="1.5"><title>${d.month} — Réalisé : ${fmtEuro(d.actuel)} (${fmtPct(d.pct)})</title></rect>`;
     svgParts += `<text x="${centerX.toFixed(1)}" y="${(paddingTop + innerH + 16).toFixed(1)}" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">${d.month}</text>`;
+
+    if(hasSecondary){
+      const val = secondary.values[i];
+      if(val !== null && val !== undefined){
+        const y = paddingTop + innerH - (val / maxSecondary) * innerH;
+        secondaryPoints.push({ x: centerX, y, val, month: d.month });
+      } else {
+        secondaryPoints.push(null);
+      }
+    }
   });
+
+  // Courbe du chiffre moyen réalisé, sur l'axe Y de droite (segments continus uniquement)
+  if(hasSecondary){
+    let segment = [];
+    const flushSegment = () => {
+      if(segment.length > 1){
+        const pathD = segment.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+        svgParts += `<path d="${pathD}" fill="none" stroke="${secondaryColor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="4 2" />`;
+      }
+      segment = [];
+    };
+    secondaryPoints.forEach(p => {
+      if(p === null){
+        flushSegment();
+        return;
+      }
+      segment.push(p);
+    });
+    flushSegment();
+    secondaryPoints.forEach(p => {
+      if(p === null) return;
+      svgParts += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${secondaryColor}"><title>${p.month} — Chiffre moyen réalisé : ${fmtEuro2(p.val)}</title></circle>`;
+    });
+  }
 
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   svg.setAttribute('width', width);
@@ -1917,7 +1971,15 @@ function renderAnneeChart(){
     const pct = objectif > 0 ? (actuel / objectif) * 100 : (actuel > 0 ? 100 : 0);
     return { month: MOIS_COURT[i], objectif, actuel, pct };
   });
-  renderMonthlyBarChart('annee-chart', 'annee-chart-empty', data);
+  // CA moyen / jour saisi, calculé pour chaque mois individuellement à partir de
+  // son propre journal (jamais une moyenne annuelle globale).
+  const avgCaValues = monthsData.map(d => {
+    const journal = Array.isArray(d.journal) ? d.journal : [];
+    if(journal.length === 0) return null;
+    const totalCa = journal.reduce((s, r) => s + (parseFloat(r.ca) || 0), 0);
+    return totalCa / journal.length;
+  });
+  renderMonthlyBarChart('annee-chart', 'annee-chart-empty', data, { values: avgCaValues, label: 'Chiffre moyen réalisé' });
 }
 
 function renderAnneeMargeChart(){
@@ -1927,7 +1989,15 @@ function renderAnneeMargeChart(){
     const pct = objectif > 0 ? (actuel / objectif) * 100 : (actuel > 0 ? 100 : 0);
     return { month: MOIS_COURT[i], objectif, actuel, pct };
   });
-  renderMonthlyBarChart('annee-marge-chart', 'annee-marge-chart-empty', data);
+  // Marge moyenne / jour saisi, calculée pour chaque mois individuellement à partir de
+  // son propre journal (jamais une moyenne annuelle globale).
+  const avgMargeValues = monthsData.map(d => {
+    const journal = Array.isArray(d.journal) ? d.journal : [];
+    if(journal.length === 0) return null;
+    const totalMarge = journal.reduce((s, r) => s + ((parseFloat(r.ca) || 0) * (parseFloat(r.margePct) || 0) / 100), 0);
+    return totalMarge / journal.length;
+  });
+  renderMonthlyBarChart('annee-marge-chart', 'annee-marge-chart-empty', data, { values: avgMargeValues, label: 'Chiffre moyen réalisé' });
 }
 
 const MAXP = 125; // % max affiché sur la barre
