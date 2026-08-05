@@ -370,6 +370,7 @@
   .status-ok{ color: var(--ok); }
   .status-warn{ color: var(--warn); }
   .status-danger{ color: var(--danger); }
+  .status-neutral{ color: var(--text-muted); }
 
   footer{
     margin-top: 30px;
@@ -733,6 +734,14 @@
     display:inline-block;
     border-radius: 1px;
   }
+  .legend-line-dashed{
+    width: 14px;
+    height: 0;
+    background: none;
+    border-top: 2px dashed var(--blue);
+    display:inline-block;
+    border-radius: 0;
+  }
   .journal-chart-scroll{
     overflow-x: auto;
     overflow-y: hidden;
@@ -887,6 +896,8 @@
               <span class="legend-item"><span class="legend-swatch swatch-ca"></span>CA</span>
               <span class="legend-item"><span class="legend-swatch swatch-marge"></span>Marge générée</span>
               <span class="legend-item"><span class="legend-line"></span>Tendance marge (%)</span>
+              <span class="legend-item"><span class="legend-line legend-line-dashed" style="border-color: var(--blue);"></span>Objectif CA moyen/jour</span>
+              <span class="legend-item"><span class="legend-line legend-line-dashed" style="border-color: var(--warn);"></span>Objectif Marge moyen/jour</span>
             </div>
           </div>
           <div class="journal-chart-stats">
@@ -899,6 +910,16 @@
               <span class="legend-swatch swatch-marge"></span>
               <span class="chart-stat-label">Marge moyenne / jour saisi</span>
               <span class="chart-stat-value" id="journal-avg-marge">1 664,78 €</span>
+            </div>
+            <div class="chart-stat">
+              <span class="legend-swatch swatch-ca"></span>
+              <span class="chart-stat-label">Objectif CA moyen / jour saisi</span>
+              <span class="chart-stat-value" id="journal-avg-ca-objectif">0,00 €</span>
+            </div>
+            <div class="chart-stat">
+              <span class="legend-swatch swatch-marge"></span>
+              <span class="chart-stat-label">Objectif Marge moyen / jour saisi</span>
+              <span class="chart-stat-value" id="journal-avg-marge-objectif">0,00 €</span>
             </div>
           </div>
           <div class="journal-chart-scroll">
@@ -982,7 +1003,7 @@
           <h3>CA par mois — Objectif vs Réalisé</h3>
           <div class="journal-chart-legend">
             <span class="legend-item"><span class="legend-swatch swatch-objectif"></span>Objectif</span>
-            <span class="legend-item"><span class="legend-swatch swatch-ok"></span>Atteint</span>
+            <span class="legend-item"><span class="legend-swatch swatch-ok"></span>Atteint / En avance</span>
             <span class="legend-item"><span class="legend-swatch swatch-warn"></span>Bonne voie</span>
             <span class="legend-item"><span class="legend-swatch swatch-danger"></span>En retard</span>
             <span class="legend-item"><span class="legend-line" style="background:var(--blue);"></span>Chiffre moyen réalisé</span>
@@ -1026,7 +1047,7 @@
           <h3>Marge par mois — Objectif vs Réalisé</h3>
           <div class="journal-chart-legend">
             <span class="legend-item"><span class="legend-swatch swatch-objectif"></span>Objectif</span>
-            <span class="legend-item"><span class="legend-swatch swatch-ok"></span>Atteint</span>
+            <span class="legend-item"><span class="legend-swatch swatch-ok"></span>Atteint / En avance</span>
             <span class="legend-item"><span class="legend-swatch swatch-warn"></span>Bonne voie</span>
             <span class="legend-item"><span class="legend-swatch swatch-danger"></span>En retard</span>
             <span class="legend-item"><span class="legend-line" style="background:var(--blue);"></span>Chiffre moyen réalisé</span>
@@ -1622,6 +1643,8 @@ function renderJournalChart(){
   const emptyEl = document.getElementById('journal-chart-empty');
   const avgCaEl = document.getElementById('journal-avg-ca');
   const avgMargeEl = document.getElementById('journal-avg-marge');
+  const avgCaObjectifEl = document.getElementById('journal-avg-ca-objectif');
+  const avgMargeObjectifEl = document.getElementById('journal-avg-marge-objectif');
   if(!svg) return;
 
   const journal = currentJournal();
@@ -1631,6 +1654,8 @@ function renderJournalChart(){
     if(emptyEl) emptyEl.style.display = 'block';
     if(avgCaEl) avgCaEl.textContent = fmtEuro2(0);
     if(avgMargeEl) avgMargeEl.textContent = fmtEuro2(0);
+    if(avgCaObjectifEl) avgCaObjectifEl.textContent = fmtEuro2(0);
+    if(avgMargeObjectifEl) avgMargeObjectifEl.textContent = fmtEuro2(0);
     return;
   }
   if(emptyEl) emptyEl.style.display = 'none';
@@ -1643,12 +1668,21 @@ function renderJournalChart(){
     return { date: r.date, ca, marge: ca * margePct / 100, margePct };
   });
 
-  const avgCa = data.reduce((s, d) => s + d.ca, 0) / data.length;
-  const avgMarge = data.reduce((s, d) => s + d.marge, 0) / data.length;
+  const nbJoursSaisis = data.length;
+  const avgCa = data.reduce((s, d) => s + d.ca, 0) / nbJoursSaisis;
+  const avgMarge = data.reduce((s, d) => s + d.marge, 0) / nbJoursSaisis;
   if(avgCaEl) avgCaEl.textContent = fmtEuro2(avgCa);
   if(avgMargeEl) avgMargeEl.textContent = fmtEuro2(avgMarge);
 
-  const maxVal = Math.max(...data.map(d => Math.max(d.ca, d.marge)), 1);
+  // Objectifs du mois ramenés à une moyenne journalière (objectif / nombre de jours saisis)
+  const caObjectif = parseFloat(document.getElementById('ca-objectif').value) || 0;
+  const margeObjectif = parseFloat(document.getElementById('marge-objectif').value) || 0;
+  const avgCaObjectif = nbJoursSaisis > 0 ? caObjectif / nbJoursSaisis : 0;
+  const avgMargeObjectif = nbJoursSaisis > 0 ? margeObjectif / nbJoursSaisis : 0;
+  if(avgCaObjectifEl) avgCaObjectifEl.textContent = fmtEuro2(avgCaObjectif);
+  if(avgMargeObjectifEl) avgMargeObjectifEl.textContent = fmtEuro2(avgMargeObjectif);
+
+  const maxVal = Math.max(...data.map(d => Math.max(d.ca, d.marge)), avgCaObjectif, avgMargeObjectif, 1);
   const maxPctRaw = Math.max(...data.map(d => d.margePct), 10);
   const maxPct = Math.ceil((maxPctRaw * 1.1) / 10) * 10;
 
@@ -1702,6 +1736,16 @@ function renderJournalChart(){
     points.forEach(p => {
       svgParts += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#5FA37E"><title>${fmtDateShort(p.d.date)} — Taux de marge : ${fmtPct2(p.d.margePct)}</title></circle>`;
     });
+  }
+
+  // Lignes de référence : moyenne journalière des objectifs CA et Marge
+  if(avgCaObjectif > 0){
+    const yObjCa = paddingTop + innerH - (avgCaObjectif / maxVal) * innerH;
+    svgParts += `<line x1="${paddingLeft}" y1="${yObjCa.toFixed(1)}" x2="${width - paddingRight}" y2="${yObjCa.toFixed(1)}" stroke="#4E8FD6" stroke-width="2" stroke-dasharray="5 3"><title>Objectif CA moyen/jour : ${fmtEuro2(avgCaObjectif)}</title></line>`;
+  }
+  if(avgMargeObjectif > 0){
+    const yObjMarge = paddingTop + innerH - (avgMargeObjectif / maxVal) * innerH;
+    svgParts += `<line x1="${paddingLeft}" y1="${yObjMarge.toFixed(1)}" x2="${width - paddingRight}" y2="${yObjMarge.toFixed(1)}" stroke="#D1A23E" stroke-width="2" stroke-dasharray="5 3"><title>Objectif Marge moyen/jour : ${fmtEuro2(avgMargeObjectif)}</title></line>`;
   }
 
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
@@ -1784,6 +1828,11 @@ function renderAnnee(){
   let caObjTotal = 0, caActTotal = 0, margeObjTotal = 0, margeActEurosTotal = 0;
   const detailLines = [];
 
+  // Moyenne pondérée de l'avancement (à la date du jour) des mois sélectionnés,
+  // pondérée par le poids de chaque mois dans l'objectif total (CA et Marge séparément).
+  let caRatioWeighted = 0, caWeightTotal = 0;
+  let margeRatioWeighted = 0, margeWeightTotal = 0;
+
   selectedMonths.forEach((checked, i) => {
     if(!checked) return;
     const d = monthsData[i];
@@ -1793,15 +1842,26 @@ function renderAnnee(){
     margeObjTotal += d.margeObjectif;
     margeActEurosTotal += margeEuros;
     detailLines.push(MOIS_COURT[i]);
+
+    const ratio = monthProgressRatio(i);
+    const effectiveRatio = ratio === null ? 0 : ratio;
+    caRatioWeighted += d.caObjectif * effectiveRatio;
+    caWeightTotal += d.caObjectif;
+    margeRatioWeighted += d.margeObjectif * effectiveRatio;
+    margeWeightTotal += d.margeObjectif;
   });
+
+  const caRatioAgg = caWeightTotal > 0 ? caRatioWeighted / caWeightTotal : null;
+  const margeRatioAgg = margeWeightTotal > 0 ? margeRatioWeighted / margeWeightTotal : null;
 
   const caPct = caObjTotal > 0 ? (caActTotal/caObjTotal)*100 : 0;
   const margePct = margeObjTotal > 0 ? (margeActEurosTotal/margeObjTotal)*100 : 0;
 
-  setBar('an-ca', caPct);
-  setBar('an-marge', margePct);
+  const caStatus = statusForRatio(caPct, caRatioAgg);
+  const margeStatus = statusForRatio(margePct, margeRatioAgg);
 
-  const caStatus = statusFor(caPct);
+  setBar('an-ca', caPct, caStatus);
+  setBar('an-marge', margePct, margeStatus);
   document.getElementById('an-ca-pct').textContent = fmtPct(caPct);
   document.getElementById('an-ca-pct').className = 'pct ' + caStatus.cls;
   document.getElementById('an-ca-status').textContent = caStatus.label;
@@ -1818,7 +1878,6 @@ function renderAnnee(){
     caManquantEl.style.color = 'var(--ok)';
   }
 
-  const margeStatus = statusFor(margePct);
   document.getElementById('an-marge-pct').textContent = fmtPct(margePct);
   document.getElementById('an-marge-pct').className = 'pct ' + margeStatus.cls;
   document.getElementById('an-marge-status').textContent = margeStatus.label;
@@ -1877,7 +1936,8 @@ function renderMonthlyBarChart(svgId, emptyId, data, secondary){
   const statusColor = {
     'status-ok': '#5FA37E',
     'status-warn': '#D1A23E',
-    'status-danger': '#C1543A'
+    'status-danger': '#C1543A',
+    'status-neutral': '#93908A'
   };
   const secondaryColor = '#4E8FD6';
 
@@ -1917,10 +1977,11 @@ function renderMonthlyBarChart(svgId, emptyId, data, secondary){
     const yObj = paddingTop + innerH - objH;
     const yAct = paddingTop + innerH - actH;
 
-    const color = statusColor[statusFor(d.pct).cls] || statusColor['status-danger'];
+    const monthStatus = typeof d.monthIndex === 'number' ? statusForDate(d.pct, d.monthIndex) : statusFor(d.pct);
+    const color = statusColor[monthStatus.cls] || statusColor['status-danger'];
 
     svgParts += `<rect x="${xObj.toFixed(1)}" y="${yObj.toFixed(1)}" width="${barW}" height="${objH.toFixed(1)}" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>${d.month} — Objectif : ${fmtEuro(d.objectif)}</title></rect>`;
-    svgParts += `<rect x="${xAct.toFixed(1)}" y="${yAct.toFixed(1)}" width="${barW}" height="${actH.toFixed(1)}" fill="${color}" rx="1.5"><title>${d.month} — Réalisé : ${fmtEuro(d.actuel)} (${fmtPct(d.pct)})</title></rect>`;
+    svgParts += `<rect x="${xAct.toFixed(1)}" y="${yAct.toFixed(1)}" width="${barW}" height="${actH.toFixed(1)}" fill="${color}" rx="1.5"><title>${d.month} — Réalisé : ${fmtEuro(d.actuel)} (${fmtPct(d.pct)}) — ${monthStatus.label}</title></rect>`;
     svgParts += `<text x="${centerX.toFixed(1)}" y="${(paddingTop + innerH + 16).toFixed(1)}" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">${d.month}</text>`;
 
     if(hasSecondary){
@@ -1969,7 +2030,7 @@ function renderAnneeChart(){
     const objectif = d.caObjectif || 0;
     const actuel = d.caActuel || 0;
     const pct = objectif > 0 ? (actuel / objectif) * 100 : (actuel > 0 ? 100 : 0);
-    return { month: MOIS_COURT[i], objectif, actuel, pct };
+    return { month: MOIS_COURT[i], objectif, actuel, pct, monthIndex: i };
   });
   // CA moyen / jour saisi, calculé pour chaque mois individuellement à partir de
   // son propre journal (jamais une moyenne annuelle globale).
@@ -1987,7 +2048,7 @@ function renderAnneeMargeChart(){
     const objectif = d.margeObjectif || 0;
     const actuel = (d.margeActuelle / 100) * (d.caActuel || 0);
     const pct = objectif > 0 ? (actuel / objectif) * 100 : (actuel > 0 ? 100 : 0);
-    return { month: MOIS_COURT[i], objectif, actuel, pct };
+    return { month: MOIS_COURT[i], objectif, actuel, pct, monthIndex: i };
   });
   // Marge moyenne / jour saisi, calculée pour chaque mois individuellement à partir de
   // son propre journal (jamais une moyenne annuelle globale).
@@ -2014,12 +2075,54 @@ function statusFor(percent){
   return {label:'En retard', cls:'status-danger', color:'var(--danger)'};
 }
 
-function setBar(prefix, percent){
+/* ---------- Statuts corrélés à la date du jour ---------- */
+
+// Nombre de jours dans un mois donné (mois 0-indexé, comme Date.getMonth()).
+function joursDansMois(year, monthIndex){
+  return new Date(year, monthIndex + 1, 0).getDate();
+}
+
+// Part du mois déjà écoulée à la date du jour (0 à 1 inclus) :
+// - 1 si le mois est entièrement passé
+// - null si le mois n'a pas encore commencé
+// - jour_du_mois / nb_jours_du_mois si le mois est en cours
+function monthProgressRatio(monthIndex, year){
+  year = year || YEAR;
+  const totalDays = joursDansMois(year, monthIndex);
+  const nowYear = now.getFullYear();
+  const nowMonth = now.getMonth();
+  if(year < nowYear || (year === nowYear && monthIndex < nowMonth)) return 1;
+  if(year > nowYear || (year === nowYear && monthIndex > nowMonth)) return null;
+  return Math.min(now.getDate() / totalDays, 1);
+}
+
+// Statut basé sur un pourcentage (réalisé / objectif total du mois) ramené à
+// l'avancement réel du mois (ratio), pour éviter de signaler "En retard" en
+// tout début de mois alors que peu de jours se sont écoulés.
+// - "Objectif atteint" n'apparaît que si l'objectif mensuel COMPLET est déjà réalisé (percentFull >= 100).
+// - "En avance" signale un rythme supérieur à l'objectif proratisé à date, mais l'objectif
+//   mensuel complet n'est pas encore atteint.
+function statusForRatio(percentFull, ratio){
+  if(percentFull >= 100) return {label:'Objectif atteint', cls:'status-ok', color:'var(--ok)'};
+  if(ratio === null || ratio <= 0){
+    return {label:'À venir', cls:'status-neutral', color:'var(--text-muted)'};
+  }
+  const percentADate = percentFull / ratio;
+  if(percentADate >= 100) return {label:'En avance', cls:'status-ok', color:'var(--ok)'};
+  if(percentADate >= 70)  return {label:'Sur la bonne voie', cls:'status-warn', color:'var(--warn)'};
+  return {label:'En retard', cls:'status-danger', color:'var(--danger)'};
+}
+
+function statusForDate(percentFull, monthIndex, year){
+  return statusForRatio(percentFull, monthProgressRatio(monthIndex, year));
+}
+
+function setBar(prefix, percent, statusOverride){
   const clamped = Math.max(0, Math.min(percent, MAXP));
   const widthPct = (clamped / MAXP) * 100;
   const fill = document.getElementById(prefix+'-fill');
   const marker = document.getElementById(prefix+'-marker');
-  const status = statusFor(percent);
+  const status = statusOverride || statusFor(percent);
   fill.style.width = widthPct + '%';
   fill.style.background = status.color;
   marker.style.left = widthPct + '%';
@@ -2062,17 +2165,18 @@ function update(){
     caManquantEl.style.color = 'var(--ok)';
   }
 
-  setBar('ca', caPct);
-  setBar('marge', margePct);
+  const caStatus = statusForDate(caPct, activeMonth);
+  const margeStatus = statusForDate(margePct, activeMonth);
 
-  const caStatus = statusFor(caPct);
+  setBar('ca', caPct, caStatus);
+  setBar('marge', margePct, margeStatus);
+
   document.getElementById('ca-pct').textContent = fmtPct(caPct);
   document.getElementById('ca-pct').className = 'pct ' + caStatus.cls;
   document.getElementById('ca-status').textContent = caStatus.label;
   document.getElementById('ca-status').className = 'status ' + caStatus.cls;
   document.getElementById('ca-compare').innerHTML = `<b>${fmtEuro(caActuel)}</b> / ${fmtEuro(caObjectif)}`;
 
-  const margeStatus = statusFor(margePct);
   document.getElementById('marge-pct').textContent = fmtPct(margePct);
   document.getElementById('marge-pct').className = 'pct ' + margeStatus.cls;
   document.getElementById('marge-status').textContent = margeStatus.label;
@@ -2094,6 +2198,7 @@ document.getElementById('app-title').addEventListener('keydown', (e) => {
     saveCurrentInputs();
     update();
     renderTabs();
+    if(id === 'ca-objectif' || id === 'marge-objectif') renderJournalChart();
   });
 });
 
