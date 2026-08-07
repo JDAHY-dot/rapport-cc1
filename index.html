@@ -648,6 +648,102 @@
     font-size: 12.5px;
     font-family:'Inter', sans-serif;
   }
+  .journal-row-actions{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap: 6px;
+  }
+  .journal-toggle-btn{
+    background: none;
+    border: 1px solid var(--hairline);
+    color: var(--text-muted);
+    border-radius: 3px;
+    width: 30px; height: 30px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .journal-toggle-btn:hover{ color: var(--brass); border-color: var(--brass-dim); }
+  .journal-toggle-btn svg{ width: 12px; height: 12px; transition: transform 0.2s ease; }
+  .journal-toggle-btn[aria-expanded="true"]{ color: var(--brass); border-color: var(--brass-dim); }
+  .journal-toggle-btn[aria-expanded="true"] svg{ transform: rotate(180deg); }
+  .journal-table tbody tr[data-row-id]{ cursor: pointer; }
+  .journal-detail-row{ cursor: default; }
+  .journal-detail-row td{
+    background: var(--panel-raised);
+    border-bottom: 1px solid var(--hairline);
+    padding: 4px 16px 20px;
+  }
+  .journal-detail-content{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 36px;
+    padding-top: 16px;
+  }
+  @media (max-width: 760px){
+    .journal-detail-content{ grid-template-columns: 1fr; gap: 26px; }
+  }
+  .journal-mini-gauge-label{
+    font-family:'Inter', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .journal-mini-bar-gauge{ margin: 8px 0 4px; }
+  .journal-mini-compare{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+  .journal-mini-compare b{ color: var(--text); font-weight:600; }
+  .journal-mini-delta{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 3px;
+  }
+  .journal-mini-delta.positive{ color: var(--ok); }
+  .journal-mini-delta.negative{ color: var(--danger); }
+  .journal-mini-cumul{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--hairline);
+  }
+  .journal-mini-cumul b{ font-weight:600; }
+  .journal-mini-cumul.positive b{ color: var(--ok); }
+  .journal-mini-cumul.negative b{ color: var(--danger); }
+  .journal-objectif-card{
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--hairline);
+    background: var(--panel);
+  }
+  .journal-objectif-label{
+    font-family:'Inter', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .journal-objectif-text{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .journal-objectif-text.positive{ color: var(--ok); }
+  .journal-objectif-text.negative{ color: var(--danger); }
   .journal-chart-card{
     margin-top: 24px;
     padding-top: 20px;
@@ -769,7 +865,7 @@
     </div>
     <div style="display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap;">
       <div style="text-align:right;">
-        <div class="month" id="month-label">juillet 2026</div>
+        <div class="month" id="month-label">août 2026</div>
         <div class="month" id="save-status" style="text-align: right; color: var(--text-muted);"></div>
       </div>
       <button class="download-btn" id="download-btn" type="button">⬇ Télécharger la sauvegarde</button>
@@ -784,12 +880,12 @@
       <button type="button" id="sync-join-btn">Rejoindre</button>
       <button type="button" id="sync-leave-btn" title="Arrêter la synchronisation">Se déconnecter</button>
     </div>
-    <div class="month" id="sync-status" style="margin-top:6px;">Non synchronisé (cet appareil uniquement)</div>
+    <div class="month" id="sync-status" style="margin-top: 6px; color: var(--text-muted);">Synchronisé · code CC1</div>
   </div>
 </div>
 
 <div class="tabs-bar">
-  <nav class="tabs" id="tabs"><button class="tab-btn tab-year">Année</button><div class="tab-sep"></div><button class="tab-btn has-data"><span class="dot"></span>Jan</button><button class="tab-btn has-data"><span class="dot"></span>Fév</button><button class="tab-btn has-data"><span class="dot"></span>Mar</button><button class="tab-btn has-data"><span class="dot"></span>Avr</button><button class="tab-btn has-data"><span class="dot"></span>Mai</button><button class="tab-btn has-data"><span class="dot"></span>Juin</button><button class="tab-btn active has-data"><span class="dot"></span>Juil</button><button class="tab-btn has-data"><span class="dot"></span>Août</button><button class="tab-btn has-data"><span class="dot"></span>Sep</button><button class="tab-btn has-data"><span class="dot"></span>Oct</button><button class="tab-btn has-data"><span class="dot"></span>Nov</button><button class="tab-btn has-data"><span class="dot"></span>Déc</button></nav>
+  <nav class="tabs" id="tabs"><button class="tab-btn tab-year">Année</button><div class="tab-sep"></div><button class="tab-btn has-data"><span class="dot"></span>Jan</button><button class="tab-btn has-data"><span class="dot"></span>Fév</button><button class="tab-btn has-data"><span class="dot"></span>Mar</button><button class="tab-btn has-data"><span class="dot"></span>Avr</button><button class="tab-btn has-data"><span class="dot"></span>Mai</button><button class="tab-btn has-data"><span class="dot"></span>Juin</button><button class="tab-btn has-data"><span class="dot"></span>Juil</button><button class="tab-btn active has-data"><span class="dot"></span>Août</button><button class="tab-btn has-data"><span class="dot"></span>Sep</button><button class="tab-btn has-data"><span class="dot"></span>Oct</button><button class="tab-btn has-data"><span class="dot"></span>Nov</button><button class="tab-btn has-data"><span class="dot"></span>Déc</button></nav>
 </div>
 
 <div class="app">
@@ -812,7 +908,7 @@
       </div>
       <div class="field computed">
         <label>Taux de marge objectif</label>
-        <div class="computed-value"><span class="num" id="taux-objectif">30.6%</span><span class="desc">de marge sur le CA objectif</span></div>
+        <div class="computed-value"><span class="num" id="taux-objectif">31.3%</span><span class="desc">de marge sur le CA objectif</span></div>
       </div>
       <div class="divider-note">
         Renseignez vos objectifs ici, puis indiquez vos résultats réels dans les deux blocs à droite. Les données sont enregistrées automatiquement.
@@ -825,8 +921,8 @@
           <h2 style="margin:0;">Chiffre d'affaires</h2>
           <div style="text-align:right;">
             <div class="readout">
-              <div class="pct status-ok" id="ca-pct">114.2%</div>
-              <div class="status status-ok" id="ca-status">Objectif atteint</div>
+              <div class="pct status-ok" id="ca-pct">43.9%</div>
+              <div class="status status-ok" id="ca-status">En avance</div>
             </div>
           </div>
         </div>
@@ -836,15 +932,15 @@
             <div class="bar-zone amber"></div>
             <div class="bar-zone green"></div>
             <div class="bar-objective-line"></div>
-            <div class="bar-fill" id="ca-fill" style="width: 91.3714%; background: var(--ok);"></div>
-            <div class="bar-marker" id="ca-marker" style="left: 91.3714%; color: var(--ok);">114.2%</div>
+            <div class="bar-fill" id="ca-fill" style="width: 35.149%; background: var(--ok);"></div>
+            <div class="bar-marker" id="ca-marker" style="left: 35.149%; color: var(--ok);">43.9%</div>
           </div>
           <div class="bar-ticks">
             <span>0</span><span>25</span><span>50</span><span>75</span><span class="mark-100">100</span><span>125</span>
           </div>
         </div>
-        <div class="compare" id="ca-compare"><b>141 626 €</b> / 124 000 €</div>
-        <div class="sub-computed">Montant de CA manquant : <b id="ca-montant-manquant" style="color: var(--ok);">Objectif dépassé de 17 626 €</b></div>
+        <div class="compare" id="ca-compare"><b>42 179 €</b> / 96 000 €</div>
+        <div class="sub-computed">Montant de CA manquant : <b id="ca-montant-manquant" style="color: var(--brass-dim);">53 821 €</b></div>
         <div class="field">
           <label for="ca-actuel">Chiffre d'affaires actuel</label>
           <div class="input-wrap">
@@ -859,8 +955,8 @@
           <h2 style="margin:0;">Marge</h2>
           <div style="text-align:right;">
             <div class="readout">
-              <div class="pct status-ok" id="marge-pct">103.1%</div>
-              <div class="status status-ok" id="marge-status">Objectif atteint</div>
+              <div class="pct status-ok" id="marge-pct">35.4%</div>
+              <div class="status status-ok" id="marge-status">En avance</div>
             </div>
           </div>
         </div>
@@ -870,15 +966,15 @@
             <div class="bar-zone amber"></div>
             <div class="bar-zone green"></div>
             <div class="bar-objective-line"></div>
-            <div class="bar-fill" id="marge-fill" style="width: 82.5007%; background: var(--ok);"></div>
-            <div class="bar-marker" id="marge-marker" style="left: 82.5007%; color: var(--ok);">103.1%</div>
+            <div class="bar-fill" id="marge-fill" style="width: 28.2992%; background: var(--ok);"></div>
+            <div class="bar-marker" id="marge-marker" style="left: 28.2992%; color: var(--ok);">35.4%</div>
           </div>
           <div class="bar-ticks">
             <span>0</span><span>25</span><span>50</span><span>75</span><span class="mark-100">100</span><span>125</span>
           </div>
         </div>
-        <div class="compare" id="marge-compare"><b>39 188 €</b> / 38 000 €</div>
-        <div class="sub-computed">Montant de marge manquant : <b id="marge-montant-manquant" style="color: var(--ok);">Objectif dépassé de 1 188 €</b></div>
+        <div class="compare" id="marge-compare"><b>10 612 €</b> / 30 000 €</div>
+        <div class="sub-computed">Montant de marge manquant : <b id="marge-montant-manquant" style="color: var(--brass-dim);">19 388 €</b></div>
         <div class="field">
           <label for="marge-actuelle">Marge réalisée</label>
           <div class="input-wrap">
@@ -904,26 +1000,26 @@
             <div class="chart-stat">
               <span class="legend-swatch swatch-ca"></span>
               <span class="chart-stat-label">CA moyen / jour saisi</span>
-              <span class="chart-stat-value" id="journal-avg-ca">6 028,22 €</span>
+              <span class="chart-stat-value" id="journal-avg-ca">2 008,52 €</span>
             </div>
             <div class="chart-stat">
               <span class="legend-swatch swatch-marge"></span>
               <span class="chart-stat-label">Marge moyenne / jour saisi</span>
-              <span class="chart-stat-value" id="journal-avg-marge">1 664,78 €</span>
+              <span class="chart-stat-value" id="journal-avg-marge">505,37 €</span>
             </div>
             <div class="chart-stat">
               <span class="legend-swatch swatch-ca"></span>
               <span class="chart-stat-label">Objectif CA moyen / jour saisi</span>
-              <span class="chart-stat-value" id="journal-avg-ca-objectif">0,00 €</span>
+              <span class="chart-stat-value" id="journal-avg-ca-objectif">4 571,43 €</span>
             </div>
             <div class="chart-stat">
               <span class="legend-swatch swatch-marge"></span>
               <span class="chart-stat-label">Objectif Marge moyen / jour saisi</span>
-              <span class="chart-stat-value" id="journal-avg-marge-objectif">0,00 €</span>
+              <span class="chart-stat-value" id="journal-avg-marge-objectif">1 428,57 €</span>
             </div>
           </div>
           <div class="journal-chart-scroll">
-            <svg id="journal-chart" class="journal-chart-svg" width="1160" height="270" viewBox="0 0 1160 270"><line x1="56" y1="236.0" x2="1114" y2="236.0" stroke="#35373B" stroke-width="1"></line><text x="48" y="240.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">0 €</text><text x="1122" y="240.0" text-anchor="start" font-size="10" fill="#5FA37E" font-family="'JetBrains Mono', monospace">0,00%</text><line x1="56" y1="181.0" x2="1114" y2="181.0" stroke="#35373B" stroke-width="1"></line><text x="48" y="185.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">3,4k€</text><text x="1122" y="185.0" text-anchor="start" font-size="10" fill="#5FA37E" font-family="'JetBrains Mono', monospace">15,00%</text><line x1="56" y1="126.0" x2="1114" y2="126.0" stroke="#35373B" stroke-width="1"></line><text x="48" y="130.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">6,7k€</text><text x="1122" y="130.0" text-anchor="start" font-size="10" fill="#5FA37E" font-family="'JetBrains Mono', monospace">30,00%</text><line x1="56" y1="71.0" x2="1114" y2="71.0" stroke="#35373B" stroke-width="1"></line><text x="48" y="75.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">10,1k€</text><text x="1122" y="75.0" text-anchor="start" font-size="10" fill="#5FA37E" font-family="'JetBrains Mono', monospace">45,00%</text><line x1="56" y1="16.0" x2="1114" y2="16.0" stroke="#35373B" stroke-width="1"></line><text x="48" y="20.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">13,4k€</text><text x="1122" y="20.0" text-anchor="start" font-size="10" fill="#5FA37E" font-family="'JetBrains Mono', monospace">60,00%</text><rect x="63.0" y="140.2" width="14" height="95.8" fill="#4E8FD6" rx="1.5"><title>01/07 — CA : 5 838,98 €</title></rect><rect x="81.0" y="210.4" width="14" height="25.6" fill="#D1A23E" rx="1.5"><title>01/07 — Marge : 1 559,01 €</title></rect><text x="79.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">01/07</text><rect x="109.0" y="127.1" width="14" height="108.9" fill="#4E8FD6" rx="1.5"><title>02/07 — CA : 6 637,86 €</title></rect><rect x="127.0" y="186.5" width="14" height="49.5" fill="#D1A23E" rx="1.5"><title>02/07 — Marge : 3 020,23 €</title></rect><text x="125.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">02/07</text><rect x="155.0" y="162.4" width="14" height="73.6" fill="#4E8FD6" rx="1.5"><title>03/07 — CA : 4 489,80 €</title></rect><rect x="173.0" y="229.7" width="14" height="6.3" fill="#D1A23E" rx="1.5"><title>03/07 — Marge : 386,12 €</title></rect><text x="171.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">03/07</text><rect x="201.0" y="131.9" width="14" height="104.1" fill="#4E8FD6" rx="1.5"><title>06/07 — CA : 6 346,03 €</title></rect><rect x="219.0" y="205.0" width="14" height="31.0" fill="#D1A23E" rx="1.5"><title>06/07 — Marge : 1 891,12 €</title></rect><text x="217.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">06/07</text><rect x="247.0" y="182.0" width="14" height="54.0" fill="#4E8FD6" rx="1.5"><title>07/07 — CA : 3 293,49 €</title></rect><rect x="265.0" y="218.0" width="14" height="18.0" fill="#D1A23E" rx="1.5"><title>07/07 — Marge : 1 096,73 €</title></rect><text x="263.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">07/07</text><rect x="293.0" y="28.4" width="14" height="207.6" fill="#4E8FD6" rx="1.5"><title>08/07 — CA : 12 656,10 €</title></rect><rect x="311.0" y="213.2" width="14" height="22.8" fill="#D1A23E" rx="1.5"><title>08/07 — Marge : 1 392,17 €</title></rect><text x="309.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">08/07</text><rect x="339.0" y="155.8" width="14" height="80.2" fill="#4E8FD6" rx="1.5"><title>09/07 — CA : 4 889,69 €</title></rect><rect x="357.0" y="212.7" width="14" height="23.3" fill="#D1A23E" rx="1.5"><title>09/07 — Marge : 1 422,90 €</title></rect><text x="355.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">09/07</text><rect x="385.0" y="25.7" width="14" height="210.3" fill="#4E8FD6" rx="1.5"><title>10/07 — CA : 12 820,21 €</title></rect><rect x="403.0" y="196.9" width="14" height="39.1" fill="#D1A23E" rx="1.5"><title>10/07 — Marge : 2 384,56 €</title></rect><text x="401.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">10/07</text><rect x="431.0" y="16.0" width="14" height="220.0" fill="#4E8FD6" rx="1.5"><title>13/07 — CA : 13 413,56 €</title></rect><rect x="449.0" y="185.0" width="14" height="51.0" fill="#D1A23E" rx="1.5"><title>13/07 — Marge : 3 111,95 €</title></rect><text x="447.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">13/07</text><rect x="477.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>14/07 — CA : 0,00 €</title></rect><rect x="495.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>14/07 — Marge : 0,00 €</title></rect><text x="493.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">14/07</text><rect x="523.0" y="109.7" width="14" height="126.3" fill="#4E8FD6" rx="1.5"><title>15/07 — CA : 7 701,70 €</title></rect><rect x="541.0" y="199.9" width="14" height="36.1" fill="#D1A23E" rx="1.5"><title>15/07 — Marge : 2 202,69 €</title></rect><text x="539.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">15/07</text><rect x="569.0" y="92.3" width="14" height="143.7" fill="#4E8FD6" rx="1.5"><title>16/07 — CA : 8 759,95 €</title></rect><rect x="587.0" y="194.0" width="14" height="42.0" fill="#D1A23E" rx="1.5"><title>16/07 — Marge : 2 557,91 €</title></rect><text x="585.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">16/07</text><rect x="615.0" y="221.4" width="14" height="14.6" fill="#4E8FD6" rx="1.5"><title>17/07 — CA : 888,51 €</title></rect><rect x="633.0" y="228.3" width="14" height="7.7" fill="#D1A23E" rx="1.5"><title>17/07 — Marge : 471,80 €</title></rect><text x="631.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">17/07</text><rect x="661.0" y="184.0" width="14" height="52.0" fill="#4E8FD6" rx="1.5"><title>20/07 — CA : 3 170,15 €</title></rect><rect x="679.0" y="222.2" width="14" height="13.8" fill="#D1A23E" rx="1.5"><title>20/07 — Marge : 840,09 €</title></rect><text x="677.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">20/07</text><rect x="707.0" y="177.3" width="14" height="58.7" fill="#4E8FD6" rx="1.5"><title>21/07 — CA : 3 580,70 €</title></rect><rect x="725.0" y="218.4" width="14" height="17.6" fill="#D1A23E" rx="1.5"><title>21/07 — Marge : 1 070,63 €</title></rect><text x="723.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">21/07</text><rect x="753.0" y="100.1" width="14" height="135.9" fill="#4E8FD6" rx="1.5"><title>22/07 — CA : 8 286,17 €</title></rect><rect x="771.0" y="212.6" width="14" height="23.4" fill="#D1A23E" rx="1.5"><title>22/07 — Marge : 1 425,22 €</title></rect><text x="769.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">22/07</text><rect x="799.0" y="170.6" width="14" height="65.4" fill="#4E8FD6" rx="1.5"><title>23/07 — CA : 3 985,64 €</title></rect><rect x="817.0" y="205.7" width="14" height="30.3" fill="#D1A23E" rx="1.5"><title>23/07 — Marge : 1 849,34 €</title></rect><text x="815.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">23/07</text><rect x="845.0" y="112.6" width="14" height="123.4" fill="#4E8FD6" rx="1.5"><title>24/07 — CA : 7 526,40 €</title></rect><rect x="863.0" y="186.1" width="14" height="49.9" fill="#D1A23E" rx="1.5"><title>24/07 — Marge : 3 040,67 €</title></rect><text x="861.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">24/07</text><rect x="891.0" y="132.5" width="14" height="103.5" fill="#4E8FD6" rx="1.5"><title>27/07 — CA : 6 310,89 €</title></rect><rect x="909.0" y="193.1" width="14" height="42.9" fill="#D1A23E" rx="1.5"><title>27/07 — Marge : 2 612,71 €</title></rect><text x="907.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">27/07</text><rect x="937.0" y="105.8" width="14" height="130.2" fill="#4E8FD6" rx="1.5"><title>28/07 — CA : 7 939,02 €</title></rect><rect x="955.0" y="192.5" width="14" height="43.5" fill="#D1A23E" rx="1.5"><title>28/07 — Marge : 2 651,63 €</title></rect><text x="953.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">28/07</text><rect x="983.0" y="158.8" width="14" height="77.2" fill="#4E8FD6" rx="1.5"><title>29/07 — CA : 4 708,03 €</title></rect><rect x="1001.0" y="219.8" width="14" height="16.2" fill="#D1A23E" rx="1.5"><title>29/07 — Marge : 988,69 €</title></rect><text x="999.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">29/07</text><rect x="1029.0" y="147.3" width="14" height="88.7" fill="#4E8FD6" rx="1.5"><title>30/07 — CA : 5 406,19 €</title></rect><rect x="1047.0" y="198.0" width="14" height="38.0" fill="#D1A23E" rx="1.5"><title>30/07 — Marge : 2 313,85 €</title></rect><text x="1045.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">30/07</text><rect x="1075.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>31/07 — CA : 0,00 €</title></rect><rect x="1093.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>31/07 — Marge : 0,00 €</title></rect><text x="1091.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">31/07</text><path d="M 79.0 138.1 L 125.0 69.2 L 171.0 204.5 L 217.0 126.7 L 263.0 113.9 L 309.0 195.7 L 355.0 129.3 L 401.0 167.8 L 447.0 150.9 L 493.0 236.0 L 539.0 131.1 L 585.0 128.9 L 631.0 41.3 L 677.0 138.8 L 723.0 126.4 L 769.0 172.9 L 815.0 65.9 L 861.0 87.9 L 907.0 84.2 L 953.0 113.5 L 999.0 159.0 L 1045.0 79.1 L 1091.0 236.0" fill="none" stroke="#5FA37E" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="79.0" cy="138.1" r="3" fill="#5FA37E"><title>01/07 — Taux de marge : 26,70%</title></circle><circle cx="125.0" cy="69.2" r="3" fill="#5FA37E"><title>02/07 — Taux de marge : 45,50%</title></circle><circle cx="171.0" cy="204.5" r="3" fill="#5FA37E"><title>03/07 — Taux de marge : 8,60%</title></circle><circle cx="217.0" cy="126.7" r="3" fill="#5FA37E"><title>06/07 — Taux de marge : 29,80%</title></circle><circle cx="263.0" cy="113.9" r="3" fill="#5FA37E"><title>07/07 — Taux de marge : 33,30%</title></circle><circle cx="309.0" cy="195.7" r="3" fill="#5FA37E"><title>08/07 — Taux de marge : 11,00%</title></circle><circle cx="355.0" cy="129.3" r="3" fill="#5FA37E"><title>09/07 — Taux de marge : 29,10%</title></circle><circle cx="401.0" cy="167.8" r="3" fill="#5FA37E"><title>10/07 — Taux de marge : 18,60%</title></circle><circle cx="447.0" cy="150.9" r="3" fill="#5FA37E"><title>13/07 — Taux de marge : 23,20%</title></circle><circle cx="493.0" cy="236.0" r="3" fill="#5FA37E"><title>14/07 — Taux de marge : 0,00%</title></circle><circle cx="539.0" cy="131.1" r="3" fill="#5FA37E"><title>15/07 — Taux de marge : 28,60%</title></circle><circle cx="585.0" cy="128.9" r="3" fill="#5FA37E"><title>16/07 — Taux de marge : 29,20%</title></circle><circle cx="631.0" cy="41.3" r="3" fill="#5FA37E"><title>17/07 — Taux de marge : 53,10%</title></circle><circle cx="677.0" cy="138.8" r="3" fill="#5FA37E"><title>20/07 — Taux de marge : 26,50%</title></circle><circle cx="723.0" cy="126.4" r="3" fill="#5FA37E"><title>21/07 — Taux de marge : 29,90%</title></circle><circle cx="769.0" cy="172.9" r="3" fill="#5FA37E"><title>22/07 — Taux de marge : 17,20%</title></circle><circle cx="815.0" cy="65.9" r="3" fill="#5FA37E"><title>23/07 — Taux de marge : 46,40%</title></circle><circle cx="861.0" cy="87.9" r="3" fill="#5FA37E"><title>24/07 — Taux de marge : 40,40%</title></circle><circle cx="907.0" cy="84.2" r="3" fill="#5FA37E"><title>27/07 — Taux de marge : 41,40%</title></circle><circle cx="953.0" cy="113.5" r="3" fill="#5FA37E"><title>28/07 — Taux de marge : 33,40%</title></circle><circle cx="999.0" cy="159.0" r="3" fill="#5FA37E"><title>29/07 — Taux de marge : 21,00%</title></circle><circle cx="1045.0" cy="79.1" r="3" fill="#5FA37E"><title>30/07 — Taux de marge : 42,80%</title></circle><circle cx="1091.0" cy="236.0" r="3" fill="#5FA37E"><title>31/07 — Taux de marge : 0,00%</title></circle></svg>
+            <svg id="journal-chart" class="journal-chart-svg" width="1068" height="270" viewBox="0 0 1068 270"><line x1="56" y1="236.0" x2="1022" y2="236.0" stroke="#35373B" stroke-width="1"></line><text x="48" y="240.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">0 €</text><text x="1030" y="240.0" text-anchor="start" font-size="10" fill="#5FA37E" font-family="'JetBrains Mono', monospace">0,00%</text><line x1="56" y1="181.0" x2="1022" y2="181.0" stroke="#35373B" stroke-width="1"></line><text x="48" y="185.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">6,9k€</text><text x="1030" y="185.0" text-anchor="start" font-size="10" fill="#5FA37E" font-family="'JetBrains Mono', monospace">12,50%</text><line x1="56" y1="126.0" x2="1022" y2="126.0" stroke="#35373B" stroke-width="1"></line><text x="48" y="130.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">13,8k€</text><text x="1030" y="130.0" text-anchor="start" font-size="10" fill="#5FA37E" font-family="'JetBrains Mono', monospace">25,00%</text><line x1="56" y1="71.0" x2="1022" y2="71.0" stroke="#35373B" stroke-width="1"></line><text x="48" y="75.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">20,7k€</text><text x="1030" y="75.0" text-anchor="start" font-size="10" fill="#5FA37E" font-family="'JetBrains Mono', monospace">37,50%</text><line x1="56" y1="16.0" x2="1022" y2="16.0" stroke="#35373B" stroke-width="1"></line><text x="48" y="20.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">27,6k€</text><text x="1030" y="20.0" text-anchor="start" font-size="10" fill="#5FA37E" font-family="'JetBrains Mono', monospace">50,00%</text><rect x="63.0" y="204.8" width="14" height="31.2" fill="#4E8FD6" rx="1.5"><title>03/08 — CA : 3 914,95 €</title></rect><rect x="81.0" y="223.9" width="14" height="12.1" fill="#D1A23E" rx="1.5"><title>03/08 — Marge : 1 519,00 €</title></rect><text x="79.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">03/08</text><rect x="109.0" y="16.0" width="14" height="220.0" fill="#4E8FD6" rx="1.5"><title>04/08 — CA : 27 592,44 €</title></rect><rect x="127.0" y="191.1" width="14" height="44.9" fill="#D1A23E" rx="1.5"><title>04/08 — Marge : 5 628,86 €</title></rect><text x="125.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">04/08</text><rect x="155.0" y="177.9" width="14" height="58.1" fill="#4E8FD6" rx="1.5"><title>05/08 — CA : 7 288,09 €</title></rect><rect x="173.0" y="218.6" width="14" height="17.4" fill="#D1A23E" rx="1.5"><title>05/08 — Marge : 2 179,14 €</title></rect><text x="171.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">05/08</text><rect x="201.0" y="209.0" width="14" height="27.0" fill="#4E8FD6" rx="1.5"><title>06/08 — CA : 3 383,38 €</title></rect><rect x="219.0" y="225.7" width="14" height="10.3" fill="#D1A23E" rx="1.5"><title>06/08 — Marge : 1 285,68 €</title></rect><text x="217.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">06/08</text><rect x="247.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>07/08 — CA : 0,00 €</title></rect><rect x="265.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>07/08 — Marge : 0,00 €</title></rect><text x="263.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">07/08</text><rect x="293.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>10/08 — CA : 0,00 €</title></rect><rect x="311.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>10/08 — Marge : 0,00 €</title></rect><text x="309.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">10/08</text><rect x="339.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>11/08 — CA : 0,00 €</title></rect><rect x="357.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>11/08 — Marge : 0,00 €</title></rect><text x="355.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">11/08</text><rect x="385.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>12/08 — CA : 0,00 €</title></rect><rect x="403.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>12/08 — Marge : 0,00 €</title></rect><text x="401.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">12/08</text><rect x="431.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>13/08 — CA : 0,00 €</title></rect><rect x="449.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>13/08 — Marge : 0,00 €</title></rect><text x="447.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">13/08</text><rect x="477.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>14/08 — CA : 0,00 €</title></rect><rect x="495.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>14/08 — Marge : 0,00 €</title></rect><text x="493.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">14/08</text><rect x="523.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>17/08 — CA : 0,00 €</title></rect><rect x="541.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>17/08 — Marge : 0,00 €</title></rect><text x="539.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">17/08</text><rect x="569.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>18/08 — CA : 0,00 €</title></rect><rect x="587.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>18/08 — Marge : 0,00 €</title></rect><text x="585.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">18/08</text><rect x="615.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>19/08 — CA : 0,00 €</title></rect><rect x="633.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>19/08 — Marge : 0,00 €</title></rect><text x="631.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">19/08</text><rect x="661.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>20/08 — CA : 0,00 €</title></rect><rect x="679.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>20/08 — Marge : 0,00 €</title></rect><text x="677.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">20/08</text><rect x="707.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>21/08 — CA : 0,00 €</title></rect><rect x="725.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>21/08 — Marge : 0,00 €</title></rect><text x="723.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">21/08</text><rect x="753.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>24/08 — CA : 0,00 €</title></rect><rect x="771.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>24/08 — Marge : 0,00 €</title></rect><text x="769.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">24/08</text><rect x="799.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>25/08 — CA : 0,00 €</title></rect><rect x="817.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>25/08 — Marge : 0,00 €</title></rect><text x="815.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">25/08</text><rect x="845.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>26/08 — CA : 0,00 €</title></rect><rect x="863.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>26/08 — Marge : 0,00 €</title></rect><text x="861.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">26/08</text><rect x="891.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>27/08 — CA : 0,00 €</title></rect><rect x="909.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>27/08 — Marge : 0,00 €</title></rect><text x="907.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">27/08</text><rect x="937.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>28/08 — CA : 0,00 €</title></rect><rect x="955.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>28/08 — Marge : 0,00 €</title></rect><text x="953.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">28/08</text><rect x="983.0" y="236.0" width="14" height="0.0" fill="#4E8FD6" rx="1.5"><title>31/08 — CA : 0,00 €</title></rect><rect x="1001.0" y="236.0" width="14" height="0.0" fill="#D1A23E" rx="1.5"><title>31/08 — Marge : 0,00 €</title></rect><text x="999.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">31/08</text><path d="M 79.0 65.3 L 125.0 146.2 L 171.0 104.4 L 217.0 68.8 L 263.0 236.0 L 309.0 236.0 L 355.0 236.0 L 401.0 236.0 L 447.0 236.0 L 493.0 236.0 L 539.0 236.0 L 585.0 236.0 L 631.0 236.0 L 677.0 236.0 L 723.0 236.0 L 769.0 236.0 L 815.0 236.0 L 861.0 236.0 L 907.0 236.0 L 953.0 236.0 L 999.0 236.0" fill="none" stroke="#5FA37E" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="79.0" cy="65.3" r="4" fill="#5FA37E"><title>03/08 — Taux de marge : 38,80%</title></circle><circle cx="125.0" cy="146.2" r="4" fill="#5FA37E"><title>04/08 — Taux de marge : 20,40%</title></circle><circle cx="171.0" cy="104.4" r="4" fill="#5FA37E"><title>05/08 — Taux de marge : 29,90%</title></circle><circle cx="217.0" cy="68.8" r="4" fill="#5FA37E"><title>06/08 — Taux de marge : 38,00%</title></circle><circle cx="263.0" cy="236.0" r="4" fill="#5FA37E"><title>07/08 — Taux de marge : 0,00%</title></circle><circle cx="309.0" cy="236.0" r="4" fill="#5FA37E"><title>10/08 — Taux de marge : 0,00%</title></circle><circle cx="355.0" cy="236.0" r="4" fill="#5FA37E"><title>11/08 — Taux de marge : 0,00%</title></circle><circle cx="401.0" cy="236.0" r="4" fill="#5FA37E"><title>12/08 — Taux de marge : 0,00%</title></circle><circle cx="447.0" cy="236.0" r="4" fill="#5FA37E"><title>13/08 — Taux de marge : 0,00%</title></circle><circle cx="493.0" cy="236.0" r="4" fill="#5FA37E"><title>14/08 — Taux de marge : 0,00%</title></circle><circle cx="539.0" cy="236.0" r="4" fill="#5FA37E"><title>17/08 — Taux de marge : 0,00%</title></circle><circle cx="585.0" cy="236.0" r="4" fill="#5FA37E"><title>18/08 — Taux de marge : 0,00%</title></circle><circle cx="631.0" cy="236.0" r="4" fill="#5FA37E"><title>19/08 — Taux de marge : 0,00%</title></circle><circle cx="677.0" cy="236.0" r="4" fill="#5FA37E"><title>20/08 — Taux de marge : 0,00%</title></circle><circle cx="723.0" cy="236.0" r="4" fill="#5FA37E"><title>21/08 — Taux de marge : 0,00%</title></circle><circle cx="769.0" cy="236.0" r="4" fill="#5FA37E"><title>24/08 — Taux de marge : 0,00%</title></circle><circle cx="815.0" cy="236.0" r="4" fill="#5FA37E"><title>25/08 — Taux de marge : 0,00%</title></circle><circle cx="861.0" cy="236.0" r="4" fill="#5FA37E"><title>26/08 — Taux de marge : 0,00%</title></circle><circle cx="907.0" cy="236.0" r="4" fill="#5FA37E"><title>27/08 — Taux de marge : 0,00%</title></circle><circle cx="953.0" cy="236.0" r="4" fill="#5FA37E"><title>28/08 — Taux de marge : 0,00%</title></circle><circle cx="999.0" cy="236.0" r="4" fill="#5FA37E"><title>31/08 — Taux de marge : 0,00%</title></circle><line x1="56" y1="199.6" x2="1022" y2="199.6" stroke="#4E8FD6" stroke-width="2" stroke-dasharray="5 3"><title>Objectif CA moyen/jour : 4 571,43 €</title></line><line x1="56" y1="224.6" x2="1022" y2="224.6" stroke="#D1A23E" stroke-width="2" stroke-dasharray="5 3"><title>Objectif Marge moyen/jour : 1 428,57 €</title></line></svg>
           </div>
           <div class="journal-chart-empty" id="journal-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
         </div>
@@ -936,6 +1032,7 @@
           <table class="journal-table">
             <thead>
               <tr>
+                <th></th>
                 <th>Date</th>
                 <th>CA du jour</th>
                 <th>Marge (% du CA)</th>
@@ -943,20 +1040,20 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody id="journal-body"><tr data-row-id="rmsbgo40h6fbzst"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">901,93 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms71ihs40qf5q3"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">2 313,85 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms71hsimxerjc3"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">988,69 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5x234c403swe"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">2 651,63 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5x22t6hiqju5"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">2 612,71 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5x1hqzub4m8l"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">3 040,67 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wzt3q4pbxq1"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">1 849,34 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wzszhod1a1w"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">1 425,22 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wzsutrwfma9"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">1 070,63 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wzby93wc5qb"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">840,09 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wyxmq62kbpa"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">471,80 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wyg0gcpo7yd"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">2 557,91 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wy12v70m2us"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">2 202,69 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms8uh5730jv9kl"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wwhi5tbfimd"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">3 111,95 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wv9bowe61iu"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">2 384,56 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wur03g424ke"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">1 422,90 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wtzot101ns7"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">1 392,17 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wszk6863jdb"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">1 096,73 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5wsz9iokzf3p"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">1 891,12 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5v3g9iypvxhs"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">386,12 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5v2tt3llpbq4"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">3 020,23 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rms5v2gqhcm3flu"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">1 559,01 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr></tbody>
+            <tbody id="journal-body"><tr data-row-id="rmsihi4gl3ona7m"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsihij8bqotud6"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfma9rlrbc8g2"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfma9wjvy5t41"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfmaaczpohi5l"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfmaajgeujfyy"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfm8zltljk4qi"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfm9e8lifxflp"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfm9dsbc5glmb"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfm9f6y3sdzec"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfm8ql5s95lf2"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfm8zcv4losnx"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfm8z8pigo9h1"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfm8zhj421dzf"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfm8kujq1j6vx"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfm8qbb2031xm"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsipfz4qmci11a"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">0,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsh1kz7m9dopin"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">1 285,68 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsfmancib9jjkw"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">2 179,14 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmsf361u9poa4ae"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">5 628,86 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr><tr data-row-id="rmscuhx98k380pn"><td><input type="date"></td><td><input type="number" min="0" step="0.01"></td><td><div style="display: flex; align-items: center; gap: 6px;"><input type="number" step="0.01"><span class="unit">%</span></div></td><td><span class="journal-computed-value">1 519,00 €</span></td><td><button type="button" class="journal-del-btn" title="Supprimer cette ligne">×</button></td></tr></tbody>
             <tfoot>
               <tr class="journal-total-row">
                 <td>Total</td>
-                <td id="journal-total-ca">141 625,73 €</td>
-                <td id="journal-total-margepct">27,67%</td>
-                <td id="journal-total-marge">39 191,92 €</td>
+                <td id="journal-total-ca">42 178,86 €</td>
+                <td id="journal-total-margepct">25,16%</td>
+                <td id="journal-total-marge">10 612,68 €</td>
                 <td></td>
               </tr>
             </tfoot>
           </table>
         </div>
         <div class="journal-empty" id="journal-empty" style="display: none;">Aucune saisie ce mois-ci. Cliquez sur « + Ajouter une ligne » pour commencer.</div>
-        <div class="journal-taux" id="journal-taux">23 jour(s) saisi(s) — marge générée : <b>39 191,92 €</b></div>
+        <div class="journal-taux" id="journal-taux">21 jour(s) saisi(s) — marge générée : <b>10 612,68 €</b></div>
 
       </div>
 
@@ -967,7 +1064,7 @@
     <aside class="panel checks-panel">
       <h2>Mois inclus</h2>
       <button class="check-toggle-all" id="toggle-all-months" type="button">Tout sélectionner</button>
-      <div id="month-checks"><div class="check-row"><input type="checkbox" id="chk-month-0" checked=""><label for="chk-month-0">janvier</label></div><div class="check-row"><input type="checkbox" id="chk-month-1" checked=""><label for="chk-month-1">février</label></div><div class="check-row"><input type="checkbox" id="chk-month-2" checked=""><label for="chk-month-2">mars</label></div><div class="check-row"><input type="checkbox" id="chk-month-3" checked=""><label for="chk-month-3">avril</label></div><div class="check-row"><input type="checkbox" id="chk-month-4" checked=""><label for="chk-month-4">mai</label></div><div class="check-row"><input type="checkbox" id="chk-month-5" checked=""><label for="chk-month-5">juin</label></div><div class="check-row"><input type="checkbox" id="chk-month-6" checked=""><label for="chk-month-6">juillet</label></div><div class="check-row"><input type="checkbox" id="chk-month-7"><label for="chk-month-7">août</label></div><div class="check-row"><input type="checkbox" id="chk-month-8"><label for="chk-month-8">septembre</label></div><div class="check-row"><input type="checkbox" id="chk-month-9"><label for="chk-month-9">octobre</label></div><div class="check-row"><input type="checkbox" id="chk-month-10"><label for="chk-month-10">novembre</label></div><div class="check-row"><input type="checkbox" id="chk-month-11"><label for="chk-month-11">décembre</label></div></div>
+      <div id="month-checks"><div class="check-row"><input type="checkbox" id="chk-month-0" checked=""><label for="chk-month-0">janvier</label></div><div class="check-row"><input type="checkbox" id="chk-month-1" checked=""><label for="chk-month-1">février</label></div><div class="check-row"><input type="checkbox" id="chk-month-2" checked=""><label for="chk-month-2">mars</label></div><div class="check-row"><input type="checkbox" id="chk-month-3" checked=""><label for="chk-month-3">avril</label></div><div class="check-row"><input type="checkbox" id="chk-month-4" checked=""><label for="chk-month-4">mai</label></div><div class="check-row"><input type="checkbox" id="chk-month-5" checked=""><label for="chk-month-5">juin</label></div><div class="check-row"><input type="checkbox" id="chk-month-6" checked=""><label for="chk-month-6">juillet</label></div><div class="check-row"><input type="checkbox" id="chk-month-7" checked=""><label for="chk-month-7">août</label></div><div class="check-row"><input type="checkbox" id="chk-month-8"><label for="chk-month-8">septembre</label></div><div class="check-row"><input type="checkbox" id="chk-month-9"><label for="chk-month-9">octobre</label></div><div class="check-row"><input type="checkbox" id="chk-month-10"><label for="chk-month-10">novembre</label></div><div class="check-row"><input type="checkbox" id="chk-month-11"><label for="chk-month-11">décembre</label></div></div>
     </aside>
 
     <main class="gauges-col">
@@ -976,7 +1073,7 @@
           <h2 style="margin:0;">Chiffre d'affaires cumulé</h2>
           <div style="text-align:right;">
             <div class="readout">
-              <div class="pct status-warn" id="an-ca-pct">85.2%</div>
+              <div class="pct status-warn" id="an-ca-pct">82%</div>
               <div class="status status-warn" id="an-ca-status">Sur la bonne voie</div>
             </div>
           </div>
@@ -987,15 +1084,15 @@
             <div class="bar-zone amber"></div>
             <div class="bar-zone green"></div>
             <div class="bar-objective-line"></div>
-            <div class="bar-fill" id="an-ca-fill" style="width: 68.1827%; background: var(--warn);"></div>
-            <div class="bar-marker" id="an-ca-marker" style="left: 68.1827%; color: var(--warn);">85.2%</div>
+            <div class="bar-fill" id="an-ca-fill" style="width: 65.5721%; background: var(--warn);"></div>
+            <div class="bar-marker" id="an-ca-marker" style="left: 65.5721%; color: var(--warn);">82%</div>
           </div>
           <div class="bar-ticks">
             <span>0</span><span>25</span><span>50</span><span>75</span><span class="mark-100">100</span><span>125</span>
           </div>
         </div>
-        <div class="compare" id="an-ca-compare"><b>735 521 €</b> / 863 000 €</div>
-        <div class="sub-computed">Montant de CA manquant : <b id="an-ca-montant-manquant" style="color: var(--brass-dim);">127 479 €</b></div>
+        <div class="compare" id="an-ca-compare"><b>786 046 €</b> / 959 000 €</div>
+        <div class="sub-computed">Montant de CA manquant : <b id="an-ca-montant-manquant" style="color: var(--brass-dim);">172 954 €</b></div>
       </div>
 
       <div class="annee-chart-card">
@@ -1010,7 +1107,7 @@
           </div>
         </div>
         <div class="journal-chart-scroll">
-          <svg id="annee-chart" class="journal-chart-svg" width="892" height="270" viewBox="0 0 892 270"><line x1="60" y1="236.0" x2="876" y2="236.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="240.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">0 €</text><line x1="60" y1="181.0" x2="876" y2="181.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="185.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">37,3k€</text><line x1="60" y1="126.0" x2="876" y2="126.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="130.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">74,5k€</text><line x1="60" y1="71.0" x2="876" y2="71.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="75.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">111,8k€</text><line x1="60" y1="16.0" x2="876" y2="16.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="20.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">149k€</text><rect x="72.0" y="69.2" width="20" height="166.8" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Jan — Objectif : 113 000 €</title></rect><rect x="96.0" y="133.3" width="20" height="102.7" fill="#C1543A" rx="1.5"><title>Jan — Réalisé : 69 524 € (61.5%)</title></rect><text x="94.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Jan</text><rect x="140.0" y="58.8" width="20" height="177.2" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Fév — Objectif : 120 000 €</title></rect><rect x="164.0" y="59.4" width="20" height="176.6" fill="#D1A23E" rx="1.5"><title>Fév — Réalisé : 119 615 € (99.7%)</title></rect><text x="162.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Fév</text><rect x="208.0" y="35.2" width="20" height="200.8" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Mar — Objectif : 136 000 €</title></rect><rect x="232.0" y="75.3" width="20" height="160.7" fill="#D1A23E" rx="1.5"><title>Mar — Réalisé : 108 826 € (80%)</title></rect><text x="230.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Mar</text><rect x="276.0" y="55.9" width="20" height="180.1" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Avr — Objectif : 122 000 €</title></rect><rect x="300.0" y="70.1" width="20" height="165.9" fill="#D1A23E" rx="1.5"><title>Avr — Réalisé : 112 358 € (92.1%)</title></rect><text x="298.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Avr</text><rect x="344.0" y="89.8" width="20" height="146.2" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Mai — Objectif : 99 000 €</title></rect><rect x="368.0" y="113.2" width="20" height="122.8" fill="#D1A23E" rx="1.5"><title>Mai — Réalisé : 83 192 € (84%)</title></rect><text x="366.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Mai</text><rect x="412.0" y="16.0" width="20" height="220.0" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Juin — Objectif : 149 000 €</title></rect><rect x="436.0" y="75.4" width="20" height="160.6" fill="#D1A23E" rx="1.5"><title>Juin — Réalisé : 108 763 € (73%)</title></rect><text x="434.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Juin</text><rect x="480.0" y="52.9" width="20" height="183.1" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Juil — Objectif : 124 000 €</title></rect><rect x="504.0" y="39.3" width="20" height="196.7" fill="#5FA37E" rx="1.5"><title>Juil — Réalisé : 133 243 € (107.5%)</title></rect><text x="502.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Juil</text><rect x="548.0" y="94.3" width="20" height="141.7" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Août — Objectif : 96 000 €</title></rect><rect x="572.0" y="236.0" width="20" height="0.0" fill="#C1543A" rx="1.5"><title>Août — Réalisé : 0 € (0%)</title></rect><text x="570.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Août</text><rect x="616.0" y="52.9" width="20" height="183.1" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Sep — Objectif : 124 000 €</title></rect><rect x="640.0" y="236.0" width="20" height="0.0" fill="#C1543A" rx="1.5"><title>Sep — Réalisé : 0 € (0%)</title></rect><text x="638.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Sep</text><rect x="684.0" y="36.7" width="20" height="199.3" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Oct — Objectif : 135 000 €</title></rect><rect x="708.0" y="236.0" width="20" height="0.0" fill="#C1543A" rx="1.5"><title>Oct — Réalisé : 0 € (0%)</title></rect><text x="706.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Oct</text><rect x="752.0" y="48.5" width="20" height="187.5" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Nov — Objectif : 127 000 €</title></rect><rect x="776.0" y="236.0" width="20" height="0.0" fill="#C1543A" rx="1.5"><title>Nov — Réalisé : 0 € (0%)</title></rect><text x="774.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Nov</text><rect x="820.0" y="85.4" width="20" height="150.6" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Déc — Objectif : 102 000 €</title></rect><rect x="844.0" y="236.0" width="20" height="0.0" fill="#C1543A" rx="1.5"><title>Déc — Réalisé : 0 € (0%)</title></rect><text x="842.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Déc</text></svg>
+          <svg id="annee-chart" class="journal-chart-svg" width="976" height="270" viewBox="0 0 976 270"><line x1="60" y1="236.0" x2="876" y2="236.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="240.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">0 €</text><line x1="60" y1="181.0" x2="876" y2="181.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="185.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">37,3k€</text><line x1="60" y1="126.0" x2="876" y2="126.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="130.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">74,5k€</text><line x1="60" y1="71.0" x2="876" y2="71.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="75.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">111,8k€</text><line x1="60" y1="16.0" x2="876" y2="16.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="20.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">149k€</text><text x="884" y="240.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">0 €</text><text x="884" y="185.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">1,6k€</text><text x="884" y="130.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">3,2k€</text><text x="884" y="75.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">4,8k€</text><text x="884" y="20.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">6,4k€</text><text x="962" y="126.0" text-anchor="middle" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace" letter-spacing="0.5" transform="rotate(90 962 126.0)">Chiffre moyen réalisé</text><rect x="72.0" y="69.2" width="20" height="166.8" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Jan — Objectif : 113 000 €</title></rect><rect x="96.0" y="133.3" width="20" height="102.7" fill="#C1543A" rx="1.5"><title>Jan — Réalisé : 69 524 € (61.5%) — En retard</title></rect><text x="94.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Jan</text><rect x="140.0" y="58.8" width="20" height="177.2" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Fév — Objectif : 120 000 €</title></rect><rect x="164.0" y="59.4" width="20" height="176.6" fill="#D1A23E" rx="1.5"><title>Fév — Réalisé : 119 615 € (99.7%) — Sur la bonne voie</title></rect><text x="162.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Fév</text><rect x="208.0" y="35.2" width="20" height="200.8" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Mar — Objectif : 136 000 €</title></rect><rect x="232.0" y="75.3" width="20" height="160.7" fill="#D1A23E" rx="1.5"><title>Mar — Réalisé : 108 826 € (80%) — Sur la bonne voie</title></rect><text x="230.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Mar</text><rect x="276.0" y="55.9" width="20" height="180.1" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Avr — Objectif : 122 000 €</title></rect><rect x="300.0" y="70.1" width="20" height="165.9" fill="#D1A23E" rx="1.5"><title>Avr — Réalisé : 112 358 € (92.1%) — Sur la bonne voie</title></rect><text x="298.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Avr</text><rect x="344.0" y="89.8" width="20" height="146.2" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Mai — Objectif : 99 000 €</title></rect><rect x="368.0" y="113.2" width="20" height="122.8" fill="#D1A23E" rx="1.5"><title>Mai — Réalisé : 83 195 € (84%) — Sur la bonne voie</title></rect><text x="366.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Mai</text><rect x="412.0" y="16.0" width="20" height="220.0" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Juin — Objectif : 149 000 €</title></rect><rect x="436.0" y="75.4" width="20" height="160.6" fill="#D1A23E" rx="1.5"><title>Juin — Réalisé : 108 763 € (73%) — Sur la bonne voie</title></rect><text x="434.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Juin</text><rect x="480.0" y="52.9" width="20" height="183.1" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Juil — Objectif : 124 000 €</title></rect><rect x="504.0" y="26.9" width="20" height="209.1" fill="#5FA37E" rx="1.5"><title>Juil — Réalisé : 141 586 € (114.2%) — Objectif atteint</title></rect><text x="502.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Juil</text><rect x="548.0" y="94.3" width="20" height="141.7" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Août — Objectif : 96 000 €</title></rect><rect x="572.0" y="173.7" width="20" height="62.3" fill="#5FA37E" rx="1.5"><title>Août — Réalisé : 42 179 € (43.9%) — En avance</title></rect><text x="570.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Août</text><rect x="616.0" y="52.9" width="20" height="183.1" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Sep — Objectif : 124 000 €</title></rect><rect x="640.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Sep — Réalisé : 0 € (0%) — À venir</title></rect><text x="638.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Sep</text><rect x="684.0" y="36.7" width="20" height="199.3" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Oct — Objectif : 135 000 €</title></rect><rect x="708.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Oct — Réalisé : 0 € (0%) — À venir</title></rect><text x="706.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Oct</text><rect x="752.0" y="48.5" width="20" height="187.5" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Nov — Objectif : 127 000 €</title></rect><rect x="776.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Nov — Réalisé : 0 € (0%) — À venir</title></rect><text x="774.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Nov</text><rect x="820.0" y="85.4" width="20" height="150.6" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Déc — Objectif : 102 000 €</title></rect><rect x="844.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Déc — Réalisé : 0 € (0%) — À venir</title></rect><text x="842.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Déc</text><path d="M 94.0 117.2 L 162.0 31.6 L 230.0 66.9 L 298.0 44.0 L 366.0 58.3 L 434.0 67.0 L 502.0 16.0 L 570.0 167.3" fill="none" stroke="#4E8FD6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="4 2"></path><circle cx="94.0" cy="117.2" r="4" fill="#4E8FD6"><title>Jan — Chiffre moyen réalisé : 3 476,18 €</title></circle><circle cx="162.0" cy="31.6" r="4" fill="#4E8FD6"><title>Fév — Chiffre moyen réalisé : 5 980,76 €</title></circle><circle cx="230.0" cy="66.9" r="4" fill="#4E8FD6"><title>Mar — Chiffre moyen réalisé : 4 946,65 €</title></circle><circle cx="298.0" cy="44.0" r="4" fill="#4E8FD6"><title>Avr — Chiffre moyen réalisé : 5 617,90 €</title></circle><circle cx="366.0" cy="58.3" r="4" fill="#4E8FD6"><title>Mai — Chiffre moyen réalisé : 5 199,70 €</title></circle><circle cx="434.0" cy="67.0" r="4" fill="#4E8FD6"><title>Juin — Chiffre moyen réalisé : 4 943,77 €</title></circle><circle cx="502.0" cy="16.0" r="4" fill="#4E8FD6"><title>Juil — Chiffre moyen réalisé : 6 435,72 €</title></circle><circle cx="570.0" cy="167.3" r="4" fill="#4E8FD6"><title>Août — Chiffre moyen réalisé : 2 008,52 €</title></circle></svg>
         </div>
         <div class="journal-chart-empty" id="annee-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
       </div>
@@ -1020,7 +1117,7 @@
           <h2 style="margin:0;">Marge cumulée</h2>
           <div style="text-align:right;">
             <div class="readout">
-              <div class="pct status-warn" id="an-marge-pct">76.1%</div>
+              <div class="pct status-warn" id="an-marge-pct">73%</div>
               <div class="status status-warn" id="an-marge-status">Sur la bonne voie</div>
             </div>
           </div>
@@ -1031,15 +1128,15 @@
             <div class="bar-zone amber"></div>
             <div class="bar-zone green"></div>
             <div class="bar-objective-line"></div>
-            <div class="bar-fill" id="an-marge-fill" style="width: 60.8712%; background: var(--warn);"></div>
-            <div class="bar-marker" id="an-marge-marker" style="left: 60.8712%; color: var(--warn);">76.1%</div>
+            <div class="bar-fill" id="an-marge-fill" style="width: 58.4071%; background: var(--warn);"></div>
+            <div class="bar-marker" id="an-marge-marker" style="left: 58.4071%; color: var(--warn);">73%</div>
           </div>
           <div class="bar-ticks">
             <span>0</span><span>25</span><span>50</span><span>75</span><span class="mark-100">100</span><span>125</span>
           </div>
         </div>
-        <div class="compare" id="an-marge-compare"><b>203 158 €</b> / 267 000 €</div>
-        <div class="sub-computed">Montant de marge manquant : <b id="an-marge-montant-manquant" style="color: var(--brass-dim);">63 842 €</b></div>
+        <div class="compare" id="an-marge-compare"><b>216 836 €</b> / 297 000 €</div>
+        <div class="sub-computed">Montant de marge manquant : <b id="an-marge-montant-manquant" style="color: var(--brass-dim);">80 164 €</b></div>
       </div>
 
       <div class="annee-chart-card">
@@ -1054,12 +1151,12 @@
           </div>
         </div>
         <div class="journal-chart-scroll">
-          <svg id="annee-marge-chart" class="journal-chart-svg" width="892" height="270" viewBox="0 0 892 270"><line x1="60" y1="236.0" x2="876" y2="236.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="240.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">0 €</text><line x1="60" y1="181.0" x2="876" y2="181.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="185.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">11,5k€</text><line x1="60" y1="126.0" x2="876" y2="126.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="130.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">23k€</text><line x1="60" y1="71.0" x2="876" y2="71.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="75.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">34,5k€</text><line x1="60" y1="16.0" x2="876" y2="16.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="20.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">46k€</text><rect x="72.0" y="68.6" width="20" height="167.4" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Jan — Objectif : 35 000 €</title></rect><rect x="96.0" y="130.6" width="20" height="105.4" fill="#C1543A" rx="1.5"><title>Jan — Réalisé : 22 039 € (63%)</title></rect><text x="94.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Jan</text><rect x="140.0" y="59.0" width="20" height="177.0" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Fév — Objectif : 37 000 €</title></rect><rect x="164.0" y="79.3" width="20" height="156.7" fill="#D1A23E" rx="1.5"><title>Fév — Réalisé : 32 775 € (88.6%)</title></rect><text x="162.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Fév</text><rect x="208.0" y="35.1" width="20" height="200.9" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Mar — Objectif : 42 000 €</title></rect><rect x="232.0" y="97.6" width="20" height="138.4" fill="#C1543A" rx="1.5"><title>Mar — Réalisé : 28 948 € (68.9%)</title></rect><text x="230.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Mar</text><rect x="276.0" y="54.3" width="20" height="181.7" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Avr — Objectif : 38 000 €</title></rect><rect x="300.0" y="88.8" width="20" height="147.2" fill="#D1A23E" rx="1.5"><title>Avr — Réalisé : 30 786 € (81%)</title></rect><text x="298.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Avr</text><rect x="344.0" y="87.7" width="20" height="148.3" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Mai — Objectif : 31 000 €</title></rect><rect x="368.0" y="117.4" width="20" height="118.6" fill="#D1A23E" rx="1.5"><title>Mai — Réalisé : 24 791 € (80%)</title></rect><text x="366.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Mai</text><rect x="412.0" y="16.0" width="20" height="220.0" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Juin — Objectif : 46 000 €</title></rect><rect x="436.0" y="102.8" width="20" height="133.2" fill="#C1543A" rx="1.5"><title>Juin — Réalisé : 27 843 € (60.5%)</title></rect><text x="434.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Juin</text><rect x="480.0" y="54.3" width="20" height="181.7" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Juil — Objectif : 38 000 €</title></rect><rect x="504.0" y="63.9" width="20" height="172.1" fill="#D1A23E" rx="1.5"><title>Juil — Réalisé : 35 976 € (94.7%)</title></rect><text x="502.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Juil</text><rect x="548.0" y="92.5" width="20" height="143.5" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Août — Objectif : 30 000 €</title></rect><rect x="572.0" y="236.0" width="20" height="0.0" fill="#C1543A" rx="1.5"><title>Août — Réalisé : 0 € (0%)</title></rect><text x="570.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Août</text><rect x="616.0" y="54.3" width="20" height="181.7" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Sep — Objectif : 38 000 €</title></rect><rect x="640.0" y="236.0" width="20" height="0.0" fill="#C1543A" rx="1.5"><title>Sep — Réalisé : 0 € (0%)</title></rect><text x="638.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Sep</text><rect x="684.0" y="35.1" width="20" height="200.9" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Oct — Objectif : 42 000 €</title></rect><rect x="708.0" y="236.0" width="20" height="0.0" fill="#C1543A" rx="1.5"><title>Oct — Réalisé : 0 € (0%)</title></rect><text x="706.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Oct</text><rect x="752.0" y="44.7" width="20" height="191.3" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Nov — Objectif : 40 000 €</title></rect><rect x="776.0" y="236.0" width="20" height="0.0" fill="#C1543A" rx="1.5"><title>Nov — Réalisé : 0 € (0%)</title></rect><text x="774.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Nov</text><rect x="820.0" y="83.0" width="20" height="153.0" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Déc — Objectif : 32 000 €</title></rect><rect x="844.0" y="236.0" width="20" height="0.0" fill="#C1543A" rx="1.5"><title>Déc — Réalisé : 0 € (0%)</title></rect><text x="842.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Déc</text></svg>
+          <svg id="annee-marge-chart" class="journal-chart-svg" width="976" height="270" viewBox="0 0 976 270"><line x1="60" y1="236.0" x2="876" y2="236.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="240.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">0 €</text><line x1="60" y1="181.0" x2="876" y2="181.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="185.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">11,5k€</text><line x1="60" y1="126.0" x2="876" y2="126.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="130.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">23k€</text><line x1="60" y1="71.0" x2="876" y2="71.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="75.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">34,5k€</text><line x1="60" y1="16.0" x2="876" y2="16.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="20.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">46k€</text><text x="884" y="240.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">0 €</text><text x="884" y="185.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">445 €</text><text x="884" y="130.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">891 €</text><text x="884" y="75.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">1,3k€</text><text x="884" y="20.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">1,8k€</text><text x="962" y="126.0" text-anchor="middle" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace" letter-spacing="0.5" transform="rotate(90 962 126.0)">Chiffre moyen réalisé</text><rect x="72.0" y="68.6" width="20" height="167.4" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Jan — Objectif : 35 000 €</title></rect><rect x="96.0" y="130.7" width="20" height="105.3" fill="#C1543A" rx="1.5"><title>Jan — Réalisé : 22 011 € (62.9%) — En retard</title></rect><text x="94.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Jan</text><rect x="140.0" y="59.0" width="20" height="177.0" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Fév — Objectif : 37 000 €</title></rect><rect x="164.0" y="79.3" width="20" height="156.7" fill="#D1A23E" rx="1.5"><title>Fév — Réalisé : 32 775 € (88.6%) — Sur la bonne voie</title></rect><text x="162.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Fév</text><rect x="208.0" y="35.1" width="20" height="200.9" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Mar — Objectif : 42 000 €</title></rect><rect x="232.0" y="97.4" width="20" height="138.6" fill="#C1543A" rx="1.5"><title>Mar — Réalisé : 28 970 € (69%) — En retard</title></rect><text x="230.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Mar</text><rect x="276.0" y="54.3" width="20" height="181.7" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Avr — Objectif : 38 000 €</title></rect><rect x="300.0" y="89.0" width="20" height="147.0" fill="#D1A23E" rx="1.5"><title>Avr — Réalisé : 30 730 € (80.9%) — Sur la bonne voie</title></rect><text x="298.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Avr</text><rect x="344.0" y="87.7" width="20" height="148.3" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Mai — Objectif : 31 000 €</title></rect><rect x="368.0" y="117.6" width="20" height="118.4" fill="#D1A23E" rx="1.5"><title>Mai — Réalisé : 24 759 € (79.9%) — Sur la bonne voie</title></rect><text x="366.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Mai</text><rect x="412.0" y="16.0" width="20" height="220.0" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Juin — Objectif : 46 000 €</title></rect><rect x="436.0" y="103.1" width="20" height="132.9" fill="#C1543A" rx="1.5"><title>Juin — Réalisé : 27 789 € (60.4%) — En retard</title></rect><text x="434.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Juin</text><rect x="480.0" y="54.3" width="20" height="181.7" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Juil — Objectif : 38 000 €</title></rect><rect x="504.0" y="48.6" width="20" height="187.4" fill="#5FA37E" rx="1.5"><title>Juil — Réalisé : 39 191 € (103.1%) — Objectif atteint</title></rect><text x="502.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Juil</text><rect x="548.0" y="92.5" width="20" height="143.5" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Août — Objectif : 30 000 €</title></rect><rect x="572.0" y="185.2" width="20" height="50.8" fill="#5FA37E" rx="1.5"><title>Août — Réalisé : 10 612 € (35.4%) — En avance</title></rect><text x="570.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Août</text><rect x="616.0" y="54.3" width="20" height="181.7" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Sep — Objectif : 38 000 €</title></rect><rect x="640.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Sep — Réalisé : 0 € (0%) — À venir</title></rect><text x="638.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Sep</text><rect x="684.0" y="35.1" width="20" height="200.9" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Oct — Objectif : 42 000 €</title></rect><rect x="708.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Oct — Réalisé : 0 € (0%) — À venir</title></rect><text x="706.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Oct</text><rect x="752.0" y="44.7" width="20" height="191.3" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Nov — Objectif : 40 000 €</title></rect><rect x="776.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Nov — Réalisé : 0 € (0%) — À venir</title></rect><text x="774.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Nov</text><rect x="820.0" y="83.0" width="20" height="153.0" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Déc — Objectif : 32 000 €</title></rect><rect x="844.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Déc — Réalisé : 0 € (0%) — À venir</title></rect><text x="842.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Déc</text><path d="M 94.0 100.1 L 162.0 33.6 L 230.0 73.4 L 298.0 46.2 L 366.0 44.9 L 434.0 80.0 L 502.0 16.0 L 570.0 173.6" fill="none" stroke="#4E8FD6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="4 2"></path><circle cx="94.0" cy="100.1" r="4" fill="#4E8FD6"><title>Jan — Chiffre moyen réalisé : 1 100,61 €</title></circle><circle cx="162.0" cy="33.6" r="4" fill="#4E8FD6"><title>Fév — Chiffre moyen réalisé : 1 638,78 €</title></circle><circle cx="230.0" cy="73.4" r="4" fill="#4E8FD6"><title>Mar — Chiffre moyen réalisé : 1 316,74 €</title></circle><circle cx="298.0" cy="46.2" r="4" fill="#4E8FD6"><title>Avr — Chiffre moyen réalisé : 1 536,64 €</title></circle><circle cx="366.0" cy="44.9" r="4" fill="#4E8FD6"><title>Mai — Chiffre moyen réalisé : 1 547,44 €</title></circle><circle cx="434.0" cy="80.0" r="4" fill="#4E8FD6"><title>Juin — Chiffre moyen réalisé : 1 263,17 €</title></circle><circle cx="502.0" cy="16.0" r="4" fill="#4E8FD6"><title>Juil — Chiffre moyen réalisé : 1 781,29 €</title></circle><circle cx="570.0" cy="173.6" r="4" fill="#4E8FD6"><title>Août — Chiffre moyen réalisé : 505,37 €</title></circle></svg>
         </div>
         <div class="journal-chart-empty" id="annee-marge-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
       </div>
 
-      <div class="annee-summary" id="annee-summary"><b>7</b> mois inclus : Jan, Fév, Mar, Avr, Mai, Juin, Juil</div>
+      <div class="annee-summary" id="annee-summary"><b>8</b> mois inclus : Jan, Fév, Mar, Avr, Mai, Juin, Juil, Août</div>
     </main>
   </div>
 
@@ -1443,6 +1540,7 @@ function switchMonth(i){
   if(activeView === 'month') saveCurrentInputs();
   activeView = 'month';
   activeMonth = i;
+  expandedJournalRows.clear();
   loadMonthIntoInputs();
   renderTabs();
   showView();
@@ -1526,6 +1624,7 @@ function removeJournalRow(id){
   const journal = currentJournal();
   const idx = journal.findIndex(r => r.id === id);
   if(idx > -1) journal.splice(idx, 1);
+  expandedJournalRows.delete(id);
   renderJournal();
   recalcFromJournal();
 }
@@ -1540,6 +1639,7 @@ function updateJournalField(id, field, rawValue){
     row[field] = round2(parseFloat(rawValue) || 0);
   }
   updateRowComputed(id);
+  updateRowDetailBars(id);
   recalcFromJournal();
 }
 
@@ -1553,15 +1653,242 @@ function updateRowComputed(id){
   }
 }
 
+/* ---------- Accordéon "objectif du jour" ---------- */
+
+// État d'ouverture des sous-lignes, conservé à travers les re-render de renderJournal()
+// (tri, ajout, suppression, modification) puisque le tbody est reconstruit à chaque fois.
+const expandedJournalRows = new Set();
+
+// Objectifs journaliers du mois affiché (recalculés une fois par renderJournal(), pas par ligne).
+let journalObjJourCA = 0;
+let journalObjJourMarge = 0;
+
+// Nombre de jours ouvrés (lundi à vendredi) d'un mois donné.
+function joursOuvresDansMois(year, monthIndex){
+  const total = joursDansMois(year, monthIndex);
+  let count = 0;
+  for(let day = 1; day <= total; day++){
+    const dow = new Date(year, monthIndex, day).getDay();
+    if(dow !== 0 && dow !== 6) count++;
+  }
+  return count;
+}
+
+// Nombre de jours ouvrés (lundi à vendredi) écoulés du 1er jour du mois jusqu'au jour donné inclus.
+function joursOuvresEcoulesDansMois(year, monthIndex, day){
+  let count = 0;
+  for(let d = 1; d <= day; d++){
+    const dow = new Date(year, monthIndex, d).getDay();
+    if(dow !== 0 && dow !== 6) count++;
+  }
+  return count;
+}
+
+function computeJournalDailyObjectives(){
+  const workdays = joursOuvresDansMois(YEAR, activeMonth);
+  const d = monthsData[activeMonth];
+  journalObjJourCA = workdays > 0 ? (d.caObjectif || 0) / workdays : 0;
+  journalObjJourMarge = workdays > 0 ? (d.margeObjectif || 0) / workdays : 0;
+}
+
+// Barre de progression réutilisant la logique de setBar()/statusFor(), mais paramétrée
+// par éléments DOM directs (une ligne de journal = une instance de barre par jour).
+function setMiniBar(fillEl, markerEl, percent, statusOverride){
+  if(!fillEl || !markerEl) return;
+  const clamped = Math.max(0, Math.min(percent, MAXP));
+  const widthPct = (clamped / MAXP) * 100;
+  const status = statusOverride || statusFor(percent);
+  fillEl.style.width = widthPct + '%';
+  fillEl.style.background = status.color;
+  markerEl.style.left = widthPct + '%';
+  markerEl.textContent = fmtPct(percent);
+  markerEl.style.color = status.color;
+}
+
+function toggleJournalRow(id){
+  if(expandedJournalRows.has(id)) expandedJournalRows.delete(id);
+  else expandedJournalRows.add(id);
+  renderJournal();
+}
+
+function buildJournalDetailRow(row, colCount){
+  const tr = document.createElement('tr');
+  tr.className = 'journal-detail-row';
+  tr.dataset.detailFor = row.id;
+  const td = document.createElement('td');
+  td.colSpan = colCount;
+  // Styles posés en inline pour ne pas dépendre de la cascade des règles
+  // .journal-table td:first-child/:last-child (plus spécifiques, pensées pour les
+  // cellules normales du tableau et non pour cette cellule pleine largeur).
+  td.style.background = 'var(--panel-raised)';
+  td.style.padding = '4px 16px 20px';
+  td.style.width = 'auto';
+  td.innerHTML =
+    '<div class="journal-detail-content">' +
+      '<div class="journal-mini-gauge">' +
+        '<div class="journal-mini-gauge-label">CA du jour vs objectif journalier</div>' +
+        '<div class="bar-gauge journal-mini-bar-gauge">' +
+          '<div class="bar-track">' +
+            '<div class="bar-zone red"></div>' +
+            '<div class="bar-zone amber"></div>' +
+            '<div class="bar-zone green"></div>' +
+            '<div class="bar-objective-line"></div>' +
+            '<div class="bar-fill" id="jca-fill-' + row.id + '"></div>' +
+            '<div class="bar-marker" id="jca-marker-' + row.id + '"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="journal-mini-compare" id="jca-text-' + row.id + '"></div>' +
+        '<div class="journal-mini-delta" id="jca-delta-' + row.id + '"></div>' +
+        '<div class="journal-mini-cumul" id="jca-cumul-' + row.id + '"></div>' +
+      '</div>' +
+      '<div class="journal-mini-gauge">' +
+        '<div class="journal-mini-gauge-label">Marge du jour vs objectif journalier</div>' +
+        '<div class="bar-gauge journal-mini-bar-gauge">' +
+          '<div class="bar-track">' +
+            '<div class="bar-zone red"></div>' +
+            '<div class="bar-zone amber"></div>' +
+            '<div class="bar-zone green"></div>' +
+            '<div class="bar-objective-line"></div>' +
+            '<div class="bar-fill" id="jmarge-fill-' + row.id + '"></div>' +
+            '<div class="bar-marker" id="jmarge-marker-' + row.id + '"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="journal-mini-compare" id="jmarge-text-' + row.id + '"></div>' +
+        '<div class="journal-mini-delta" id="jmarge-delta-' + row.id + '"></div>' +
+        '<div class="journal-mini-cumul" id="jmarge-cumul-' + row.id + '"></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="journal-objectif-card">' +
+      '<div class="journal-objectif-label">Objectif du jour</div>' +
+      '<div class="journal-objectif-text" id="jobjectif-' + row.id + '"></div>' +
+    '</div>';
+  tr.appendChild(td);
+  return tr;
+}
+
+// Remplit/actualise les deux barres d'une sous-ligne déjà présente dans le DOM,
+// sans reconstruire tout le tableau (utilisé pendant la saisie du CA / de la marge).
+function updateRowDetailBars(id){
+  if(!expandedJournalRows.has(id)) return;
+  const row = currentJournal().find(r => r.id === id);
+  if(!row) return;
+
+  const ca = row.ca || 0;
+  const margeEuros = ca * (row.margePct || 0) / 100;
+
+  const caPct = journalObjJourCA > 0 ? (ca / journalObjJourCA) * 100 : 0;
+  const margePct = journalObjJourMarge > 0 ? (margeEuros / journalObjJourMarge) * 100 : 0;
+
+  setMiniBar(
+    document.getElementById('jca-fill-' + id),
+    document.getElementById('jca-marker-' + id),
+    caPct, statusFor(caPct)
+  );
+  const caText = document.getElementById('jca-text-' + id);
+  if(caText) caText.innerHTML = '<b>' + fmtEuro(ca) + '</b> / ' + fmtEuro(journalObjJourCA) + ' (' + fmtPct(caPct) + ')';
+
+  const caDelta = ca - journalObjJourCA;
+  const caDeltaEl = document.getElementById('jca-delta-' + id);
+  if(caDeltaEl){
+    if(caDelta >= 0){
+      caDeltaEl.textContent = '+' + fmtEuro(caDelta) + ' vs objectif';
+      caDeltaEl.className = 'journal-mini-delta positive';
+    } else {
+      caDeltaEl.textContent = '−' + fmtEuro(Math.abs(caDelta)) + ' vs objectif';
+      caDeltaEl.className = 'journal-mini-delta negative';
+    }
+  }
+
+  const journal = currentJournal();
+  let caCumul = 0, margeCumul = 0;
+  journal.forEach(r => {
+    if((r.date || '') <= (row.date || '')){
+      const rCa = r.ca || 0;
+      caCumul += rCa;
+      margeCumul += rCa * (r.margePct || 0) / 100;
+    }
+  });
+
+  const rowDay = row.date ? parseInt(row.date.split('-')[2], 10) : null;
+  const workdaysElapsed = rowDay ? joursOuvresEcoulesDansMois(YEAR, activeMonth, rowDay) : 0;
+  const caObjCumul = journalObjJourCA * workdaysElapsed;
+  const margeObjCumul = journalObjJourMarge * workdaysElapsed;
+  const caCumulPct = caObjCumul > 0 ? (caCumul / caObjCumul) * 100 : 0;
+  const margeCumulPct = margeObjCumul > 0 ? (margeCumul / margeObjCumul) * 100 : 0;
+
+  const caCumulEl = document.getElementById('jca-cumul-' + id);
+  if(caCumulEl){
+    caCumulEl.innerHTML = 'CA cumulé depuis le début du mois : <b>' + fmtEuro(caCumul) + '</b> / ' + fmtEuro(caObjCumul) + ' (' + fmtPct(caCumulPct) + ')';
+    caCumulEl.className = 'journal-mini-cumul ' + (caCumul >= caObjCumul ? 'positive' : 'negative');
+  }
+
+  setMiniBar(
+    document.getElementById('jmarge-fill-' + id),
+    document.getElementById('jmarge-marker-' + id),
+    margePct, statusFor(margePct)
+  );
+  const margeText = document.getElementById('jmarge-text-' + id);
+  if(margeText) margeText.innerHTML = '<b>' + fmtEuro(margeEuros) + '</b> / ' + fmtEuro(journalObjJourMarge) + ' (' + fmtPct(margePct) + ')';
+
+  const margeDelta = margeEuros - journalObjJourMarge;
+  const margeDeltaEl = document.getElementById('jmarge-delta-' + id);
+  if(margeDeltaEl){
+    if(margeDelta >= 0){
+      margeDeltaEl.textContent = '+' + fmtEuro(margeDelta) + ' vs objectif';
+      margeDeltaEl.className = 'journal-mini-delta positive';
+    } else {
+      margeDeltaEl.textContent = '−' + fmtEuro(Math.abs(margeDelta)) + ' vs objectif';
+      margeDeltaEl.className = 'journal-mini-delta negative';
+    }
+  }
+
+  const margeCumulEl = document.getElementById('jmarge-cumul-' + id);
+  if(margeCumulEl){
+    margeCumulEl.innerHTML = 'Marge cumulée depuis le début du mois : <b>' + fmtEuro(margeCumul) + '</b> / ' + fmtEuro(margeObjCumul) + ' (' + fmtPct(margeCumulPct) + ')';
+    margeCumulEl.className = 'journal-mini-cumul ' + (margeCumul >= margeObjCumul ? 'positive' : 'negative');
+  }
+
+  // Carte "Objectif du jour" : verdict unique combinant CA et marge, basé sur la marge
+  // (résultat financier final) et rappelant l'écart de CA correspondant.
+  const objectifEl = document.getElementById('jobjectif-' + id);
+  if(objectifEl){
+    const margeEcart = margeCumul - margeObjCumul;
+    const caEcart = caCumul - caObjCumul;
+    const caSigne = (caEcart >= 0 ? '+' : '−') + fmtEuro(Math.abs(caEcart));
+    if(margeEcart >= 0){
+      objectifEl.textContent = 'Il faut conserver notre avance : ' + fmtEuro(margeEcart) + ' de marge d\'avance (CA : ' + caSigne + ') sur le cumul objectif du mois.';
+      objectifEl.className = 'journal-objectif-text positive';
+    } else {
+      objectifEl.textContent = 'Il faut rattraper : ' + fmtEuro(Math.abs(margeEcart)) + ' de marge de retard (CA : ' + caSigne + ') sur le cumul objectif du mois.';
+      objectifEl.className = 'journal-objectif-text negative';
+    }
+  }
+}
+
 function renderJournal(){
   const journal = currentJournal();
   const body = document.getElementById('journal-body');
   const emptyEl = document.getElementById('journal-empty');
   body.innerHTML = '';
 
+  // Objectifs journaliers calculés une seule fois pour le mois affiché (pas par ligne).
+  computeJournalDailyObjectives();
+
+  const colCount = 6; // Suppression, Date, CA, Marge %, Marge €, actions (chevron)
+
   journal.forEach(row => {
     const tr = document.createElement('tr');
     tr.dataset.rowId = row.id;
+    const isExpanded = expandedJournalRows.has(row.id);
+
+    const tdDelete = document.createElement('td');
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'journal-del-btn';
+    delBtn.textContent = '×';
+    delBtn.title = 'Supprimer cette ligne';
+    delBtn.addEventListener('click', (e) => { e.stopPropagation(); removeJournalRow(row.id); });
+    tdDelete.appendChild(delBtn);
 
     const tdDate = document.createElement('td');
     const dateInput = document.createElement('input');
@@ -1602,26 +1929,48 @@ function renderJournal(){
     margeSpan.textContent = fmtEuro2((row.ca || 0) * (row.margePct || 0) / 100);
     tdMargeEuros.appendChild(margeSpan);
 
-    const tdDel = document.createElement('td');
-    const delBtn = document.createElement('button');
-    delBtn.type = 'button';
-    delBtn.className = 'journal-del-btn';
-    delBtn.textContent = '×';
-    delBtn.title = 'Supprimer cette ligne';
-    delBtn.addEventListener('click', () => removeJournalRow(row.id));
-    tdDel.appendChild(delBtn);
+    const tdActions = document.createElement('td');
+    const actionsWrap = document.createElement('div');
+    actionsWrap.className = 'journal-row-actions';
 
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'journal-toggle-btn';
+    toggleBtn.title = 'Voir la progression du jour';
+    toggleBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+    toggleBtn.innerHTML = '<svg viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    toggleBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleJournalRow(row.id); });
+    actionsWrap.appendChild(toggleBtn);
+
+    tdActions.appendChild(actionsWrap);
+
+    tr.appendChild(tdDelete);
     tr.appendChild(tdDate);
     tr.appendChild(tdCa);
     tr.appendChild(tdMargePct);
     tr.appendChild(tdMargeEuros);
-    tr.appendChild(tdDel);
+    tr.appendChild(tdActions);
+
+    // Clic sur la ligne (hors champs de saisie et boutons) = même effet que le chevron.
+    tr.addEventListener('click', (e) => {
+      if(e.target.closest('input, button')) return;
+      toggleJournalRow(row.id);
+    });
+
     body.appendChild(tr);
+
+    if(isExpanded){
+      const detailTr = buildJournalDetailRow(row, colCount);
+      body.appendChild(detailTr);
+    }
   });
 
   emptyEl.style.display = journal.length === 0 ? 'block' : 'none';
   updateJournalTotals();
   renderJournalChart();
+
+  // Remplit les barres des sous-lignes ouvertes une fois qu'elles sont dans le DOM.
+  expandedJournalRows.forEach(id => updateRowDetailBars(id));
 }
 
 function fmtDateShort(dateStr){
@@ -2198,7 +2547,7 @@ document.getElementById('app-title').addEventListener('keydown', (e) => {
     saveCurrentInputs();
     update();
     renderTabs();
-    if(id === 'ca-objectif' || id === 'marge-objectif') renderJournalChart();
+    if(id === 'ca-objectif' || id === 'marge-objectif') renderJournal();
   });
 });
 
@@ -2229,4 +2578,5 @@ document.getElementById('sync-code-input').addEventListener('keydown', (e) => {
 </script>
 
 
-</body></html>
+
+<deepl-input-controller translate="no"></deepl-input-controller></body></html>
