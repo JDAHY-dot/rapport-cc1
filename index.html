@@ -155,7 +155,7 @@
     border-radius: 4px;
     padding: 22px;
   }
-  .goals-panel h2, .gauge-card h2{
+  .goals-panel h2, .gauge-card h2, .bilan-jour-card h2{
     font-family:'Oswald', sans-serif;
     font-size: 13px;
     letter-spacing: 1.6px;
@@ -166,7 +166,7 @@
     align-items:center;
     gap: 8px;
   }
-  .goals-panel h2::before, .gauge-card h2::before{
+  .goals-panel h2::before, .gauge-card h2::before, .bilan-jour-card h2::before{
     content:"";
     width: 8px; height: 8px;
     border-radius: 50%;
@@ -257,6 +257,32 @@
     display:flex;
     flex-direction:column;
     gap: 22px;
+  }
+  .month-subtabs{
+    margin-bottom: 0;
+  }
+  .sub-tab-btn{
+    font-size: 11px;
+    padding: 7px 14px;
+  }
+  .month-subview{
+    display:flex;
+    flex-direction:column;
+    gap: 22px;
+  }
+  .bilan-jour-card .bilan-jour-date{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin: -10px 0 18px;
+    text-transform: capitalize;
+  }
+  .bilan-jour-empty{
+    text-align: center;
+    padding: 22px 0 4px;
+    color: var(--text-muted);
+    font-size: 12.5px;
+    font-family:'Inter', sans-serif;
   }
   .gauge-card{
     background: var(--panel);
@@ -916,6 +942,13 @@
     </aside>
 
     <main class="gauges-col">
+      <nav class="tabs month-subtabs" id="month-subtabs">
+        <button class="tab-btn sub-tab-btn active" data-subview="bilan-mois" type="button">Bilan mois</button>
+        <button class="tab-btn sub-tab-btn" data-subview="bilan-jour" type="button">Bilan jour</button>
+        <button class="tab-btn sub-tab-btn" data-subview="cumul-jour" type="button">Cumul jour</button>
+      </nav>
+
+      <div class="month-subview" id="subview-bilan-mois">
       <div class="gauge-card">
         <div class="gauge-top">
           <h2 style="margin:0;">Chiffre d'affaires</h2>
@@ -982,6 +1015,44 @@
             <span class="unit">%</span>
           </div>
         </div>
+      </div>
+      </div>
+
+      <div class="month-subview" id="subview-bilan-jour" style="display:none;">
+      <div class="panel bilan-jour-card" id="bilan-jour-card">
+        <h2>Bilan du jour</h2>
+        <div class="bilan-jour-date" id="bilan-jour-date">Aujourd'hui</div>
+        <div class="journal-detail-content" id="bilan-jour-gauges">
+          <div class="journal-mini-gauge">
+            <div class="journal-mini-gauge-label">CA du jour vs objectif journalier</div>
+            <div class="bar-gauge journal-mini-bar-gauge">
+              <div class="bar-track">
+                <div class="bar-zone red"></div>
+                <div class="bar-zone amber"></div>
+                <div class="bar-zone green"></div>
+                <div class="bar-objective-line"></div>
+                <div class="bar-fill" id="bj-ca-fill"></div>
+                <div class="bar-marker" id="bj-ca-marker"></div>
+              </div>
+            </div>
+            <div class="journal-mini-compare" id="bj-ca-text"></div>
+          </div>
+          <div class="journal-mini-gauge">
+            <div class="journal-mini-gauge-label">Marge du jour vs objectif journalier</div>
+            <div class="bar-gauge journal-mini-bar-gauge">
+              <div class="bar-track">
+                <div class="bar-zone red"></div>
+                <div class="bar-zone amber"></div>
+                <div class="bar-zone green"></div>
+                <div class="bar-objective-line"></div>
+                <div class="bar-fill" id="bj-marge-fill"></div>
+                <div class="bar-marker" id="bj-marge-marker"></div>
+              </div>
+            </div>
+            <div class="journal-mini-compare" id="bj-marge-text"></div>
+          </div>
+        </div>
+        <div class="bilan-jour-empty" id="bilan-jour-empty" style="display:none;">Aucune saisie enregistrée aujourd'hui dans le journal de ce mois.</div>
       </div>
 
       <div class="panel journal-panel">
@@ -1055,6 +1126,39 @@
         <div class="journal-empty" id="journal-empty" style="display: none;">Aucune saisie ce mois-ci. Cliquez sur « + Ajouter une ligne » pour commencer.</div>
         <div class="journal-taux" id="journal-taux">21 jour(s) saisi(s) — marge générée : <b>10 612,68 €</b></div>
 
+      </div>
+      </div>
+
+      <div class="month-subview" id="subview-cumul-jour" style="display:none;">
+      <div class="annee-chart-card">
+        <div class="journal-chart-header">
+          <h3>Cumul CA — Objectif vs Réalisé</h3>
+          <div class="journal-chart-legend">
+            <span class="legend-item"><span class="legend-line" style="background:#93908A;"></span>Objectif cumulé</span>
+            <span class="legend-item"><span class="legend-line" style="background:#5FA37E;"></span>Réalisé cumulé</span>
+            <span class="legend-item"><span class="legend-line legend-line-dashed" style="border-color:#FFA500;"></span>Aujourd'hui</span>
+          </div>
+        </div>
+        <div class="journal-chart-scroll">
+          <svg id="cumul-ca-chart" class="journal-chart-svg" width="500" height="270" viewBox="0 0 500 270"></svg>
+        </div>
+        <div class="journal-chart-empty" id="cumul-ca-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
+      </div>
+
+      <div class="annee-chart-card">
+        <div class="journal-chart-header">
+          <h3>Cumul Marge — Objectif vs Réalisé</h3>
+          <div class="journal-chart-legend">
+            <span class="legend-item"><span class="legend-line" style="background:#93908A;"></span>Objectif cumulé</span>
+            <span class="legend-item"><span class="legend-line" style="background:#5FA37E;"></span>Réalisé cumulé</span>
+            <span class="legend-item"><span class="legend-line legend-line-dashed" style="border-color:#FFA500;"></span>Aujourd'hui</span>
+          </div>
+        </div>
+        <div class="journal-chart-scroll">
+          <svg id="cumul-marge-chart" class="journal-chart-svg" width="500" height="270" viewBox="0 0 500 270"></svg>
+        </div>
+        <div class="journal-chart-empty" id="cumul-marge-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
+      </div>
       </div>
 
     </main>
@@ -1536,6 +1640,24 @@ function showView(){
   document.getElementById('annee-panel').style.display = activeView === 'year' ? 'grid' : 'none';
 }
 
+/* ---------- Sous-onglets de la vue Mois (Bilan mois / Bilan jour / Cumul jour) ---------- */
+
+let activeMonthSubview = 'bilan-mois';
+
+function switchMonthSubview(id){
+  activeMonthSubview = id;
+  document.querySelectorAll('.month-subview').forEach(el => {
+    el.style.display = (el.id === 'subview-' + id) ? '' : 'none';
+  });
+  document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.subview === id);
+  });
+}
+
+document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchMonthSubview(btn.dataset.subview));
+});
+
 function switchMonth(i){
   if(activeView === 'month') saveCurrentInputs();
   activeView = 'month';
@@ -1968,9 +2090,206 @@ function renderJournal(){
   emptyEl.style.display = journal.length === 0 ? 'block' : 'none';
   updateJournalTotals();
   renderJournalChart();
+  renderBilanJourSummary();
+  renderCumulJourCharts();
 
   // Remplit les barres des sous-lignes ouvertes une fois qu'elles sont dans le DOM.
   expandedJournalRows.forEach(id => updateRowDetailBars(id));
+}
+
+/* ---------- Bilan jour (résumé du jour courant) ---------- */
+
+function renderBilanJourSummary(){
+  const dateEl = document.getElementById('bilan-jour-date');
+  if(!dateEl) return; // markup pas encore présent (défensif)
+  const emptyEl = document.getElementById('bilan-jour-empty');
+  const gaugesEl = document.getElementById('bilan-jour-gauges');
+
+  const todayDate = new Date();
+  const label = todayDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  dateEl.textContent = "Aujourd'hui — " + label;
+
+  const row = currentJournal().find(r => r.date === todayISO());
+
+  if(!row){
+    if(gaugesEl) gaugesEl.style.display = 'none';
+    if(emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+  if(gaugesEl) gaugesEl.style.display = '';
+  if(emptyEl) emptyEl.style.display = 'none';
+
+  const ca = row.ca || 0;
+  const margeEuros = ca * (row.margePct || 0) / 100;
+  const caPct = journalObjJourCA > 0 ? (ca / journalObjJourCA) * 100 : 0;
+  const margePct = journalObjJourMarge > 0 ? (margeEuros / journalObjJourMarge) * 100 : 0;
+
+  setMiniBar(document.getElementById('bj-ca-fill'), document.getElementById('bj-ca-marker'), caPct, statusFor(caPct));
+  const bjCaText = document.getElementById('bj-ca-text');
+  if(bjCaText) bjCaText.innerHTML = '<b>' + fmtEuro(ca) + '</b> / ' + fmtEuro(journalObjJourCA) + ' (' + fmtPct(caPct) + ')';
+
+  setMiniBar(document.getElementById('bj-marge-fill'), document.getElementById('bj-marge-marker'), margePct, statusFor(margePct));
+  const bjMargeText = document.getElementById('bj-marge-text');
+  if(bjMargeText) bjMargeText.innerHTML = '<b>' + fmtEuro(margeEuros) + '</b> / ' + fmtEuro(journalObjJourMarge) + ' (' + fmtPct(margePct) + ')';
+}
+
+/* ---------- Cumul jour (courbes cumulées objectif vs réalisé) ---------- */
+
+// Construit, pour chaque jour calendaire du mois affiché, le cumul de l'objectif
+// (qui n'avance que les jours ouvrés, au rythme de l'objectif journalier) et le
+// cumul du réalisé (somme des lignes du journal jusqu'à ce jour inclus).
+function computeCumulSeries(kind){
+  const totalDays = joursDansMois(YEAR, activeMonth);
+  const journal = currentJournal();
+  const byDate = {};
+  journal.forEach(r => {
+    const val = kind === 'ca' ? (r.ca || 0) : ((r.ca || 0) * (r.margePct || 0) / 100);
+    byDate[r.date] = (byDate[r.date] || 0) + val;
+  });
+
+  const objectifJour = kind === 'ca' ? journalObjJourCA : journalObjJourMarge;
+
+  let cumulObj = 0, cumulReal = 0;
+  const points = [];
+  for(let day = 1; day <= totalDays; day++){
+    const dateStr = YEAR + '-' + pad2(activeMonth + 1) + '-' + pad2(day);
+    const dow = new Date(YEAR, activeMonth, day).getDay();
+    const isWorkday = dow !== 0 && dow !== 6;
+    const filled = Object.prototype.hasOwnProperty.call(byDate, dateStr);
+    if(isWorkday) cumulObj += objectifJour;
+    if(filled) cumulReal += byDate[dateStr];
+    points.push({ day, date: dateStr, cumulObj, cumulReal, filled });
+  }
+  return points;
+}
+
+function renderCumulChart(svgId, emptyId, points, objColor, realColor, realLabel){
+  const svg = document.getElementById(svgId);
+  const emptyEl = document.getElementById(emptyId);
+  if(!svg) return;
+  if(points.length === 0){
+    svg.innerHTML = '';
+    svg.removeAttribute('viewBox');
+    if(emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+  if(emptyEl) emptyEl.style.display = 'none';
+
+  const FADED_OPACITY = 0.18;
+  const maxVal = Math.max(...points.map(p => Math.max(p.cumulObj, p.cumulReal)), 1);
+
+  const paddingLeft = 60, paddingRight = 16, paddingTop = 24, paddingBottom = 34;
+  const chartHeight = 220;
+  const pointGap = 26;
+  const chartWidth = Math.max((points.length - 1) * pointGap, 440);
+  const width = chartWidth + paddingLeft + paddingRight;
+  const height = chartHeight + paddingTop + paddingBottom;
+  const innerH = chartHeight;
+
+  const xFor = (i) => paddingLeft + (points.length > 1 ? (i * chartWidth / (points.length - 1)) : 0);
+  const yFor = (v) => paddingTop + innerH - (v / maxVal) * innerH;
+
+  let svgParts = '';
+
+  // Grille horizontale + labels d'axe Y
+  const steps = 4;
+  for(let i = 0; i <= steps; i++){
+    const y = paddingTop + innerH - (innerH * i / steps);
+    const val = maxVal * i / steps;
+    svgParts += `<line x1="${paddingLeft}" y1="${y.toFixed(1)}" x2="${width - paddingRight}" y2="${y.toFixed(1)}" stroke="#35373B" stroke-width="1" />`;
+    svgParts += `<text x="${paddingLeft - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">${fmtEuroShort(val)}</text>`;
+  }
+
+  // Labels d'axe X : tous les jours du mois, un par point ; atténués pour les jours non
+  // encore renseignés.
+  points.forEach((p, i) => {
+    const x = xFor(i);
+    const labelOpacity = p.filled ? 1 : FADED_OPACITY;
+    svgParts += `<text x="${x.toFixed(1)}" y="${(paddingTop + innerH + 16).toFixed(1)}" text-anchor="middle" font-size="10" fill="#93908A" opacity="${labelOpacity}" font-family="'JetBrains Mono', monospace">${p.day}</text>`;
+  });
+
+  // Ligne verticale signalant la date du jour (uniquement si le mois affiché est le mois en cours)
+  const now = new Date();
+  if(now.getFullYear() === YEAR && now.getMonth() === activeMonth){
+    const todayDay = now.getDate();
+    const todayIdx = points.findIndex(p => p.day === todayDay);
+    if(todayIdx !== -1){
+      const xToday = xFor(todayIdx);
+      svgParts += `<line x1="${xToday.toFixed(1)}" y1="${paddingTop}" x2="${xToday.toFixed(1)}" y2="${(paddingTop + innerH).toFixed(1)}" stroke="#FFA500" stroke-width="2" stroke-dasharray="3 3"><title>Aujourd'hui — jour ${todayDay}</title></line>`;
+      svgParts += `<text x="${xToday.toFixed(1)}" y="${(paddingTop - 8).toFixed(1)}" text-anchor="middle" font-size="9" fill="#FFA500" font-family="'JetBrains Mono', monospace">Aujourd'hui</text>`;
+    }
+  }
+
+  // Aire colorée entre la courbe réalisée et la courbe objectif : verte quand le réalisé
+  // est au-dessus de l'objectif cumulé, rouge quand il est en-dessous. Les segments sont
+  // découpés précisément aux points de croisement entre les deux courbes.
+  const GREEN_FILL = 'rgba(95, 163, 126, 0.20)';
+  const RED_FILL = 'rgba(193, 84, 58, 0.20)';
+  for(let i = 0; i < points.length - 1; i++){
+    const a = points[i], b = points[i+1];
+    const diffA = a.cumulReal - a.cumulObj;
+    const diffB = b.cumulReal - b.cumulObj;
+    const xA = xFor(i), xB = xFor(i+1);
+    const segs = [];
+    if((diffA >= 0 && diffB >= 0) || (diffA <= 0 && diffB <= 0)){
+      segs.push({ x1: xA, real1: a.cumulReal, obj1: a.cumulObj, x2: xB, real2: b.cumulReal, obj2: b.cumulObj, positive: (diffA + diffB) >= 0 });
+    } else {
+      // Croisement des deux courbes : interpolation linéaire du point où réel = objectif.
+      const t = diffA / (diffA - diffB);
+      const xC = xA + t * (xB - xA);
+      const realC = a.cumulReal + t * (b.cumulReal - a.cumulReal);
+      const objC = a.cumulObj + t * (b.cumulObj - a.cumulObj);
+      segs.push({ x1: xA, real1: a.cumulReal, obj1: a.cumulObj, x2: xC, real2: realC, obj2: objC, positive: diffA >= 0 });
+      segs.push({ x1: xC, real1: realC, obj1: objC, x2: xB, real2: b.cumulReal, obj2: b.cumulObj, positive: diffB >= 0 });
+    }
+    segs.forEach(seg => {
+      const yReal1 = yFor(seg.real1), yObj1 = yFor(seg.obj1);
+      const yReal2 = yFor(seg.real2), yObj2 = yFor(seg.obj2);
+      const fill = seg.positive ? GREEN_FILL : RED_FILL;
+      svgParts += `<polygon points="${seg.x1.toFixed(1)},${yReal1.toFixed(1)} ${seg.x2.toFixed(1)},${yReal2.toFixed(1)} ${seg.x2.toFixed(1)},${yObj2.toFixed(1)} ${seg.x1.toFixed(1)},${yObj1.toFixed(1)}" fill="${fill}" />`;
+    });
+  }
+
+  // Courbe objectif cumulé (grise, pointillée)
+  const objPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xFor(i).toFixed(1)} ${yFor(p.cumulObj).toFixed(1)}`).join(' ');
+  svgParts += `<path d="${objPath}" fill="none" stroke="${objColor}" stroke-width="2" stroke-dasharray="5 3" stroke-linejoin="round" stroke-linecap="round" />`;
+
+  // Courbe réalisé cumulé (verte, pleine)
+  const realPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xFor(i).toFixed(1)} ${yFor(p.cumulReal).toFixed(1)}`).join(' ');
+  svgParts += `<path d="${realPath}" fill="none" stroke="${realColor}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />`;
+
+  // Points objectif, échantillonnés pour ne pas surcharger le SVG
+  points.forEach((p, i) => {
+    const isLast = i === points.length - 1;
+    if(p.day % 2 !== 1 && !isLast) return;
+    const x = xFor(i);
+    svgParts += `<circle cx="${x.toFixed(1)}" cy="${yFor(p.cumulObj).toFixed(1)}" r="3" fill="${objColor}"><title>Jour ${p.day} — Objectif cumulé : ${fmtEuro2(p.cumulObj)}</title></circle>`;
+  });
+
+  // Points réalisé : un par jour du mois, pleins pour les jours renseignés, quasi effacés
+  // pour les jours non renseignés — pour voir d'un coup d'œil combien de jours de saisie restent.
+  points.forEach((p, i) => {
+    const x = xFor(i);
+    const y = yFor(p.cumulReal).toFixed(1);
+    if(p.filled){
+      svgParts += `<circle cx="${x.toFixed(1)}" cy="${y}" r="3.5" fill="${realColor}"><title>Jour ${p.day} — ${realLabel} cumulé(e) : ${fmtEuro2(p.cumulReal)}</title></circle>`;
+    } else {
+      svgParts += `<circle cx="${x.toFixed(1)}" cy="${y}" r="2.5" fill="${realColor}" opacity="${FADED_OPACITY}"><title>Jour ${p.day} — Non renseigné</title></circle>`;
+    }
+  });
+
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.innerHTML = svgParts;
+}
+
+function renderCumulJourCharts(){
+  if(!document.getElementById('cumul-ca-chart')) return; // markup pas encore présent (défensif)
+  const caPoints = computeCumulSeries('ca');
+  const margePoints = computeCumulSeries('marge');
+  renderCumulChart('cumul-ca-chart', 'cumul-ca-chart-empty', caPoints, '#93908A', '#5FA37E', 'CA réalisé');
+  renderCumulChart('cumul-marge-chart', 'cumul-marge-chart-empty', margePoints, '#93908A', '#5FA37E', 'Marge réalisée');
 }
 
 function fmtDateShort(dateStr){
@@ -1997,29 +2316,32 @@ function renderJournalChart(){
   if(!svg) return;
 
   const journal = currentJournal();
-  if(journal.length === 0){
-    svg.innerHTML = '';
-    svg.removeAttribute('viewBox');
-    if(emptyEl) emptyEl.style.display = 'block';
-    if(avgCaEl) avgCaEl.textContent = fmtEuro2(0);
-    if(avgMargeEl) avgMargeEl.textContent = fmtEuro2(0);
-    if(avgCaObjectifEl) avgCaObjectifEl.textContent = fmtEuro2(0);
-    if(avgMargeObjectifEl) avgMargeObjectifEl.textContent = fmtEuro2(0);
-    return;
-  }
   if(emptyEl) emptyEl.style.display = 'none';
 
-  // Tri chronologique (ordre du graphique indépendant du tri du tableau)
-  const sorted = [...journal].sort((a,b) => (a.date || '').localeCompare(b.date || ''));
-  const data = sorted.map(r => {
-    const ca = parseFloat(r.ca) || 0;
-    const margePct = parseFloat(r.margePct) || 0;
-    return { date: r.date, ca, marge: ca * margePct / 100, margePct };
-  });
+  // Table de correspondance date -> saisie, pour retrouver rapidement les jours renseignés.
+  const byDate = new Map();
+  journal.forEach(r => { if(r.date) byDate.set(r.date, r); });
 
-  const nbJoursSaisis = data.length;
-  const avgCa = data.reduce((s, d) => s + d.ca, 0) / nbJoursSaisis;
-  const avgMarge = data.reduce((s, d) => s + d.marge, 0) / nbJoursSaisis;
+  // Construction de tous les jours du mois affiché (1er au dernier jour), qu'ils soient
+  // renseignés ou non, afin que l'utilisateur voie d'un coup d'œil le nombre de jours restants.
+  const totalDaysInMonth = joursDansMois(YEAR, activeMonth);
+  const data = [];
+  for(let day = 1; day <= totalDaysInMonth; day++){
+    const dateStr = YEAR + '-' + pad2(activeMonth + 1) + '-' + pad2(day);
+    const r = byDate.get(dateStr);
+    if(r){
+      const ca = parseFloat(r.ca) || 0;
+      const margePct = parseFloat(r.margePct) || 0;
+      data.push({ date: dateStr, ca, marge: ca * margePct / 100, margePct, filled: true });
+    } else {
+      data.push({ date: dateStr, ca: 0, marge: 0, margePct: 0, filled: false });
+    }
+  }
+
+  const filledData = data.filter(d => d.filled);
+  const nbJoursSaisis = filledData.length;
+  const avgCa = nbJoursSaisis > 0 ? filledData.reduce((s, d) => s + d.ca, 0) / nbJoursSaisis : 0;
+  const avgMarge = nbJoursSaisis > 0 ? filledData.reduce((s, d) => s + d.marge, 0) / nbJoursSaisis : 0;
   if(avgCaEl) avgCaEl.textContent = fmtEuro2(avgCa);
   if(avgMargeEl) avgMargeEl.textContent = fmtEuro2(avgMarge);
 
@@ -2031,8 +2353,8 @@ function renderJournalChart(){
   if(avgCaObjectifEl) avgCaObjectifEl.textContent = fmtEuro2(avgCaObjectif);
   if(avgMargeObjectifEl) avgMargeObjectifEl.textContent = fmtEuro2(avgMargeObjectif);
 
-  const maxVal = Math.max(...data.map(d => Math.max(d.ca, d.marge)), avgCaObjectif, avgMargeObjectif, 1);
-  const maxPctRaw = Math.max(...data.map(d => d.margePct), 10);
+  const maxVal = Math.max(...filledData.map(d => Math.max(d.ca, d.marge)), avgCaObjectif, avgMargeObjectif, 1);
+  const maxPctRaw = Math.max(...filledData.map(d => d.margePct), 10);
   const maxPct = Math.ceil((maxPctRaw * 1.1) / 10) * 10;
 
   const groupWidth = 46;
@@ -2043,6 +2365,7 @@ function renderJournalChart(){
   const height = chartHeight + paddingTop + paddingBottom;
   const innerH = chartHeight;
   const barW = Math.min(14, groupWidth / 3);
+  const FADED_OPACITY = 0.18;
 
   let svgParts = '';
 
@@ -2070,15 +2393,25 @@ function renderJournalChart(){
     const yCa = paddingTop + innerH - caH;
     const yMarge = paddingTop + innerH - margeH;
 
-    svgParts += `<rect x="${xCa.toFixed(1)}" y="${yCa.toFixed(1)}" width="${barW}" height="${caH.toFixed(1)}" fill="#4E8FD6" rx="1.5"><title>${fmtDateShort(d.date)} — CA : ${fmtEuro2(d.ca)}</title></rect>`;
-    svgParts += `<rect x="${xMarge.toFixed(1)}" y="${yMarge.toFixed(1)}" width="${barW}" height="${margeH.toFixed(1)}" fill="#D1A23E" rx="1.5"><title>${fmtDateShort(d.date)} — Marge : ${fmtEuro2(d.marge)}</title></rect>`;
-    svgParts += `<text x="${centerX.toFixed(1)}" y="${(paddingTop + innerH + 16).toFixed(1)}" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">${fmtDateShort(d.date)}</text>`;
+    if(d.filled){
+      svgParts += `<rect x="${xCa.toFixed(1)}" y="${yCa.toFixed(1)}" width="${barW}" height="${caH.toFixed(1)}" fill="#4E8FD6" rx="1.5"><title>${fmtDateShort(d.date)} — CA : ${fmtEuro2(d.ca)}</title></rect>`;
+      svgParts += `<rect x="${xMarge.toFixed(1)}" y="${yMarge.toFixed(1)}" width="${barW}" height="${margeH.toFixed(1)}" fill="#D1A23E" rx="1.5"><title>${fmtDateShort(d.date)} — Marge : ${fmtEuro2(d.marge)}</title></rect>`;
+      svgParts += `<text x="${centerX.toFixed(1)}" y="${(paddingTop + innerH + 16).toFixed(1)}" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">${fmtDateShort(d.date)}</text>`;
+    } else {
+      // Jour non renseigné : repère quasi effacé pour matérialiser un jour de saisie restant.
+      const minH = 3;
+      svgParts += `<rect x="${xCa.toFixed(1)}" y="${(paddingTop + innerH - minH).toFixed(1)}" width="${barW}" height="${minH}" fill="#4E8FD6" opacity="${FADED_OPACITY}" rx="1.5"><title>${fmtDateShort(d.date)} — Non renseigné</title></rect>`;
+      svgParts += `<rect x="${xMarge.toFixed(1)}" y="${(paddingTop + innerH - minH).toFixed(1)}" width="${barW}" height="${minH}" fill="#D1A23E" opacity="${FADED_OPACITY}" rx="1.5"><title>${fmtDateShort(d.date)} — Non renseigné</title></rect>`;
+      svgParts += `<text x="${centerX.toFixed(1)}" y="${(paddingTop + innerH + 16).toFixed(1)}" text-anchor="middle" font-size="10" fill="#93908A" opacity="${FADED_OPACITY}" font-family="'JetBrains Mono', monospace">${fmtDateShort(d.date)}</text>`;
+    }
 
-    const yTrend = paddingTop + innerH - (d.margePct / maxPct) * innerH;
-    points.push({ x: centerX, y: yTrend, d });
+    if(d.filled){
+      const yTrend = paddingTop + innerH - (d.margePct / maxPct) * innerH;
+      points.push({ x: centerX, y: yTrend, d });
+    }
   });
 
-  // Ligne de tendance de la marge (%), sur l'axe Y de droite
+  // Ligne de tendance de la marge (%), sur l'axe Y de droite — uniquement entre jours renseignés
   if(points.length > 0){
     const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
     svgParts += `<path d="${pathD}" fill="none" stroke="#5FA37E" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />`;
