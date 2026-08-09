@@ -770,6 +770,44 @@
   }
   .journal-objectif-text.positive{ color: var(--ok); }
   .journal-objectif-text.negative{ color: var(--danger); }
+  #bilan-jour-objectif-card .journal-objectif-label{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+  }
+  .bj-objectif-reset{
+    font-family:'Inter', sans-serif;
+    font-size: 10.5px;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+  }
+  .bj-objectif-reset:hover{ color: var(--text); border-color: var(--text-muted); }
+  #bj-objectif-text{
+    outline: none;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    cursor: text;
+    white-space: pre-wrap;
+  }
+  #bj-objectif-text:hover{ background: var(--panel-raised); }
+  #bj-objectif-text:focus{ background: var(--panel-raised); box-shadow: 0 0 0 1px var(--hairline); }
+  #bj-objectif-text.bj-objectif-manual::after{
+    content: " (modifié manuellement)";
+    font-family:'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text-muted);
+  }
   .journal-chart-card{
     margin-top: 24px;
     padding-top: 20px;
@@ -1036,6 +1074,8 @@
               </div>
             </div>
             <div class="journal-mini-compare" id="bj-ca-text"></div>
+            <div class="journal-mini-delta" id="bj-ca-delta"></div>
+            <div class="journal-mini-cumul" id="bj-ca-cumul"></div>
           </div>
           <div class="journal-mini-gauge">
             <div class="journal-mini-gauge-label">Marge du jour vs objectif journalier</div>
@@ -1050,9 +1090,18 @@
               </div>
             </div>
             <div class="journal-mini-compare" id="bj-marge-text"></div>
+            <div class="journal-mini-delta" id="bj-marge-delta"></div>
+            <div class="journal-mini-cumul" id="bj-marge-cumul"></div>
           </div>
         </div>
-        <div class="bilan-jour-empty" id="bilan-jour-empty" style="display:none;">Aucune saisie enregistrée aujourd'hui dans le journal de ce mois.</div>
+        <div class="journal-objectif-card" id="bilan-jour-objectif-card">
+          <div class="journal-objectif-label">
+            Objectif du jour
+            <button type="button" class="bj-objectif-reset" id="bj-objectif-reset" title="Revenir au texte calculé automatiquement">Réinitialiser</button>
+          </div>
+          <div class="journal-objectif-text" id="bj-objectif-text" contenteditable="true" spellcheck="false"></div>
+        </div>
+        <div class="bilan-jour-empty" id="bilan-jour-empty" style="display:none;">Aucune saisie enregistrée dans le journal de ce mois.</div>
       </div>
 
       <div class="panel journal-panel">
@@ -2099,25 +2148,48 @@ function renderJournal(){
 
 /* ---------- Bilan jour (résumé du jour courant) ---------- */
 
+// Clé de sauvegarde localStorage pour l'override manuel du texte "Objectif du jour"
+// de la carte Bilan jour, propre au mois/année/date affichée (elle est donc
+// réinitialisée automatiquement dès que la carte affiche une autre date).
+function bilanJourObjectifStorageKey(dateStr){
+  return 'bilanJourObjectifOverride_' + dateStr;
+}
+
 function renderBilanJourSummary(){
   const dateEl = document.getElementById('bilan-jour-date');
   if(!dateEl) return; // markup pas encore présent (défensif)
   const emptyEl = document.getElementById('bilan-jour-empty');
   const gaugesEl = document.getElementById('bilan-jour-gauges');
+  const objectifCardEl = document.getElementById('bilan-jour-objectif-card');
 
-  const todayDate = new Date();
-  const label = todayDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-  dateEl.textContent = "Aujourd'hui — " + label;
+  const todayStr = todayISO();
 
-  const row = currentJournal().find(r => r.date === todayISO());
+  // Sélectionne la ligne du jour même si elle n'existe pas : sinon on prend
+  // la ligne la plus récente dont la date est <= aujourd'hui (dernière saisie).
+  const journalSorted = currentJournal()
+    .filter(r => r.date && r.date <= todayStr)
+    .sort((a, b) => b.date.localeCompare(a.date));
+  const row = journalSorted[0];
 
   if(!row){
+    const todayDate = new Date();
+    const label = todayDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    dateEl.textContent = "Aujourd'hui — " + label;
     if(gaugesEl) gaugesEl.style.display = 'none';
+    if(objectifCardEl) objectifCardEl.style.display = 'none';
     if(emptyEl) emptyEl.style.display = 'block';
     return;
   }
   if(gaugesEl) gaugesEl.style.display = '';
+  if(objectifCardEl) objectifCardEl.style.display = '';
   if(emptyEl) emptyEl.style.display = 'none';
+
+  // Libellé de la date affichée : "Aujourd'hui — ..." si c'est bien la date du
+  // jour, sinon la date réelle de la dernière saisie disponible.
+  const [rY, rM, rD] = row.date.split('-').map(Number);
+  const rowDateObj = new Date(rY, rM - 1, rD);
+  const rowLabel = rowDateObj.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  dateEl.textContent = (row.date === todayStr ? "Aujourd'hui — " : "Dernière saisie — ") + rowLabel;
 
   const ca = row.ca || 0;
   const margeEuros = ca * (row.margePct || 0) / 100;
@@ -2128,9 +2200,120 @@ function renderBilanJourSummary(){
   const bjCaText = document.getElementById('bj-ca-text');
   if(bjCaText) bjCaText.innerHTML = '<b>' + fmtEuro(ca) + '</b> / ' + fmtEuro(journalObjJourCA) + ' (' + fmtPct(caPct) + ')';
 
+  const caDelta = ca - journalObjJourCA;
+  const bjCaDeltaEl = document.getElementById('bj-ca-delta');
+  if(bjCaDeltaEl){
+    if(caDelta >= 0){
+      bjCaDeltaEl.textContent = '+' + fmtEuro(caDelta) + ' vs objectif';
+      bjCaDeltaEl.className = 'journal-mini-delta positive';
+    } else {
+      bjCaDeltaEl.textContent = '−' + fmtEuro(Math.abs(caDelta)) + ' vs objectif';
+      bjCaDeltaEl.className = 'journal-mini-delta negative';
+    }
+  }
+
   setMiniBar(document.getElementById('bj-marge-fill'), document.getElementById('bj-marge-marker'), margePct, statusFor(margePct));
   const bjMargeText = document.getElementById('bj-marge-text');
   if(bjMargeText) bjMargeText.innerHTML = '<b>' + fmtEuro(margeEuros) + '</b> / ' + fmtEuro(journalObjJourMarge) + ' (' + fmtPct(margePct) + ')';
+
+  const margeDelta = margeEuros - journalObjJourMarge;
+  const bjMargeDeltaEl = document.getElementById('bj-marge-delta');
+  if(bjMargeDeltaEl){
+    if(margeDelta >= 0){
+      bjMargeDeltaEl.textContent = '+' + fmtEuro(margeDelta) + ' vs objectif';
+      bjMargeDeltaEl.className = 'journal-mini-delta positive';
+    } else {
+      bjMargeDeltaEl.textContent = '−' + fmtEuro(Math.abs(margeDelta)) + ' vs objectif';
+      bjMargeDeltaEl.className = 'journal-mini-delta negative';
+    }
+  }
+
+  // Cumuls depuis le début du mois, jusqu'à la date de la ligne affichée incluse.
+  const journal = currentJournal();
+  let caCumul = 0, margeCumul = 0;
+  journal.forEach(r => {
+    if((r.date || '') <= row.date){
+      const rCa = r.ca || 0;
+      caCumul += rCa;
+      margeCumul += rCa * (r.margePct || 0) / 100;
+    }
+  });
+
+  const rowDay = rD;
+  const workdaysElapsed = joursOuvresEcoulesDansMois(YEAR, activeMonth, rowDay);
+  const caObjCumul = journalObjJourCA * workdaysElapsed;
+  const margeObjCumul = journalObjJourMarge * workdaysElapsed;
+  const caCumulPct = caObjCumul > 0 ? (caCumul / caObjCumul) * 100 : 0;
+  const margeCumulPct = margeObjCumul > 0 ? (margeCumul / margeObjCumul) * 100 : 0;
+
+  const bjCaCumulEl = document.getElementById('bj-ca-cumul');
+  if(bjCaCumulEl){
+    bjCaCumulEl.innerHTML = 'CA cumulé depuis le début du mois : <b>' + fmtEuro(caCumul) + '</b> / ' + fmtEuro(caObjCumul) + ' (' + fmtPct(caCumulPct) + ')';
+    bjCaCumulEl.className = 'journal-mini-cumul ' + (caCumul >= caObjCumul ? 'positive' : 'negative');
+  }
+
+  const bjMargeCumulEl = document.getElementById('bj-marge-cumul');
+  if(bjMargeCumulEl){
+    bjMargeCumulEl.innerHTML = 'Marge cumulée depuis le début du mois : <b>' + fmtEuro(margeCumul) + '</b> / ' + fmtEuro(margeObjCumul) + ' (' + fmtPct(margeCumulPct) + ')';
+    bjMargeCumulEl.className = 'journal-mini-cumul ' + (margeCumul >= margeObjCumul ? 'positive' : 'negative');
+  }
+
+  // Bloc "Objectif du jour" : texte auto-calculé, sauf si l'utilisateur a saisi
+  // manuellement un override pour cette date précise (persisté en localStorage).
+  const objectifEl = document.getElementById('bj-objectif-text');
+  if(objectifEl){
+    const margeEcart = margeCumul - margeObjCumul;
+    const caEcart = caCumul - caObjCumul;
+    const caSigne = (caEcart >= 0 ? '+' : '−') + fmtEuro(Math.abs(caEcart));
+    const autoText = margeEcart >= 0
+      ? 'Il faut conserver notre avance : ' + fmtEuro(margeEcart) + ' de marge d\'avance (CA : ' + caSigne + ') sur le cumul objectif du mois.'
+      : 'Il faut rattraper : ' + fmtEuro(Math.abs(margeEcart)) + ' de marge de retard (CA : ' + caSigne + ') sur le cumul objectif du mois.';
+    const autoClass = margeEcart >= 0 ? 'positive' : 'negative';
+
+    objectifEl.dataset.date = row.date;
+    objectifEl.dataset.autoText = autoText;
+
+    let override = null;
+    try { override = localStorage.getItem(bilanJourObjectifStorageKey(row.date)); } catch(e){}
+
+    if(override !== null && override !== ''){
+      objectifEl.innerText = override;
+      objectifEl.className = 'journal-objectif-text bj-objectif-manual';
+    } else {
+      objectifEl.innerText = autoText;
+      objectifEl.className = 'journal-objectif-text ' + autoClass;
+    }
+  }
+}
+
+// Sauvegarde l'override manuel dès que l'utilisateur quitte le champ éditable,
+// uniquement si le texte diffère du texte auto-calculé pour cette date.
+function initBilanJourObjectifEditing(){
+  const objectifEl = document.getElementById('bj-objectif-text');
+  const resetBtn = document.getElementById('bj-objectif-reset');
+  if(objectifEl){
+    objectifEl.addEventListener('blur', function(){
+      const date = objectifEl.dataset.date;
+      if(!date) return;
+      const text = objectifEl.innerText.trim();
+      try {
+        if(text === '' || text === objectifEl.dataset.autoText){
+          localStorage.removeItem(bilanJourObjectifStorageKey(date));
+        } else {
+          localStorage.setItem(bilanJourObjectifStorageKey(date), text);
+        }
+      } catch(e){}
+      renderBilanJourSummary();
+    });
+  }
+  if(resetBtn){
+    resetBtn.addEventListener('click', function(){
+      const date = objectifEl && objectifEl.dataset.date;
+      if(!date) return;
+      try { localStorage.removeItem(bilanJourObjectifStorageKey(date)); } catch(e){}
+      renderBilanJourSummary();
+    });
+  }
 }
 
 /* ---------- Cumul jour (courbes cumulées objectif vs réalisé) ---------- */
@@ -2907,6 +3090,7 @@ document.getElementById('sync-code-input').addEventListener('keydown', (e) => {
   showView();
   loadMonthIntoInputs();
   update();
+  initBilanJourObjectifEditing();
 })();
 </script>
 
