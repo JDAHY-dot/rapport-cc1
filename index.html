@@ -1221,6 +1221,12 @@
     </aside>
 
     <main class="gauges-col">
+      <nav class="tabs month-subtabs" id="annee-subtabs">
+        <button class="tab-btn sub-tab-btn annee-sub-tab-btn active" data-subview="annee-ca" type="button">Chiffre d'affaire</button>
+        <button class="tab-btn sub-tab-btn annee-sub-tab-btn" data-subview="annee-marge" type="button">Marge</button>
+      </nav>
+
+      <div class="month-subview annee-subview" id="subview-annee-ca">
       <div class="gauge-card">
         <div class="gauge-top">
           <h2 style="margin:0;">Chiffre d'affaires cumulé</h2>
@@ -1265,6 +1271,22 @@
         <div class="journal-chart-empty" id="annee-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
       </div>
 
+      <div class="annee-chart-card">
+        <div class="journal-chart-header">
+          <h3>CA cumulé — Objectif vs Réalisé</h3>
+          <div class="journal-chart-legend">
+            <span class="legend-item"><span class="legend-line legend-line-dashed" style="border-color:#93908A;"></span>Objectif cumulé</span>
+            <span class="legend-item"><span class="legend-line" style="background:#5FA37E;"></span>Réalisé cumulé</span>
+          </div>
+        </div>
+        <div class="journal-chart-scroll">
+          <svg id="annee-cumul-ca-chart" class="journal-chart-svg" width="976" height="270" viewBox="0 0 976 270"></svg>
+        </div>
+        <div class="journal-chart-empty" id="annee-cumul-ca-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
+      </div>
+      </div>
+
+      <div class="month-subview annee-subview" id="subview-annee-marge" style="display:none;">
       <div class="gauge-card">
         <div class="gauge-top">
           <h2 style="margin:0;">Marge cumulée</h2>
@@ -1307,6 +1329,21 @@
           <svg id="annee-marge-chart" class="journal-chart-svg" width="976" height="270" viewBox="0 0 976 270"><line x1="60" y1="236.0" x2="876" y2="236.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="240.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">0 €</text><line x1="60" y1="181.0" x2="876" y2="181.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="185.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">11,5k€</text><line x1="60" y1="126.0" x2="876" y2="126.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="130.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">23k€</text><line x1="60" y1="71.0" x2="876" y2="71.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="75.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">34,5k€</text><line x1="60" y1="16.0" x2="876" y2="16.0" stroke="#35373B" stroke-width="1"></line><text x="52" y="20.0" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">46k€</text><text x="884" y="240.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">0 €</text><text x="884" y="185.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">445 €</text><text x="884" y="130.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">891 €</text><text x="884" y="75.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">1,3k€</text><text x="884" y="20.0" text-anchor="start" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace">1,8k€</text><text x="962" y="126.0" text-anchor="middle" font-size="10" fill="#4E8FD6" font-family="'JetBrains Mono', monospace" letter-spacing="0.5" transform="rotate(90 962 126.0)">Chiffre moyen réalisé</text><rect x="72.0" y="68.6" width="20" height="167.4" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Jan — Objectif : 35 000 €</title></rect><rect x="96.0" y="130.7" width="20" height="105.3" fill="#C1543A" rx="1.5"><title>Jan — Réalisé : 22 011 € (62.9%) — En retard</title></rect><text x="94.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Jan</text><rect x="140.0" y="59.0" width="20" height="177.0" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Fév — Objectif : 37 000 €</title></rect><rect x="164.0" y="79.3" width="20" height="156.7" fill="#D1A23E" rx="1.5"><title>Fév — Réalisé : 32 775 € (88.6%) — Sur la bonne voie</title></rect><text x="162.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Fév</text><rect x="208.0" y="35.1" width="20" height="200.9" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Mar — Objectif : 42 000 €</title></rect><rect x="232.0" y="97.4" width="20" height="138.6" fill="#C1543A" rx="1.5"><title>Mar — Réalisé : 28 970 € (69%) — En retard</title></rect><text x="230.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Mar</text><rect x="276.0" y="54.3" width="20" height="181.7" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Avr — Objectif : 38 000 €</title></rect><rect x="300.0" y="89.0" width="20" height="147.0" fill="#D1A23E" rx="1.5"><title>Avr — Réalisé : 30 730 € (80.9%) — Sur la bonne voie</title></rect><text x="298.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Avr</text><rect x="344.0" y="87.7" width="20" height="148.3" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Mai — Objectif : 31 000 €</title></rect><rect x="368.0" y="117.6" width="20" height="118.4" fill="#D1A23E" rx="1.5"><title>Mai — Réalisé : 24 759 € (79.9%) — Sur la bonne voie</title></rect><text x="366.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Mai</text><rect x="412.0" y="16.0" width="20" height="220.0" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Juin — Objectif : 46 000 €</title></rect><rect x="436.0" y="103.1" width="20" height="132.9" fill="#C1543A" rx="1.5"><title>Juin — Réalisé : 27 789 € (60.4%) — En retard</title></rect><text x="434.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Juin</text><rect x="480.0" y="54.3" width="20" height="181.7" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Juil — Objectif : 38 000 €</title></rect><rect x="504.0" y="48.6" width="20" height="187.4" fill="#5FA37E" rx="1.5"><title>Juil — Réalisé : 39 191 € (103.1%) — Objectif atteint</title></rect><text x="502.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Juil</text><rect x="548.0" y="92.5" width="20" height="143.5" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Août — Objectif : 30 000 €</title></rect><rect x="572.0" y="185.2" width="20" height="50.8" fill="#5FA37E" rx="1.5"><title>Août — Réalisé : 10 612 € (35.4%) — En avance</title></rect><text x="570.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Août</text><rect x="616.0" y="54.3" width="20" height="181.7" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Sep — Objectif : 38 000 €</title></rect><rect x="640.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Sep — Réalisé : 0 € (0%) — À venir</title></rect><text x="638.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Sep</text><rect x="684.0" y="35.1" width="20" height="200.9" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Oct — Objectif : 42 000 €</title></rect><rect x="708.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Oct — Réalisé : 0 € (0%) — À venir</title></rect><text x="706.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Oct</text><rect x="752.0" y="44.7" width="20" height="191.3" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Nov — Objectif : 40 000 €</title></rect><rect x="776.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Nov — Réalisé : 0 € (0%) — À venir</title></rect><text x="774.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Nov</text><rect x="820.0" y="83.0" width="20" height="153.0" fill="#35373B" stroke="#93908A" stroke-width="1" rx="1.5"><title>Déc — Objectif : 32 000 €</title></rect><rect x="844.0" y="236.0" width="20" height="0.0" fill="#93908A" rx="1.5"><title>Déc — Réalisé : 0 € (0%) — À venir</title></rect><text x="842.0" y="252.0" text-anchor="middle" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">Déc</text><path d="M 94.0 100.1 L 162.0 33.6 L 230.0 73.4 L 298.0 46.2 L 366.0 44.9 L 434.0 80.0 L 502.0 16.0 L 570.0 173.6" fill="none" stroke="#4E8FD6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="4 2"></path><circle cx="94.0" cy="100.1" r="4" fill="#4E8FD6"><title>Jan — Chiffre moyen réalisé : 1 100,61 €</title></circle><circle cx="162.0" cy="33.6" r="4" fill="#4E8FD6"><title>Fév — Chiffre moyen réalisé : 1 638,78 €</title></circle><circle cx="230.0" cy="73.4" r="4" fill="#4E8FD6"><title>Mar — Chiffre moyen réalisé : 1 316,74 €</title></circle><circle cx="298.0" cy="46.2" r="4" fill="#4E8FD6"><title>Avr — Chiffre moyen réalisé : 1 536,64 €</title></circle><circle cx="366.0" cy="44.9" r="4" fill="#4E8FD6"><title>Mai — Chiffre moyen réalisé : 1 547,44 €</title></circle><circle cx="434.0" cy="80.0" r="4" fill="#4E8FD6"><title>Juin — Chiffre moyen réalisé : 1 263,17 €</title></circle><circle cx="502.0" cy="16.0" r="4" fill="#4E8FD6"><title>Juil — Chiffre moyen réalisé : 1 781,29 €</title></circle><circle cx="570.0" cy="173.6" r="4" fill="#4E8FD6"><title>Août — Chiffre moyen réalisé : 505,37 €</title></circle></svg>
         </div>
         <div class="journal-chart-empty" id="annee-marge-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
+      </div>
+
+      <div class="annee-chart-card">
+        <div class="journal-chart-header">
+          <h3>Marge cumulée — Objectif vs Réalisé</h3>
+          <div class="journal-chart-legend">
+            <span class="legend-item"><span class="legend-line legend-line-dashed" style="border-color:#93908A;"></span>Objectif cumulé</span>
+            <span class="legend-item"><span class="legend-line" style="background:#5FA37E;"></span>Réalisé cumulé</span>
+          </div>
+        </div>
+        <div class="journal-chart-scroll">
+          <svg id="annee-cumul-marge-chart" class="journal-chart-svg" width="976" height="270" viewBox="0 0 976 270"></svg>
+        </div>
+        <div class="journal-chart-empty" id="annee-cumul-marge-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
+      </div>
       </div>
 
       <div class="annee-summary" id="annee-summary"><b>8</b> mois inclus : Jan, Fév, Mar, Avr, Mai, Juin, Juil, Août</div>
@@ -1703,8 +1740,23 @@ function switchMonthSubview(id){
   });
 }
 
-document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+document.querySelectorAll('.month-subtabs:not(#annee-subtabs) .sub-tab-btn').forEach(btn => {
   btn.addEventListener('click', () => switchMonthSubview(btn.dataset.subview));
+});
+
+/* ---------- Sous-onglets de la vue Année (Chiffre d'affaire / Marge) ---------- */
+
+function switchAnneeSubview(id){
+  document.querySelectorAll('.annee-subview').forEach(el => {
+    el.style.display = (el.id === 'subview-' + id) ? '' : 'none';
+  });
+  document.querySelectorAll('.annee-sub-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.subview === id);
+  });
+}
+
+document.querySelectorAll('.annee-sub-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchAnneeSubview(btn.dataset.subview));
 });
 
 function switchMonth(i){
@@ -2164,10 +2216,10 @@ function renderBilanJourSummary(){
 
   const todayStr = todayISO();
 
-  // Sélectionne la ligne du jour même si elle n'existe pas : sinon on prend
-  // la ligne la plus récente dont la date est <= aujourd'hui (dernière saisie).
+  // Sélectionne la ligne la plus récente dont la date est strictement avant
+  // aujourd'hui (dernière saisie enregistrée), en excluant la date du jour même.
   const journalSorted = currentJournal()
-    .filter(r => r.date && r.date <= todayStr)
+    .filter(r => r.date && r.date < todayStr)
     .sort((a, b) => b.date.localeCompare(a.date));
   const row = journalSorted[0];
 
@@ -2184,12 +2236,12 @@ function renderBilanJourSummary(){
   if(objectifCardEl) objectifCardEl.style.display = '';
   if(emptyEl) emptyEl.style.display = 'none';
 
-  // Libellé de la date affichée : "Aujourd'hui — ..." si c'est bien la date du
-  // jour, sinon la date réelle de la dernière saisie disponible.
+  // Comme la date du jour est désormais exclue de la sélection, la ligne retenue
+  // est toujours une saisie antérieure : on affiche systématiquement "Dernière saisie".
   const [rY, rM, rD] = row.date.split('-').map(Number);
   const rowDateObj = new Date(rY, rM - 1, rD);
   const rowLabel = rowDateObj.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-  dateEl.textContent = (row.date === todayStr ? "Aujourd'hui — " : "Dernière saisie — ") + rowLabel;
+  dateEl.textContent = "Dernière saisie — " + rowLabel;
 
   const ca = row.ca || 0;
   const margeEuros = ca * (row.margePct || 0) / 100;
@@ -2768,6 +2820,7 @@ function renderAnnee(){
 
   renderAnneeChart();
   renderAnneeMargeChart();
+  renderAnneeCumulCharts();
 }
 
 function renderMonthlyBarChart(svgId, emptyId, data, secondary){
@@ -2924,6 +2977,123 @@ function renderAnneeMargeChart(){
     return totalMarge / journal.length;
   });
   renderMonthlyBarChart('annee-marge-chart', 'annee-marge-chart-empty', data, { values: avgMargeValues, label: 'Chiffre moyen réalisé' });
+}
+
+/* ---------- Graphiques cumulés annuels (CA / Marge, mois par mois) ---------- */
+
+function computeCumulSeriesAnnuel(kind){
+  let cumulObj = 0, cumulReal = 0;
+  return monthsData.map((d, i) => {
+    const objectif = kind === 'ca' ? (d.caObjectif || 0) : (d.margeObjectif || 0);
+    const actuel = kind === 'ca' ? (d.caActuel || 0) : ((d.margeActuelle / 100) * (d.caActuel || 0));
+    const filled = (d.caActuel || 0) > 0 || (Array.isArray(d.journal) && d.journal.length > 0);
+    cumulObj += objectif;
+    cumulReal += actuel;
+    return { label: MOIS_COURT[i], cumulObj, cumulReal, filled };
+  });
+}
+
+function renderCumulChartAnnuel(svgId, emptyId, points, objColor, realColor, realLabel){
+  const svg = document.getElementById(svgId);
+  const emptyEl = document.getElementById(emptyId);
+  if(!svg) return;
+  if(points.length === 0){
+    svg.innerHTML = '';
+    svg.removeAttribute('viewBox');
+    if(emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+  if(emptyEl) emptyEl.style.display = 'none';
+
+  const FADED_OPACITY = 0.18;
+  const maxVal = Math.max(...points.map(p => Math.max(p.cumulObj, p.cumulReal)), 1);
+
+  const paddingLeft = 60, paddingRight = 16, paddingTop = 24, paddingBottom = 34;
+  const chartHeight = 220;
+  const pointGap = 68;
+  const chartWidth = Math.max((points.length - 1) * pointGap, 440);
+  const width = chartWidth + paddingLeft + paddingRight;
+  const height = chartHeight + paddingTop + paddingBottom;
+  const innerH = chartHeight;
+
+  const xFor = (i) => paddingLeft + (points.length > 1 ? (i * chartWidth / (points.length - 1)) : 0);
+  const yFor = (v) => paddingTop + innerH - (v / maxVal) * innerH;
+
+  let svgParts = '';
+
+  const steps = 4;
+  for(let i = 0; i <= steps; i++){
+    const y = paddingTop + innerH - (innerH * i / steps);
+    const val = maxVal * i / steps;
+    svgParts += `<line x1="${paddingLeft}" y1="${y.toFixed(1)}" x2="${width - paddingRight}" y2="${y.toFixed(1)}" stroke="#35373B" stroke-width="1" />`;
+    svgParts += `<text x="${paddingLeft - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#93908A" font-family="'JetBrains Mono', monospace">${fmtEuroShort(val)}</text>`;
+  }
+
+  points.forEach((p, i) => {
+    const x = xFor(i);
+    const labelOpacity = p.filled ? 1 : FADED_OPACITY;
+    svgParts += `<text x="${x.toFixed(1)}" y="${(paddingTop + innerH + 16).toFixed(1)}" text-anchor="middle" font-size="10" fill="#93908A" opacity="${labelOpacity}" font-family="'JetBrains Mono', monospace">${p.label}</text>`;
+  });
+
+  const GREEN_FILL = 'rgba(95, 163, 126, 0.20)';
+  const RED_FILL = 'rgba(193, 84, 58, 0.20)';
+  for(let i = 0; i < points.length - 1; i++){
+    const a = points[i], b = points[i+1];
+    const diffA = a.cumulReal - a.cumulObj;
+    const diffB = b.cumulReal - b.cumulObj;
+    const xA = xFor(i), xB = xFor(i+1);
+    const segs = [];
+    if((diffA >= 0 && diffB >= 0) || (diffA <= 0 && diffB <= 0)){
+      segs.push({ x1: xA, real1: a.cumulReal, obj1: a.cumulObj, x2: xB, real2: b.cumulReal, obj2: b.cumulObj, positive: (diffA + diffB) >= 0 });
+    } else {
+      const t = diffA / (diffA - diffB);
+      const xC = xA + t * (xB - xA);
+      const realC = a.cumulReal + t * (b.cumulReal - a.cumulReal);
+      const objC = a.cumulObj + t * (b.cumulObj - a.cumulObj);
+      segs.push({ x1: xA, real1: a.cumulReal, obj1: a.cumulObj, x2: xC, real2: realC, obj2: objC, positive: diffA >= 0 });
+      segs.push({ x1: xC, real1: realC, obj1: objC, x2: xB, real2: b.cumulReal, obj2: b.cumulObj, positive: diffB >= 0 });
+    }
+    segs.forEach(seg => {
+      const yReal1 = yFor(seg.real1), yObj1 = yFor(seg.obj1);
+      const yReal2 = yFor(seg.real2), yObj2 = yFor(seg.obj2);
+      const fill = seg.positive ? GREEN_FILL : RED_FILL;
+      svgParts += `<polygon points="${seg.x1.toFixed(1)},${yReal1.toFixed(1)} ${seg.x2.toFixed(1)},${yReal2.toFixed(1)} ${seg.x2.toFixed(1)},${yObj2.toFixed(1)} ${seg.x1.toFixed(1)},${yObj1.toFixed(1)}" fill="${fill}" />`;
+    });
+  }
+
+  const objPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xFor(i).toFixed(1)} ${yFor(p.cumulObj).toFixed(1)}`).join(' ');
+  svgParts += `<path d="${objPath}" fill="none" stroke="${objColor}" stroke-width="2" stroke-dasharray="5 3" stroke-linejoin="round" stroke-linecap="round" />`;
+
+  const realPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xFor(i).toFixed(1)} ${yFor(p.cumulReal).toFixed(1)}`).join(' ');
+  svgParts += `<path d="${realPath}" fill="none" stroke="${realColor}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />`;
+
+  points.forEach((p, i) => {
+    const x = xFor(i);
+    svgParts += `<circle cx="${x.toFixed(1)}" cy="${yFor(p.cumulObj).toFixed(1)}" r="3" fill="${objColor}"><title>${p.label} — Objectif cumulé : ${fmtEuro2(p.cumulObj)}</title></circle>`;
+  });
+
+  points.forEach((p, i) => {
+    const x = xFor(i);
+    const y = yFor(p.cumulReal).toFixed(1);
+    if(p.filled){
+      svgParts += `<circle cx="${x.toFixed(1)}" cy="${y}" r="3.5" fill="${realColor}"><title>${p.label} — ${realLabel} cumulé(e) : ${fmtEuro2(p.cumulReal)}</title></circle>`;
+    } else {
+      svgParts += `<circle cx="${x.toFixed(1)}" cy="${y}" r="2.5" fill="${realColor}" opacity="${FADED_OPACITY}"><title>${p.label} — Non renseigné</title></circle>`;
+    }
+  });
+
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.innerHTML = svgParts;
+}
+
+function renderAnneeCumulCharts(){
+  if(!document.getElementById('annee-cumul-ca-chart')) return;
+  const caPoints = computeCumulSeriesAnnuel('ca');
+  const margePoints = computeCumulSeriesAnnuel('marge');
+  renderCumulChartAnnuel('annee-cumul-ca-chart', 'annee-cumul-ca-chart-empty', caPoints, '#93908A', '#5FA37E', 'CA réalisé');
+  renderCumulChartAnnuel('annee-cumul-marge-chart', 'annee-cumul-marge-chart-empty', margePoints, '#93908A', '#5FA37E', 'Marge réalisée');
 }
 
 const MAXP = 125; // % max affiché sur la barre
