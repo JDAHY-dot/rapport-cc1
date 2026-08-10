@@ -790,6 +790,26 @@
     transition: color .15s, border-color .15s;
   }
   .bj-objectif-reset:hover{ color: var(--text); border-color: var(--text-muted); }
+  .bj-objectif-btns{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:4px;
+  }
+  .bj-objectif-save{
+    font-family:'Inter', sans-serif;
+    font-size: 10.5px;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--ok);
+    background: transparent;
+    border: 1px solid var(--ok);
+    border-radius: 4px;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  .bj-objectif-save:hover{ background: var(--ok); color: var(--bg); }
   #bj-objectif-text{
     outline: none;
     border-radius: 4px;
@@ -800,7 +820,7 @@
   }
   #bj-objectif-text:hover{ background: var(--panel-raised); }
   #bj-objectif-text:focus{ background: var(--panel-raised); box-shadow: 0 0 0 1px var(--hairline); }
-  #bj-objectif-text.bj-objectif-manual::after{
+  .journal-objectif-text.bj-objectif-manual::after{
     content: " (modifié manuellement)";
     font-family:'Inter', sans-serif;
     font-size: 10px;
@@ -1097,7 +1117,10 @@
         <div class="journal-objectif-card" id="bilan-jour-objectif-card">
           <div class="journal-objectif-label">
             Objectif du jour
-            <button type="button" class="bj-objectif-reset" id="bj-objectif-reset" title="Revenir au texte calculé automatiquement">Réinitialiser</button>
+            <div class="bj-objectif-btns">
+              <button type="button" class="bj-objectif-reset" id="bj-objectif-reset" title="Revenir au texte calculé automatiquement">Réinitialiser</button>
+              <button type="button" class="bj-objectif-save" id="bj-objectif-save" title="Enregistrer ce texte dans la saisie journalière du jour">Enregistrer</button>
+            </div>
           </div>
           <div class="journal-objectif-text" id="bj-objectif-text" contenteditable="true" spellcheck="false"></div>
         </div>
@@ -1561,7 +1584,7 @@ function setSaveStatus(text, isError){
 async function persistData(){
   if(applyingRemoteUpdate) return; // évite de renvoyer en boucle une donnée qu'on vient de recevoir
   const appTitle = document.getElementById('app-title').textContent;
-  const payload = JSON.stringify({ monthsData, selectedMonths, appTitle });
+  const payload = JSON.stringify({ monthsData, selectedMonths, appTitle, bilanJourOverrides });
   try{
     setSaveStatus('Enregistrement…', false);
     if(typeof window.storage !== 'undefined'){
@@ -1611,6 +1634,9 @@ function applyPersistedPayload(rawValue){
   }
   if(typeof parsed.appTitle === 'string' && parsed.appTitle.trim() !== ''){
     document.getElementById('app-title').textContent = parsed.appTitle;
+  }
+  if(parsed.bilanJourOverrides && typeof parsed.bilanJourOverrides === 'object'){
+    bilanJourOverrides = parsed.bilanJourOverrides;
   }
 }
 
@@ -2072,17 +2098,24 @@ function updateRowDetailBars(id){
   }
 
   // Carte "Objectif du jour" : verdict unique combinant CA et marge, basé sur la marge
-  // (résultat financier final) et rappelant l'écart de CA correspondant.
+  // (résultat financier final) et rappelant l'écart de CA correspondant — sauf si un
+  // texte manuel a été enregistré pour cette ligne (via la carte Bilan jour).
   const objectifEl = document.getElementById('jobjectif-' + id);
   if(objectifEl){
     const margeEcart = margeCumul - margeObjCumul;
     const caEcart = caCumul - caObjCumul;
     const caSigne = (caEcart >= 0 ? '+' : '−') + fmtEuro(Math.abs(caEcart));
-    if(margeEcart >= 0){
-      objectifEl.textContent = 'Il faut conserver notre avance : ' + fmtEuro(margeEcart) + ' de marge d\'avance (CA : ' + caSigne + ') sur le cumul objectif du mois.';
+    const autoText = margeEcart >= 0
+      ? 'Il faut conserver notre avance : ' + fmtEuro(margeEcart) + ' de marge d\'avance (CA : ' + caSigne + ') sur le cumul objectif du mois.'
+      : 'Il faut rattraper : ' + fmtEuro(Math.abs(margeEcart)) + ' de marge de retard (CA : ' + caSigne + ') sur le cumul objectif du mois.';
+    if(row.objectifNote){
+      objectifEl.textContent = row.objectifNote;
+      objectifEl.className = 'journal-objectif-text bj-objectif-manual';
+    } else if(margeEcart >= 0){
+      objectifEl.textContent = autoText;
       objectifEl.className = 'journal-objectif-text positive';
     } else {
-      objectifEl.textContent = 'Il faut rattraper : ' + fmtEuro(Math.abs(margeEcart)) + ' de marge de retard (CA : ' + caSigne + ') sur le cumul objectif du mois.';
+      objectifEl.textContent = autoText;
       objectifEl.className = 'journal-objectif-text negative';
     }
   }
@@ -2200,11 +2233,43 @@ function renderJournal(){
 
 /* ---------- Bilan jour (résumé du jour courant) ---------- */
 
-// Clé de sauvegarde localStorage pour l'override manuel du texte "Objectif du jour"
-// de la carte Bilan jour, propre au mois/année/date affichée (elle est donc
-// réinitialisée automatiquement dès que la carte affiche une autre date).
+// Overrides manuels du texte "Objectif du jour" de la carte Bilan jour, indexés
+// par date ("YYYY-MM-DD"). Contrairement à une ancienne version qui stockait ces
+// valeurs uniquement dans le localStorage de l'appareil, cet objet fait partie du
+// payload synchronisé (voir persistData / applyPersistedPayload) afin que la
+// saisie manuelle soit visible par tous les utilisateurs partageant le même code
+// de synchronisation.
+let bilanJourOverrides = {};
+
+// Clé de sauvegarde localStorage historique (avant la synchronisation), conservée
+// uniquement pour migrer automatiquement les anciennes valeurs locales vers
+// bilanJourOverrides au premier chargement.
 function bilanJourObjectifStorageKey(dateStr){
   return 'bilanJourObjectifOverride_' + dateStr;
+}
+
+// Migre les éventuels overrides enregistrés localement (ancienne version, avant
+// synchronisation) vers bilanJourOverrides, puis les retire du localStorage.
+// Renvoie true si au moins une valeur a été migrée (pour déclencher une sauvegarde).
+function migrateLegacyBilanJourOverrides(){
+  let migrated = false;
+  try {
+    const keysToRemove = [];
+    for(let i=0;i<localStorage.length;i++){
+      const key = localStorage.key(i);
+      if(key && key.indexOf('bilanJourObjectifOverride_') === 0){
+        const dateStr = key.slice('bilanJourObjectifOverride_'.length);
+        const value = localStorage.getItem(key);
+        if(value && !(dateStr in bilanJourOverrides)){
+          bilanJourOverrides[dateStr] = value;
+          migrated = true;
+        }
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+  } catch(e){}
+  return migrated;
 }
 
 function renderBilanJourSummary(){
@@ -2310,8 +2375,10 @@ function renderBilanJourSummary(){
     bjMargeCumulEl.className = 'journal-mini-cumul ' + (margeCumul >= margeObjCumul ? 'positive' : 'negative');
   }
 
-  // Bloc "Objectif du jour" : texte auto-calculé, sauf si l'utilisateur a saisi
-  // manuellement un override pour cette date précise (persisté en localStorage).
+  // Bloc "Objectif du jour" : texte auto-calculé, sauf si un texte manuel a été
+  // enregistré pour cette date précise. Ce texte manuel est stocké directement sur
+  // la ligne du journal correspondante (row.objectifNote), afin de faire partie de
+  // la saisie journalière et d'être synchronisé avec les autres utilisateurs.
   const objectifEl = document.getElementById('bj-objectif-text');
   if(objectifEl){
     const margeEcart = margeCumul - margeObjCumul;
@@ -2323,12 +2390,17 @@ function renderBilanJourSummary(){
     const autoClass = margeEcart >= 0 ? 'positive' : 'negative';
 
     objectifEl.dataset.date = row.date;
+    objectifEl.dataset.rowId = row.id;
     objectifEl.dataset.autoText = autoText;
 
-    let override = null;
-    try { override = localStorage.getItem(bilanJourObjectifStorageKey(row.date)); } catch(e){}
+    // bilanJourOverrides n'est conservé que pour la compatibilité avec des données
+    // enregistrées avant que l'override ne soit rattaché à la ligne du journal.
+    let override = row.objectifNote;
+    if(override === undefined || override === null || override === ''){
+      override = bilanJourOverrides[row.date];
+    }
 
-    if(override !== null && override !== ''){
+    if(override !== undefined && override !== null && override !== ''){
       objectifEl.innerText = override;
       objectifEl.className = 'journal-objectif-text bj-objectif-manual';
     } else {
@@ -2338,32 +2410,70 @@ function renderBilanJourSummary(){
   }
 }
 
-// Sauvegarde l'override manuel dès que l'utilisateur quitte le champ éditable,
-// uniquement si le texte diffère du texte auto-calculé pour cette date.
+// Retrouve la ligne du journal correspondant à la carte Bilan jour actuellement
+// affichée (via l'id mémorisé, avec repli sur la date en cas d'id introuvable).
+function currentBilanJourRow(){
+  const objectifEl = document.getElementById('bj-objectif-text');
+  if(!objectifEl) return null;
+  const rowId = objectifEl.dataset.rowId;
+  const date = objectifEl.dataset.date;
+  const journal = currentJournal();
+  let row = rowId ? journal.find(r => r.id === rowId) : null;
+  if(!row && date) row = journal.find(r => r.date === date);
+  return row || null;
+}
+
+// Enregistre le texte actuellement affiché/édité dans la ligne du journal du jour
+// concerné (saisie journalière), puis persiste/synchronise les données.
+function saveBilanJourObjectif(){
+  const objectifEl = document.getElementById('bj-objectif-text');
+  if(!objectifEl) return;
+  const row = currentBilanJourRow();
+  if(!row) return;
+  const text = objectifEl.innerText.trim();
+  if(text === '' || text === objectifEl.dataset.autoText){
+    delete row.objectifNote;
+  } else {
+    row.objectifNote = text;
+  }
+  delete bilanJourOverrides[row.date]; // la ligne du journal devient la source de vérité
+  renderBilanJourSummary();
+  updateRowDetailBars(row.id);
+  scheduleSave();
+}
+
+// Supprime l'override manuel (retour au texte calculé automatiquement).
+function resetBilanJourObjectif(){
+  const objectifEl = document.getElementById('bj-objectif-text');
+  if(!objectifEl) return;
+  const row = currentBilanJourRow();
+  if(row) delete row.objectifNote;
+  delete bilanJourOverrides[objectifEl.dataset.date];
+  renderBilanJourSummary();
+  if(row) updateRowDetailBars(row.id);
+  scheduleSave();
+}
+
+// Sauvegarde l'override manuel dès que l'utilisateur quitte le champ éditable
+// (comportement conservé pour ne pas perdre une saisie), et via le bouton
+// "Enregistrer" qui l'écrit explicitement dans la saisie journalière du jour.
 function initBilanJourObjectifEditing(){
   const objectifEl = document.getElementById('bj-objectif-text');
   const resetBtn = document.getElementById('bj-objectif-reset');
+  const saveBtn = document.getElementById('bj-objectif-save');
   if(objectifEl){
     objectifEl.addEventListener('blur', function(){
-      const date = objectifEl.dataset.date;
-      if(!date) return;
-      const text = objectifEl.innerText.trim();
-      try {
-        if(text === '' || text === objectifEl.dataset.autoText){
-          localStorage.removeItem(bilanJourObjectifStorageKey(date));
-        } else {
-          localStorage.setItem(bilanJourObjectifStorageKey(date), text);
-        }
-      } catch(e){}
-      renderBilanJourSummary();
+      saveBilanJourObjectif();
     });
   }
   if(resetBtn){
     resetBtn.addEventListener('click', function(){
-      const date = objectifEl && objectifEl.dataset.date;
-      if(!date) return;
-      try { localStorage.removeItem(bilanJourObjectifStorageKey(date)); } catch(e){}
-      renderBilanJourSummary();
+      resetBilanJourObjectif();
+    });
+  }
+  if(saveBtn){
+    saveBtn.addEventListener('click', function(){
+      saveBilanJourObjectif();
     });
   }
 }
@@ -3256,6 +3366,7 @@ document.getElementById('sync-code-input').addEventListener('keydown', (e) => {
 
 (async function init(){
   await loadPersistedData();
+  if(migrateLegacyBilanJourOverrides()) scheduleSave();
   renderTabs();
   showView();
   loadMonthIntoInputs();
