@@ -1003,7 +1003,7 @@
       <nav class="tabs month-subtabs" id="month-subtabs">
         <button class="tab-btn sub-tab-btn active" data-subview="bilan-mois" type="button">Bilan mois</button>
         <button class="tab-btn sub-tab-btn" data-subview="bilan-jour" type="button">Bilan jour</button>
-        <button class="tab-btn sub-tab-btn" data-subview="cumul-jour" type="button">Cumul jour</button>
+        <button class="tab-btn sub-tab-btn" data-subview="jour-theorique" type="button">Jour théorique</button>
       </nav>
 
       <div class="month-subview" id="subview-bilan-mois">
@@ -1041,6 +1041,21 @@
         </div>
       </div>
 
+      <div class="annee-chart-card">
+        <div class="journal-chart-header">
+          <h3>Cumul CA — Objectif vs Réalisé</h3>
+          <div class="journal-chart-legend">
+            <span class="legend-item"><span class="legend-line" style="background:#93908A;"></span>Objectif cumulé</span>
+            <span class="legend-item"><span class="legend-line" style="background:#5FA37E;"></span>Réalisé cumulé</span>
+            <span class="legend-item"><span class="legend-line legend-line-dashed" style="border-color:#FFA500;"></span>Aujourd'hui</span>
+          </div>
+        </div>
+        <div class="journal-chart-scroll">
+          <svg id="cumul-ca-chart" class="journal-chart-svg" width="500" height="270" viewBox="0 0 500 270"></svg>
+        </div>
+        <div class="journal-chart-empty" id="cumul-ca-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
+      </div>
+
       <div class="gauge-card">
         <div class="gauge-top">
           <h2 style="margin:0;">Marge</h2>
@@ -1073,6 +1088,21 @@
             <span class="unit">%</span>
           </div>
         </div>
+      </div>
+
+      <div class="annee-chart-card">
+        <div class="journal-chart-header">
+          <h3>Cumul Marge — Objectif vs Réalisé</h3>
+          <div class="journal-chart-legend">
+            <span class="legend-item"><span class="legend-line" style="background:#93908A;"></span>Objectif cumulé</span>
+            <span class="legend-item"><span class="legend-line" style="background:#5FA37E;"></span>Réalisé cumulé</span>
+            <span class="legend-item"><span class="legend-line legend-line-dashed" style="border-color:#FFA500;"></span>Aujourd'hui</span>
+          </div>
+        </div>
+        <div class="journal-chart-scroll">
+          <svg id="cumul-marge-chart" class="journal-chart-svg" width="500" height="270" viewBox="0 0 500 270"></svg>
+        </div>
+        <div class="journal-chart-empty" id="cumul-marge-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
       </div>
       </div>
 
@@ -1201,35 +1231,41 @@
       </div>
       </div>
 
-      <div class="month-subview" id="subview-cumul-jour" style="display:none;">
-      <div class="annee-chart-card">
-        <div class="journal-chart-header">
-          <h3>Cumul CA — Objectif vs Réalisé</h3>
-          <div class="journal-chart-legend">
-            <span class="legend-item"><span class="legend-line" style="background:#93908A;"></span>Objectif cumulé</span>
-            <span class="legend-item"><span class="legend-line" style="background:#5FA37E;"></span>Réalisé cumulé</span>
-            <span class="legend-item"><span class="legend-line legend-line-dashed" style="border-color:#FFA500;"></span>Aujourd'hui</span>
+      <div class="month-subview" id="subview-jour-theorique" style="display:none;">
+      <div class="gauge-card" id="jt-objectifs-card">
+        <h2>Objectifs du jour</h2>
+        <div class="bilan-jour-date" id="jt-date">Aujourd'hui</div>
+        <div class="journal-detail-content">
+          <div class="journal-mini-gauge">
+            <div class="journal-mini-gauge-label">Objectif CA du jour</div>
+            <div class="journal-mini-compare"><b id="jt-obj-ca">0 €</b></div>
+          </div>
+          <div class="journal-mini-gauge">
+            <div class="journal-mini-gauge-label">Objectif Marge du jour</div>
+            <div class="journal-mini-compare"><b id="jt-obj-marge">0 €</b></div>
           </div>
         </div>
-        <div class="journal-chart-scroll">
-          <svg id="cumul-ca-chart" class="journal-chart-svg" width="500" height="270" viewBox="0 0 500 270"></svg>
-        </div>
-        <div class="journal-chart-empty" id="cumul-ca-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
+        <div class="journal-mini-cumul" id="jt-deja-saisi" style="display:none;"></div>
       </div>
 
-      <div class="annee-chart-card">
-        <div class="journal-chart-header">
-          <h3>Cumul Marge — Objectif vs Réalisé</h3>
-          <div class="journal-chart-legend">
-            <span class="legend-item"><span class="legend-line" style="background:#93908A;"></span>Objectif cumulé</span>
-            <span class="legend-item"><span class="legend-line" style="background:#5FA37E;"></span>Réalisé cumulé</span>
-            <span class="legend-item"><span class="legend-line legend-line-dashed" style="border-color:#FFA500;"></span>Aujourd'hui</span>
-          </div>
+      <div class="gauge-card" id="jt-panel">
+        <h2>Jour théorique</h2>
+        <div class="journal-table-wrap">
+          <table class="journal-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>CA du jour</th>
+                <th>Marge du jour</th>
+                <th>% objectif CA</th>
+                <th>% objectif Marge</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="jt-parent-body"></tbody>
+          </table>
         </div>
-        <div class="journal-chart-scroll">
-          <svg id="cumul-marge-chart" class="journal-chart-svg" width="500" height="270" viewBox="0 0 500 270"></svg>
-        </div>
-        <div class="journal-chart-empty" id="cumul-marge-chart-empty" style="display: none;">Aucune donnée à afficher.</div>
+        <div class="journal-mini-cumul" id="jt-projection" style="margin-top:16px;"></div>
       </div>
       </div>
 
@@ -1471,9 +1507,13 @@ const now = new Date();
 const YEAR = now.getFullYear();
 
 // Etat indépendant pour chacun des 12 mois (en mémoire, non persistant entre rechargements)
-const defaultData = () => ({ caObjectif: 20000, caActuel: 0, margeObjectif: 6000, margeActuelle: 0, journal: [] });
+const defaultData = () => ({ caObjectif: 20000, caActuel: 0, margeObjectif: 6000, margeActuelle: 0, journal: [], journalTheorique: [], journalTheoriqueDate: null });
 const monthsData = [{"caObjectif":666000,"caActuel":0,"margeObjectif":50000,"margeActuelle":0},{"caObjectif":20000,"caActuel":0,"margeObjectif":6000,"margeActuelle":0},{"caObjectif":20000,"caActuel":0,"margeObjectif":6000,"margeActuelle":0},{"caObjectif":20000,"caActuel":0,"margeObjectif":6000,"margeActuelle":0},{"caObjectif":20000,"caActuel":0,"margeObjectif":6000,"margeActuelle":0},{"caObjectif":20000,"caActuel":0,"margeObjectif":6000,"margeActuelle":0},{"caObjectif":20000,"caActuel":0,"margeObjectif":6000,"margeActuelle":0},{"caObjectif":20000,"caActuel":0,"margeObjectif":6000,"margeActuelle":0},{"caObjectif":20000,"caActuel":0,"margeObjectif":6000,"margeActuelle":0},{"caObjectif":20000,"caActuel":0,"margeObjectif":6000,"margeActuelle":0},{"caObjectif":20000,"caActuel":0,"margeObjectif":6000,"margeActuelle":0},{"caObjectif":20000,"caActuel":0,"margeObjectif":6000,"margeActuelle":0}];
-monthsData.forEach(d => { if(!Array.isArray(d.journal)) d.journal = []; });
+monthsData.forEach(d => {
+  if(!Array.isArray(d.journal)) d.journal = [];
+  if(!Array.isArray(d.journalTheorique)) d.journalTheorique = [];
+  if(typeof d.journalTheoriqueDate === 'undefined') d.journalTheoriqueDate = null;
+});
 let activeMonth = now.getMonth();
 let activeView = 'month'; // 'month' ou 'year'
 const selectedMonths = [true,true,true,true,true,true,true,true,true,true,true,true];
@@ -1627,6 +1667,13 @@ function applyPersistedPayload(rawValue){
         const margeEuros = parseFloat(r.marge) || 0;
         return { id: r.id || uid(), date: r.date || todayISO(), ca, margePct: ca > 0 ? (margeEuros/ca)*100 : 0 };
       });
+      if(!Array.isArray(monthsData[i].journalTheorique)) monthsData[i].journalTheorique = [];
+      monthsData[i].journalTheorique = monthsData[i].journalTheorique.map(r => ({
+        id: r.id || uid(),
+        client: typeof r.client === 'string' ? r.client : '',
+        ca: parseFloat(r.ca) || 0,
+        margePct: parseFloat(r.margePct) || 0
+      }));
     }
   }
   if(Array.isArray(parsed.selectedMonths) && parsed.selectedMonths.length === 12){
@@ -1808,12 +1855,16 @@ function switchToYear(){
 
 function saveCurrentInputs(){
   const journal = Array.isArray(monthsData[activeMonth].journal) ? monthsData[activeMonth].journal : [];
+  const journalTheorique = Array.isArray(monthsData[activeMonth].journalTheorique) ? monthsData[activeMonth].journalTheorique : [];
+  const journalTheoriqueDate = monthsData[activeMonth].journalTheoriqueDate || null;
   monthsData[activeMonth] = {
     caObjectif: parseFloat(document.getElementById('ca-objectif').value) || 0,
     caActuel: parseFloat(document.getElementById('ca-actuel').value) || 0,
     margeObjectif: parseFloat(document.getElementById('marge-objectif').value) || 0,
     margeActuelle: parseFloat(document.getElementById('marge-actuelle').value) || 0,
-    journal
+    journal,
+    journalTheorique,
+    journalTheoriqueDate
   };
   scheduleSave();
 }
@@ -2226,9 +2277,376 @@ function renderJournal(){
   renderJournalChart();
   renderBilanJourSummary();
   renderCumulJourCharts();
+  renderJourTheorique();
 
   // Remplit les barres des sous-lignes ouvertes une fois qu'elles sont dans le DOM.
   expandedJournalRows.forEach(id => updateRowDetailBars(id));
+}
+
+/* ---------- Jour théorique ---------- */
+
+// Horaires d'ouverture utilisés pour la projection de fin de journée.
+// À ajuster si besoin : la projection extrapole le rythme de vente actuel
+// sur le temps restant entre l'heure actuelle et HORAIRE_FERMETURE.
+const HORAIRE_OUVERTURE = 9;
+const HORAIRE_FERMETURE = 19;
+
+// Ligne unique ("aujourd'hui"), dépliée par défaut puisqu'il n'y a qu'une seule ligne.
+let jourTheoriqueExpanded = true;
+
+// Renvoie le tableau des ventes du jour théorique du mois affiché, en le
+// réinitialisant automatiquement dès qu'on change de jour calendaire (le
+// Jour théorique ne doit conserver que les ventes du jour en cours).
+function currentJournalTheorique(){
+  const d = monthsData[activeMonth];
+  if(!Array.isArray(d.journalTheorique)) d.journalTheorique = [];
+  if(d.journalTheoriqueDate !== todayISO()){
+    d.journalTheorique = [];
+    d.journalTheoriqueDate = todayISO();
+  }
+  return d.journalTheorique;
+}
+
+function addJourTheoriqueRow(){
+  currentJournalTheorique().push({ id: uid(), client: '', ca: 0, margePct: 0 });
+  jourTheoriqueExpanded = true;
+  renderJourTheorique();
+  scheduleSave();
+}
+
+function removeJourTheoriqueRow(id){
+  const rows = currentJournalTheorique();
+  const idx = rows.findIndex(r => r.id === id);
+  if(idx > -1) rows.splice(idx, 1);
+  renderJourTheorique();
+  scheduleSave();
+}
+
+function updateJourTheoriqueField(id, field, rawValue){
+  const rows = currentJournalTheorique();
+  const row = rows.find(r => r.id === id);
+  if(!row) return;
+  if(field === 'client'){
+    row.client = rawValue;
+  } else {
+    row[field] = round2(parseFloat(rawValue) || 0);
+  }
+  // Important : on ne rappelle PAS renderJourTheorique() ici. Cette fonction
+  // reconstruit tous les <input> du tableau, ce qui fait perdre le focus au
+  // champ en cours de saisie à chaque frappe (l'utilisateur ne pouvait alors
+  // taper qu'un seul caractère à la fois). On se contente donc de mettre à
+  // jour les valeurs calculées affichées (totaux, %, projection...).
+  refreshJourTheoriqueComputed();
+  scheduleSave();
+}
+
+function toggleJourTheorique(){
+  jourTheoriqueExpanded = !jourTheoriqueExpanded;
+  renderJourTheorique();
+}
+
+// Construit le sous-tableau (Client / CA / Marge) affiché quand la ligne du
+// jour est dépliée, sur le modèle de buildJournalDetailRow().
+function buildJourTheoriqueDetailRow(rows, colCount){
+  const tr = document.createElement('tr');
+  tr.className = 'journal-detail-row';
+  const td = document.createElement('td');
+  td.colSpan = colCount;
+  td.style.background = 'var(--panel-raised)';
+  td.style.padding = '4px 16px 20px';
+  td.style.width = 'auto';
+
+  const wrap = document.createElement('div');
+  wrap.style.paddingTop = '16px';
+
+  const addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.className = 'add-row-btn';
+  addBtn.textContent = '+ Ajouter une vente';
+  addBtn.style.marginBottom = '14px';
+  addBtn.addEventListener('click', () => addJourTheoriqueRow());
+  wrap.appendChild(addBtn);
+
+  if(rows.length === 0){
+    const emptyEl = document.createElement('div');
+    emptyEl.className = 'journal-empty';
+    emptyEl.textContent = "Aucune vente saisie pour l'instant aujourd'hui. Cliquez sur « + Ajouter une vente » pour commencer.";
+    wrap.appendChild(emptyEl);
+    td.appendChild(wrap);
+    tr.appendChild(td);
+    return tr;
+  }
+
+  const tableWrap = document.createElement('div');
+  tableWrap.className = 'journal-table-wrap';
+  const table = document.createElement('table');
+  table.className = 'journal-table';
+  table.innerHTML = '<thead><tr><th>Client</th><th>CA</th><th>Marge (% du CA)</th><th>Marge générée</th><th></th></tr></thead>';
+  const tbody = document.createElement('tbody');
+
+  let totalCa = 0, totalMargeEuros = 0;
+
+  rows.forEach(row => {
+    const rtr = document.createElement('tr');
+    rtr.dataset.rowId = row.id;
+
+    const tdClient = document.createElement('td');
+    const clientInput = document.createElement('input');
+    clientInput.type = 'text';
+    clientInput.placeholder = 'Nom du client';
+    clientInput.value = row.client || '';
+    clientInput.addEventListener('input', (e) => updateJourTheoriqueField(row.id, 'client', e.target.value));
+    tdClient.appendChild(clientInput);
+
+    const tdCa = document.createElement('td');
+    const caInput = document.createElement('input');
+    caInput.type = 'number';
+    caInput.min = '0';
+    caInput.step = '0.01';
+    caInput.value = row.ca;
+    caInput.addEventListener('input', (e) => updateJourTheoriqueField(row.id, 'ca', e.target.value));
+    tdCa.appendChild(caInput);
+
+    const tdMargePct = document.createElement('td');
+    const margeWrap = document.createElement('div');
+    margeWrap.style.display = 'flex';
+    margeWrap.style.alignItems = 'center';
+    margeWrap.style.gap = '6px';
+    const margeInput = document.createElement('input');
+    margeInput.type = 'number';
+    margeInput.step = '0.01';
+    margeInput.value = row.margePct;
+    margeInput.addEventListener('input', (e) => updateJourTheoriqueField(row.id, 'margePct', e.target.value));
+    const margeUnit = document.createElement('span');
+    margeUnit.className = 'unit';
+    margeUnit.textContent = '%';
+    margeWrap.appendChild(margeInput);
+    margeWrap.appendChild(margeUnit);
+    tdMargePct.appendChild(margeWrap);
+
+    const margeEuros = (row.ca || 0) * (row.margePct || 0) / 100;
+    totalCa += row.ca || 0;
+    totalMargeEuros += margeEuros;
+
+    const tdMargeEuros = document.createElement('td');
+    const margeSpan = document.createElement('span');
+    margeSpan.className = 'journal-computed-value';
+    margeSpan.textContent = fmtEuro2(margeEuros);
+    tdMargeEuros.appendChild(margeSpan);
+
+    const tdDel = document.createElement('td');
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'journal-del-btn';
+    delBtn.textContent = '×';
+    delBtn.title = 'Supprimer cette vente';
+    delBtn.addEventListener('click', () => removeJourTheoriqueRow(row.id));
+    tdDel.appendChild(delBtn);
+
+    rtr.appendChild(tdClient);
+    rtr.appendChild(tdCa);
+    rtr.appendChild(tdMargePct);
+    rtr.appendChild(tdMargeEuros);
+    rtr.appendChild(tdDel);
+    tbody.appendChild(rtr);
+  });
+
+  table.appendChild(tbody);
+
+  const tfoot = document.createElement('tfoot');
+  const totalRow = document.createElement('tr');
+  totalRow.className = 'journal-total-row';
+  totalRow.id = 'jt-total-row';
+  const pctMoyen = totalCa > 0 ? (totalMargeEuros / totalCa) * 100 : 0;
+  totalRow.innerHTML = '<td>Total</td><td>' + fmtEuro2(totalCa) + '</td><td>' + fmtPct2(pctMoyen) + '</td><td>' + fmtEuro2(totalMargeEuros) + '</td><td></td>';
+  tfoot.appendChild(totalRow);
+  table.appendChild(tfoot);
+
+  tableWrap.appendChild(table);
+  wrap.appendChild(tableWrap);
+  td.appendChild(wrap);
+  tr.appendChild(td);
+  return tr;
+}
+
+// Met à jour uniquement les valeurs calculées (marge par ligne, totaux,
+// pourcentages, projection) sans reconstruire les <input>. Utilisée à chaque
+// frappe clavier pour ne pas faire perdre le focus (contrairement à
+// renderJourTheorique() qui reconstruit tout le tableau, y compris les champs
+// de saisie, et qui reste utilisée pour l'ajout/la suppression de lignes ou
+// le dépliage/repliage).
+function refreshJourTheoriqueComputed(){
+  computeJournalDailyObjectives();
+  const rows = currentJournalTheorique();
+
+  let totalCa = 0, totalMargeEuros = 0;
+  rows.forEach(row => {
+    const margeEuros = (row.ca || 0) * (row.margePct || 0) / 100;
+    totalCa += row.ca || 0;
+    totalMargeEuros += margeEuros;
+    const rtr = document.querySelector('#jt-parent-body tr[data-row-id="' + row.id + '"]');
+    if(rtr){
+      const span = rtr.querySelector('.journal-computed-value');
+      if(span) span.textContent = fmtEuro2(margeEuros);
+    }
+  });
+
+  const totalRow = document.getElementById('jt-total-row');
+  if(totalRow){
+    const pctMoyen = totalCa > 0 ? (totalMargeEuros / totalCa) * 100 : 0;
+    const cells = totalRow.querySelectorAll('td');
+    if(cells[1]) cells[1].textContent = fmtEuro2(totalCa);
+    if(cells[2]) cells[2].textContent = fmtPct2(pctMoyen);
+    if(cells[3]) cells[3].textContent = fmtEuro2(totalMargeEuros);
+  }
+
+  const pctCa = journalObjJourCA > 0 ? (totalCa / journalObjJourCA) * 100 : 0;
+  const pctMarge = journalObjJourMarge > 0 ? (totalMargeEuros / journalObjJourMarge) * 100 : 0;
+  const statusCa = statusFor(pctCa);
+  const statusMarge = statusFor(pctMarge);
+
+  const parentTr = document.querySelector('#jt-parent-body tr[data-row-id="jour-theorique"]');
+  if(parentTr){
+    const tds = parentTr.querySelectorAll('td');
+    const caSpan = tds[1] && tds[1].querySelector('.journal-computed-value');
+    if(caSpan) caSpan.textContent = fmtEuro2(totalCa);
+    const margeSpan = tds[2] && tds[2].querySelector('.journal-computed-value');
+    if(margeSpan) margeSpan.textContent = fmtEuro2(totalMargeEuros);
+    if(tds[3]) tds[3].innerHTML = '<span class="' + statusCa.cls + '">' + fmtPct(pctCa) + '</span>';
+    if(tds[4]) tds[4].innerHTML = '<span class="' + statusMarge.cls + '">' + fmtPct(pctMarge) + '</span>';
+  }
+
+  const projEl = document.getElementById('jt-projection');
+  if(projEl){
+    const heureActuelle = new Date().getHours() + new Date().getMinutes() / 60;
+    const dureeTotale = HORAIRE_FERMETURE - HORAIRE_OUVERTURE;
+    const dureeEcoulee = Math.min(Math.max(heureActuelle - HORAIRE_OUVERTURE, 0), dureeTotale);
+    if(rows.length === 0 || dureeEcoulee < 0.25){
+      projEl.textContent = 'Projection disponible dès la première vente saisie.';
+      projEl.className = 'journal-mini-cumul';
+    } else {
+      const ratio = dureeTotale / dureeEcoulee;
+      const projCa = totalCa * ratio;
+      const projMarge = totalMargeEuros * ratio;
+      const projOk = projCa >= journalObjJourCA && projMarge >= journalObjJourMarge;
+      projEl.innerHTML = 'Au rythme actuel, projection à ' + HORAIRE_FERMETURE + 'h : <b>' + fmtEuro(projCa) + '</b> de CA, <b>' + fmtEuro(projMarge) + '</b> de marge.';
+      projEl.className = 'journal-mini-cumul ' + (projOk ? 'positive' : 'negative');
+    }
+  }
+}
+
+function renderJourTheorique(){
+  const dateEl = document.getElementById('jt-date');
+  if(!dateEl) return; // markup pas encore présent (défensif)
+
+  // Objectifs journaliers du mois affiché (déjà calculés par renderJournal(),
+  // recalculés ici par sécurité si la fonction est appelée isolément).
+  computeJournalDailyObjectives();
+
+  const rows = currentJournalTheorique();
+
+  const todayLabel = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  dateEl.textContent = "Aujourd'hui — " + todayLabel;
+  document.getElementById('jt-obj-ca').textContent = fmtEuro(journalObjJourCA);
+  document.getElementById('jt-obj-marge').textContent = fmtEuro(journalObjJourMarge);
+
+  // Rappel de ce qui est déjà enregistré aujourd'hui dans la saisie journalière
+  // classique, pour éviter toute confusion entre les deux tableaux.
+  const dejaEl = document.getElementById('jt-deja-saisi');
+  const rowAujourdhui = currentJournal().find(r => r.date === todayISO());
+  const dejaCa = rowAujourdhui ? (rowAujourdhui.ca || 0) : 0;
+  const dejaMargeEuros = rowAujourdhui ? (rowAujourdhui.ca || 0) * (rowAujourdhui.margePct || 0) / 100 : 0;
+  if(dejaCa > 0 || dejaMargeEuros > 0){
+    dejaEl.style.display = 'block';
+    dejaEl.innerHTML = "Déjà enregistré aujourd'hui dans la saisie journalière : <b>" + fmtEuro(dejaCa) + '</b> de CA, <b>' + fmtEuro(dejaMargeEuros) + '</b> de marge.';
+  } else {
+    dejaEl.style.display = 'none';
+  }
+
+  // Totaux du jour théorique
+  let totalCa = 0, totalMargeEuros = 0;
+  rows.forEach(r => {
+    totalCa += r.ca || 0;
+    totalMargeEuros += (r.ca || 0) * (r.margePct || 0) / 100;
+  });
+  const pctCa = journalObjJourCA > 0 ? (totalCa / journalObjJourCA) * 100 : 0;
+  const pctMarge = journalObjJourMarge > 0 ? (totalMargeEuros / journalObjJourMarge) * 100 : 0;
+  const statusCa = statusFor(pctCa);
+  const statusMarge = statusFor(pctMarge);
+
+  // Projection de fin de journée : extrapole le rythme actuel sur le temps
+  // restant jusqu'à HORAIRE_FERMETURE.
+  const projEl = document.getElementById('jt-projection');
+  const heureActuelle = new Date().getHours() + new Date().getMinutes() / 60;
+  const dureeTotale = HORAIRE_FERMETURE - HORAIRE_OUVERTURE;
+  const dureeEcoulee = Math.min(Math.max(heureActuelle - HORAIRE_OUVERTURE, 0), dureeTotale);
+  if(rows.length === 0 || dureeEcoulee < 0.25){
+    projEl.textContent = 'Projection disponible dès la première vente saisie.';
+    projEl.className = 'journal-mini-cumul';
+  } else {
+    const ratio = dureeTotale / dureeEcoulee;
+    const projCa = totalCa * ratio;
+    const projMarge = totalMargeEuros * ratio;
+    const projOk = projCa >= journalObjJourCA && projMarge >= journalObjJourMarge;
+    projEl.innerHTML = 'Au rythme actuel, projection à ' + HORAIRE_FERMETURE + 'h : <b>' + fmtEuro(projCa) + '</b> de CA, <b>' + fmtEuro(projMarge) + '</b> de marge.';
+    projEl.className = 'journal-mini-cumul ' + (projOk ? 'positive' : 'negative');
+  }
+
+  // Ligne parente (repliée/dépliée) + sous-tableau des ventes
+  const parentBody = document.getElementById('jt-parent-body');
+  parentBody.innerHTML = '';
+  const colCount = 6; // Date, CA, Marge, % CA, % Marge, actions
+
+  const tr = document.createElement('tr');
+  tr.dataset.rowId = 'jour-theorique';
+
+  const tdDate = document.createElement('td');
+  tdDate.textContent = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+  const tdCa = document.createElement('td');
+  const caSpan = document.createElement('span');
+  caSpan.className = 'journal-computed-value';
+  caSpan.textContent = fmtEuro2(totalCa);
+  tdCa.appendChild(caSpan);
+  const tdMarge = document.createElement('td');
+  const margeSpan = document.createElement('span');
+  margeSpan.className = 'journal-computed-value';
+  margeSpan.textContent = fmtEuro2(totalMargeEuros);
+  tdMarge.appendChild(margeSpan);
+  const tdPctCa = document.createElement('td');
+  tdPctCa.innerHTML = '<span class="' + statusCa.cls + '">' + fmtPct(pctCa) + '</span>';
+  const tdPctMarge = document.createElement('td');
+  tdPctMarge.innerHTML = '<span class="' + statusMarge.cls + '">' + fmtPct(pctMarge) + '</span>';
+
+  const tdActions = document.createElement('td');
+  const actionsWrap = document.createElement('div');
+  actionsWrap.className = 'journal-row-actions';
+  const toggleBtn = document.createElement('button');
+  toggleBtn.type = 'button';
+  toggleBtn.className = 'journal-toggle-btn';
+  toggleBtn.title = 'Voir le détail des ventes du jour';
+  toggleBtn.setAttribute('aria-expanded', jourTheoriqueExpanded ? 'true' : 'false');
+  toggleBtn.innerHTML = '<svg viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  toggleBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleJourTheorique(); });
+  actionsWrap.appendChild(toggleBtn);
+  tdActions.appendChild(actionsWrap);
+
+  tr.appendChild(tdDate);
+  tr.appendChild(tdCa);
+  tr.appendChild(tdMarge);
+  tr.appendChild(tdPctCa);
+  tr.appendChild(tdPctMarge);
+  tr.appendChild(tdActions);
+
+  tr.addEventListener('click', (e) => {
+    if(e.target.closest('input, button')) return;
+    toggleJourTheorique();
+  });
+
+  parentBody.appendChild(tr);
+
+  if(jourTheoriqueExpanded){
+    parentBody.appendChild(buildJourTheoriqueDetailRow(rows, colCount));
+  }
 }
 
 /* ---------- Bilan jour (résumé du jour courant) ---------- */
@@ -3372,6 +3790,9 @@ document.getElementById('sync-code-input').addEventListener('keydown', (e) => {
   loadMonthIntoInputs();
   update();
   initBilanJourObjectifEditing();
+  // Rafraîchit la projection de fin de journée (dépend de l'heure courante)
+  // même sans interaction, pour qu'elle reste juste au fil de la journée.
+  setInterval(renderJourTheorique, 60000);
 })();
 </script>
 
