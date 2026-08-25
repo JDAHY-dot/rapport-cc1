@@ -738,6 +738,113 @@
   .sync-status-badge.status-online{ background: rgba(34,197,94,0.15); color:#22c55e; }
   .sync-status-badge.status-disconnected{ background: rgba(255,255,255,0.06); color: var(--muted-2); }
   .sync-status-badge .dot{ width:7px; height:7px; border-radius:50%; background:currentColor; }
+
+  /* ============================================================================
+     RESPONSIVE SMARTPHONE
+     ============================================================================ */
+
+  /* Bouton hamburger : masqué par défaut, affiché seulement sous 720px */
+  .mobile-menu-toggle{
+    display:none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 10001;
+    width: 44px; height: 44px;
+    align-items:center; justify-content:center;
+    background: rgba(21,27,46,0.92);
+    border: 1px solid var(--border);
+    color: #fff;
+    border-radius: 12px;
+    cursor:pointer;
+    backdrop-filter: blur(8px);
+  }
+  .mobile-menu-toggle svg{ width:20px; height:20px; }
+
+  /* Overlay assombri derrière le tiroir de navigation mobile */
+  .sidebar-overlay{
+    display:none;
+    position: fixed; inset:0;
+    background: rgba(4,7,16,0.6);
+    z-index: 9999;
+    opacity:0;
+    transition: opacity .2s ease;
+  }
+  .sidebar-overlay.visible{ display:block; opacity:1; }
+
+  @media (max-width: 720px){
+    .mobile-menu-toggle{ display:flex; }
+
+    .app{ grid-template-columns: 1fr; }
+
+    /* La sidebar devient un tiroir qui glisse depuis la gauche, par-dessus le contenu */
+    .sidebar{
+      display:flex;
+      position: fixed;
+      top:0; left:0;
+      width: 82vw;
+      max-width: 300px;
+      height: 100vh;
+      z-index: 10000;
+      transform: translateX(-100%);
+      transition: transform .22s ease;
+      box-shadow: 12px 0 30px rgba(0,0,0,0.4);
+    }
+    .sidebar.open{ transform: translateX(0); }
+
+    main{ padding: 70px 14px 32px 14px; }
+
+    /* Cartes stats et graphes en une seule colonne */
+    .stats{ grid-template-columns: 1fr !important; }
+    .grid-2{ grid-template-columns: 1fr !important; }
+    .grid-cumul{ grid-template-columns: 1fr !important; }
+    .month-body-grid{ grid-template-columns: 1fr !important; }
+    .obj-fields{ grid-template-columns: 1fr !important; }
+    .panel-cal-grid, .cal-grid{ gap: 4px; }
+
+    /* Empêche le zoom automatique iOS Safari (nécessite une taille de police >=16px)
+       et agrandit la zone tactile de tous les champs de saisie */
+    input, select, textarea, button{
+      font-size: 16px !important;
+    }
+    .vj-realise-input, .vj-taux-input, .code-input, .obj-input, .year-edit{
+      min-height: 44px;
+    }
+    .vj-taux-input{ width: 56px; }
+
+    /* Zones tactiles minimales pour les boutons/icônes cliquables */
+    .vj-vente-delete, .yr-remove, #yearFloatToggleMobile{
+      min-width: 44px; min-height: 44px;
+    }
+    .btn-secondary{ min-height: 44px; }
+
+    /* Tableaux : on garde le scroll horizontal (déjà en place via .table-wrap),
+       avec un léger indicateur visuel de contenu tronqué */
+    .table-wrap{
+      -webkit-overflow-scrolling: touch;
+      box-shadow: inset -12px 0 12px -12px rgba(0,0,0,0.35);
+    }
+    table{ font-size: 13px; }
+
+    /* Barre de sync (code agence) : empile les éléments verticalement */
+    .sync-row{ flex-direction: column; align-items: stretch; }
+    .code-input{ width: 100%; }
+
+    /* Sélecteur d'année flottant : garde le bouton mobile déjà prévu,
+       mais laisse un peu plus d'espace pour ne pas chevaucher le hamburger */
+    #yearFloatToggleMobile{ top: 12px; right: 12px; }
+    #yearFloatBar{ top: 62px; }
+  }
+
+  @media (max-width: 480px){
+    .brand span{ font-size: 15px; }
+    .stat-card{ padding: 14px; }
+    main{ padding: 66px 10px 28px 10px; }
+  }
+
+  @media (max-width: 720px){
+    .chart-wrap{ height: 220px; }
+    .chart-wrap-cumul{ height: 300px; }
+  }
 </style>
 
 <!--
@@ -752,6 +859,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
+<button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Ouvrir le menu" aria-expanded="false">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
 <div class="app">
 
   <aside class="sidebar">
@@ -1008,8 +1119,34 @@
       } else {
         showPage('page-dashboard');
       }
+      closeMobileSidebar();
     });
   });
+
+  // ---------- Menu mobile (hamburger) ----------
+  // Sur smartphone la sidebar devient un tiroir (drawer) masqué par défaut ;
+  // ce bouton l'ouvre/ferme, et un clic sur l'overlay ou sur un item la referme.
+  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const sidebarEl = document.querySelector('.sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  function openMobileSidebar(){
+    sidebarEl.classList.add('open');
+    sidebarOverlay.classList.add('visible');
+    mobileMenuToggle.setAttribute('aria-expanded', 'true');
+  }
+  function closeMobileSidebar(){
+    sidebarEl.classList.remove('open');
+    sidebarOverlay.classList.remove('visible');
+    mobileMenuToggle.setAttribute('aria-expanded', 'false');
+  }
+  if(mobileMenuToggle){
+    mobileMenuToggle.addEventListener('click', ()=>{
+      sidebarEl.classList.contains('open') ? closeMobileSidebar() : openMobileSidebar();
+    });
+  }
+  if(sidebarOverlay){
+    sidebarOverlay.addEventListener('click', closeMobileSidebar);
+  }
 
   // ---------- Analytics dropdown ----------
   const analyticsToggle = document.getElementById('analyticsToggle');
@@ -1029,6 +1166,7 @@
       document.querySelectorAll('.month-item').forEach(i=>i.classList.remove('active'));
       m.classList.add('active');
       if(typeof goToMonthFromAnalytics === 'function') goToMonthFromAnalytics(m.dataset.month);
+      if(typeof closeMobileSidebar === 'function') closeMobileSidebar();
     });
   });
 
