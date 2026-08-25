@@ -728,7 +728,28 @@
     #yearFloatToggleMobile{ display:flex; }
     #yearFloatBar{ top: 58px; }
   }
+  /* Badge de statut de synchronisation multi-appareil */
+  .sync-status-badge{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; font-weight:700; padding:5px 10px; border-radius:999px;
+    margin-left:10px; white-space:nowrap;
+  }
+  .sync-status-badge.status-offline{ background: rgba(245,158,11,0.15); color:#f59e0b; }
+  .sync-status-badge.status-online{ background: rgba(34,197,94,0.15); color:#22c55e; }
+  .sync-status-badge.status-disconnected{ background: rgba(255,255,255,0.06); color: var(--muted-2); }
+  .sync-status-badge .dot{ width:7px; height:7px; border-radius:50%; background:currentColor; }
 </style>
+
+<!--
+  ============================================================================
+  SYNCHRONISATION MULTI-APPAREIL — Firebase Firestore (SDK "compat", v9/v10)
+  ============================================================================
+  On utilise la variante "compat" du SDK (espace de noms global `firebase`)
+  plutôt que les modules ES, car le reste du fichier utilise des <script>
+  classiques (non-module). Cela évite d'avoir à convertir tout le fichier.
+-->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="app">
@@ -901,9 +922,10 @@
         </div>
         <div class="sync-row">
           <span class="sync-label">Code agence :</span>
-          <input type="text" class="code-input" id="agencyCode" value="CC1" maxlength="10" spellcheck="false">
+          <input type="text" class="code-input" id="agencyCode" value="" maxlength="10" spellcheck="false" placeholder="Aucun appareil lié">
           <button class="btn-secondary" id="btnJoin">Rejoindre</button>
           <button class="btn-secondary btn-logout" id="btnLogout">Se déconnecter</button>
+          <span class="sync-status-badge status-disconnected" id="syncStatusBadge"><span class="dot"></span><span id="syncStatusText">Non connecté</span></span>
         </div>
       </div>
 
@@ -1010,6 +1032,172 @@
     });
   });
 
+  // ============================================================================
+  // SYNCHRONISATION MULTI-APPAREIL — Firebase Firestore
+  // ============================================================================
+  // ATTENTION : ceci est un PROTOTYPE fonctionnel mais il faut :
+  //   1) Remplacer FIREBASE_CONFIG ci-dessous par la config de votre propre
+  //      projet Firebase (console.firebase.google.com > Paramètres du projet
+  //      > Vos applications > SDK config).
+  //   2) Activer Firestore Database (mode "test" pour démarrer).
+  //   3) AVANT toute mise en production : restreindre les règles Firestore
+  //      (actuellement en mode test, tout le monde peut lire/écrire tous les
+  //      documents s'il connaît/devine un code agence). Ajouter a minima une
+  //      authentification (Firebase Auth) ou un secret par agence vérifié
+  //      côté règles Firestore.
+  //   4) Stratégie de conflit : "dernier écrivain gagne" (comportement natif
+  //      Firestore). Pas de fusion fine entre deux modifications simultanées
+  //      sur deux appareils différents — à améliorer si besoin plus tard.
+
+  const FIREBASE_CONFIG = {
+    apiKey: "REMPLACER_PAR_VOTRE_API_KEY",
+    authDomain: "REMPLACER.firebaseapp.com",
+    projectId: "REMPLACER_PROJECT_ID",
+    storageBucket: "REMPLACER.appspot.com",
+    messagingSenderId: "REMPLACER_SENDER_ID",
+    appId: "REMPLACER_APP_ID"
+  };
+
+  const AGENCY_CODE_ACTIVE_KEY = 'agencyCodeActive';
+
+  let fbApp = null;
+  let fbDb = null;
+  let fbAvailable = false;
+  let fbUnsubscribers = []; // listeners onSnapshot actifs à désabonner au logout/changement de code
+  let fbCurrentCode = null;
+  let fbApplyingRemoteUpdate = false; // évite les boucles écriture -> snapshot -> écriture
+
+  function initFirebase(){
+    try{
+      if(typeof firebase === 'undefined') throw new Error('SDK Firebase non chargé');
+      if(FIREBASE_CONFIG.apiKey.startsWith('REMPLACER')){
+        console.warn('[Sync] FIREBASE_CONFIG non renseignée : la synchronisation multi-appareil est désactivée, seul le stockage local (localStorage) est utilisé.');
+        return false;
+      }
+      fbApp = firebase.initializeApp(FIREBASE_CONFIG);
+      fbDb = firebase.firestore();
+      fbAvailable = true;
+      return true;
+    }catch(e){
+      console.error('[Sync] Erreur d\'initialisation Firebase :', e);
+      fbAvailable = false;
+      return false;
+    }
+  }
+
+  function setSyncStatus(state, label){
+    // state: 'disconnected' | 'online' | 'offline'
+    const badge = document.getElementById('syncStatusBadge');
+    const text = document.getElementById('syncStatusText');
+    if(!badge || !text) return;
+    badge.classList.remove('status-disconnected', 'status-online', 'status-offline');
+    badge.classList.add('status-' + state);
+    text.textContent = label;
+  }
+
+  function agencyDocRef(code, key){
+    // agencies/{code}/data/{key}  -> un document Firestore par type de données
+    return fbDb.collection('agencies').doc(code).collection('data').doc(key);
+  }
+
+  function unsubscribeAllFirestoreListeners(){
+    fbUnsubscribers.forEach(unsub => { try{ unsub(); }catch(e){} });
+    fbUnsubscribers = [];
+  }
+
+  // Pousse une donnée locale vers Firestore (appelé depuis les save* existants).
+  // Ne fait rien si non connecté à une agence, ou si l'appel provient déjà
+  // de l'application d'une mise à jour distante (évite les boucles).
+  function pushToFirestore(key, data){
+    if(!fbAvailable || !fbCurrentCode || fbApplyingRemoteUpdate) return;
+    agencyDocRef(fbCurrentCode, key).set({ json: JSON.stringify(data), updatedAt: Date.now() })
+      .then(()=> setSyncStatus('online', `Connecté (${fbCurrentCode})`))
+      .catch(e=>{
+        console.error('[Sync] Échec d\'écriture Firestore pour', key, e);
+        setSyncStatus('offline', 'Hors ligne — données locales affichées');
+      });
+  }
+
+  // Abonne un listener temps réel sur un document Firestore et applique les
+  // mises à jour distantes localement (localStorage + re-render).
+  function listenFirestoreDoc(key, onRemoteData){
+    const unsub = agencyDocRef(fbCurrentCode, key).onSnapshot(
+      (doc) => {
+        setSyncStatus('online', `Connecté (${fbCurrentCode})`);
+        if(!doc.exists) return; // rien à distance pour l'instant, on garde les données locales
+        try{
+          const parsed = JSON.parse(doc.data().json);
+          fbApplyingRemoteUpdate = true;
+          onRemoteData(parsed);
+          fbApplyingRemoteUpdate = false;
+        }catch(e){
+          console.error('[Sync] Donnée distante invalide pour', key, e);
+        }
+      },
+      (err) => {
+        console.error('[Sync] Erreur du listener Firestore pour', key, err);
+        setSyncStatus('offline', 'Hors ligne — dernières données locales affichées');
+      }
+    );
+    fbUnsubscribers.push(unsub);
+  }
+
+  // Connexion à une agence : abonne les 3 flux de données (objectifs, lignes
+  // d'années, ventes du jour) et pousse un premier "set" si le document
+  // distant n'existe pas encore (première connexion de l'agence).
+  function connectToAgency(code){
+    if(!fbAvailable){
+      setSyncStatus('disconnected', 'Firebase non configuré');
+      return;
+    }
+    unsubscribeAllFirestoreListeners();
+    fbCurrentCode = code;
+    localStorage.setItem(AGENCY_CODE_ACTIVE_KEY, code);
+    setSyncStatus('online', `Connexion à ${code}...`);
+
+    listenFirestoreDoc('objectives', (remote) => {
+      objectives = remote;
+      localStorage.setItem(OBJ_STORAGE_KEY, JSON.stringify(objectives));
+      if(typeof renderAnalyticsStatCards === 'function') renderAnalyticsStatCards();
+      if(typeof renderYearTabs === 'function') renderYearTabs();
+    });
+
+    listenFirestoreDoc('yearRows', (remote) => {
+      yearRows = remote;
+      localStorage.setItem(OBJ_ROWS_KEY, JSON.stringify(yearRows));
+      if(typeof renderYearTabs === 'function') renderYearTabs();
+    });
+
+    listenFirestoreDoc('ventesJour', (remote) => {
+      // On ne remplace les ventes du jour distantes que si elles concernent
+      // bien la journée en cours (même logique que loadVentesData()).
+      if(remote && remote.date === todayKey() && Array.isArray(remote.sales)){
+        ventesJourData = remote;
+        localStorage.setItem(VENTES_JOUR_KEY, JSON.stringify(ventesJourData));
+        if(typeof renderVentesJourTable === 'function') renderVentesJourTable();
+        if(typeof renderVjHistoryRows === 'function') renderVjHistoryRows();
+      }
+    });
+
+    // Première synchronisation : si les documents distants n'existent pas
+    // encore, on pousse nos données locales actuelles pour amorcer l'agence.
+    ['objectives', 'yearRows', 'ventesJour'].forEach(key => {
+      agencyDocRef(code, key).get().then(doc => {
+        if(!doc.exists){
+          const localData = key === 'objectives' ? objectives : key === 'yearRows' ? yearRows : ventesJourData;
+          pushToFirestore(key, localData);
+        }
+      });
+    });
+  }
+
+  function disconnectFromAgency(){
+    unsubscribeAllFirestoreListeners();
+    fbCurrentCode = null;
+    localStorage.removeItem(AGENCY_CODE_ACTIVE_KEY);
+    setSyncStatus('disconnected', 'Non connecté');
+  }
+
   // ---------- Settings: sync buttons ----------
   function randomCode(){
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -1018,16 +1206,40 @@
     return out;
   }
   const agencyCode = document.getElementById('agencyCode');
+
   document.getElementById('btnJoin').addEventListener('click', ()=>{
-    agencyCode.readOnly = false;
-    agencyCode.value = '';
-    agencyCode.placeholder = 'Saisir un code';
-    agencyCode.focus();
+    const code = (agencyCode.value || '').trim().toUpperCase();
+    if(!code){
+      agencyCode.readOnly = false;
+      agencyCode.placeholder = 'Saisir un code';
+      agencyCode.focus();
+      return;
+    }
+    agencyCode.readOnly = true;
+    agencyCode.value = code;
+    connectToAgency(code);
   });
+
   document.getElementById('btnLogout').addEventListener('click', ()=>{
+    disconnectFromAgency();
     agencyCode.value = '';
+    agencyCode.readOnly = false;
     agencyCode.placeholder = 'Aucun appareil lié';
   });
+
+  // Initialisation au chargement de la page : on tente Firebase, puis on
+  // reconnecte automatiquement à la dernière agence utilisée si elle existe.
+  initFirebase();
+  {
+    const savedCode = localStorage.getItem(AGENCY_CODE_ACTIVE_KEY);
+    if(savedCode){
+      agencyCode.value = savedCode;
+      agencyCode.readOnly = true;
+      connectToAgency(savedCode);
+    } else {
+      setSyncStatus('disconnected', 'Non connecté');
+    }
+  }
 
 </script>
 
@@ -1047,6 +1259,7 @@
   }
   function saveObjectives(){
     localStorage.setItem(OBJ_STORAGE_KEY, JSON.stringify(objectives));
+    if(typeof pushToFirestore === 'function') pushToFirestore('objectives', objectives);
     if(typeof renderAnalyticsStatCards === 'function') renderAnalyticsStatCards();
   }
 
@@ -1064,6 +1277,7 @@
   }
   function saveYearRows(){
     localStorage.setItem(OBJ_ROWS_KEY, JSON.stringify(yearRows));
+    if(typeof pushToFirestore === 'function') pushToFirestore('yearRows', yearRows);
   }
 
   let objectives = loadObjectives();
@@ -1912,6 +2126,7 @@
 
   function saveVentesData(){
     localStorage.setItem(VENTES_JOUR_KEY, JSON.stringify(ventesJourData));
+    if(typeof pushToFirestore === 'function') pushToFirestore('ventesJour', ventesJourData);
   }
 
   let ventesJourData = loadVentesData();
