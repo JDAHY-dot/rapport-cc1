@@ -1125,6 +1125,11 @@
       (doc) => {
         setSyncStatus('online', `Connecté (${fbCurrentCode})`);
         if(!doc.exists) return; // rien à distance pour l'instant, on garde les données locales
+        // Ignore l'écho de nos propres écritures (encore en attente de confirmation
+        // serveur) : sans ce filtre, chaque frappe déclenche une écriture Firestore,
+        // qui déclenche aussitôt ce listener sur CE MÊME appareil, qui reconstruit
+        // toute la page (refreshAllViews) et fait perdre le focus des champs.
+        if(doc.metadata && doc.metadata.hasPendingWrites) return;
         try{
           const parsed = JSON.parse(doc.data().json);
           fbApplyingRemoteUpdate = true;
