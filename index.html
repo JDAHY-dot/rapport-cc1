@@ -2274,15 +2274,19 @@
         sale.ca = inputCa.value === '' ? '' : round2(parseFloat(inputCa.value));
         saveVentesData();
         syncRealiseFromVentes();
-        renderVjHistoryRows();
         updatePct();
+      });
+      inputCa.addEventListener('blur', ()=>{
+        renderVjHistoryRows();
       });
       inputMarge.addEventListener('input', ()=>{
         sale.marge = inputMarge.value === '' ? '' : round2(parseFloat(inputMarge.value));
         saveVentesData();
         syncRealiseFromVentes();
-        renderVjHistoryRows();
         updatePct();
+      });
+      inputMarge.addEventListener('blur', ()=>{
+        renderVjHistoryRows();
       });
 
       updatePct();
