@@ -1155,17 +1155,43 @@
     localStorage.setItem(AGENCY_CODE_ACTIVE_KEY, code);
     setSyncStatus('online', `Connexion à ${code}...`);
 
+    // Rafraîchit TOUTES les vues du dashboard après une mise à jour distante.
+    // (Avant ce correctif, seules 2 à 4 fonctions de rendu sur ~16 étaient
+    // appelées après une synchro, ce qui laissait des écrans figés avec
+    // d'anciennes valeurs tant que l'utilisateur ne rechargeait pas la page
+    // ou ne changeait pas d'onglet — donnant l'impression que les appareils
+    // n'étaient pas synchronisés alors que les données Firestore l'étaient.)
+    function refreshAllViews(){
+      const fns = [
+        'renderAnalyticsStatCards',
+        'renderYearTabs',
+        'renderYearFloatBar',
+        'renderCumulChart',
+        'renderDailyChart',
+        'renderVentesTheoriquesDuJour',
+        'renderVentesJourTable',
+        'renderVentesJourPage',
+        'renderVjHistoryRows'
+      ];
+      fns.forEach(fnName => {
+        try{
+          if(typeof window[fnName] === 'function') window[fnName]();
+        }catch(e){
+          console.warn('[Sync] Échec du rafraîchissement de', fnName, e);
+        }
+      });
+    }
+
     listenFirestoreDoc('objectives', (remote) => {
       objectives = remote;
       localStorage.setItem(OBJ_STORAGE_KEY, JSON.stringify(objectives));
-      if(typeof renderAnalyticsStatCards === 'function') renderAnalyticsStatCards();
-      if(typeof renderYearTabs === 'function') renderYearTabs();
+      refreshAllViews();
     });
 
     listenFirestoreDoc('yearRows', (remote) => {
       yearRows = remote;
       localStorage.setItem(OBJ_ROWS_KEY, JSON.stringify(yearRows));
-      if(typeof renderYearTabs === 'function') renderYearTabs();
+      refreshAllViews();
     });
 
     listenFirestoreDoc('ventesJour', (remote) => {
@@ -1174,8 +1200,7 @@
       if(remote && remote.date === todayKey() && Array.isArray(remote.sales)){
         ventesJourData = remote;
         localStorage.setItem(VENTES_JOUR_KEY, JSON.stringify(ventesJourData));
-        if(typeof renderVentesJourTable === 'function') renderVentesJourTable();
-        if(typeof renderVjHistoryRows === 'function') renderVjHistoryRows();
+        refreshAllViews();
       }
     });
 
