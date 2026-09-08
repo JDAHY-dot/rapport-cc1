@@ -153,6 +153,10 @@
   .page{ display:none; }
   .page.active{ display:block; }
 
+  /* Verrouillage tant qu'aucune agence n'est active : seul l'onglet Réglages
+     reste cliquable, les autres sont visibles mais inertes. */
+  .app.locked nav.main .nav-item{ opacity:0.35; pointer-events:none; cursor:not-allowed; }
+
   /* SETTINGS PAGE */
   .settings-card{ }
   .sync-row{
@@ -190,6 +194,48 @@
   }
   .btn-secondary:hover{ background:#232c46; border-color:#2c3550; }
   .btn-secondary.btn-logout:hover{ background: rgba(247,92,92,0.12); border-color: rgba(247,92,92,0.4); color:#ffb4b4; }
+  .btn-secondary.btn-sm{ padding:8px 13px; font-size:12.5px; }
+
+  /* MULTI-AGENCES */
+  .lock-banner{
+    display:flex; align-items:center; gap:10px;
+    background: rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3);
+    color:#f59e0b; font-size:13px; font-weight:600;
+    padding:12px 16px; border-radius:10px; margin-bottom:18px;
+  }
+  .lock-banner svg{ flex-shrink:0; }
+  .agency-section{ margin-top:18px; }
+  .agency-section:first-of-type{ margin-top:16px; }
+  .section-label{
+    font-size:11.5px; font-weight:700; color: var(--muted); text-transform:uppercase;
+    letter-spacing:0.4px; margin:0 0 10px 0;
+  }
+  .agency-list{ display:flex; flex-direction:column; gap:8px; }
+  .agency-empty-msg{ font-size:13px; color: var(--muted-2); margin:0; display:none; }
+  .agency-item{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    background: var(--panel-2); border:1px solid var(--border); border-radius:12px;
+    padding: 12px 16px;
+  }
+  .agency-item.is-active{ border-color: rgba(34,197,94,0.4); }
+  .agency-item-info{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .agency-item-name{ font-size:14px; font-weight:700; color:#fff; }
+  .agency-item-code{ font-size:11.5px; color: var(--muted); letter-spacing:1.5px; text-transform:uppercase; }
+  .agency-item-actions{ display:flex; align-items:center; gap:12px; flex-shrink:0; }
+  .agency-badge-active{
+    font-size:11px; font-weight:700; color:#22c55e; background: rgba(34,197,94,0.15);
+    border:1px solid rgba(34,197,94,0.3); padding:5px 10px; border-radius:7px; text-transform:uppercase; letter-spacing:0.3px;
+  }
+  .btn-remove-agency{
+    width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+    color: var(--muted-2); flex-shrink:0; cursor:pointer;
+  }
+  .btn-remove-agency:hover{ color:#ffb4b4; background: rgba(247,92,92,0.12); }
+  .agency-join-row .agency-label-input{
+    letter-spacing:normal; text-transform:none; font-weight:600; text-align:left; width:180px;
+  }
+  .agency-active-row{ margin-top:18px; padding-top:16px; border-top:1px solid var(--border); }
+  .agency-active-name{ font-size:14px; font-weight:700; color:#fff; margin-right:auto; }
 
   /* OBJECTIFS DE L'ANNEE */
   .obj-card{ margin-top: 22px; }
@@ -1027,20 +1073,40 @@
       <div class="panel settings-card">
         <div class="panel-head">
           <div>
-            <p class="panel-title">Synchronisation multi-appareil</p>
-            <p class="panel-sub">Reliez vos appareils grâce à un code agence partagé</p>
+            <p class="panel-title">Synchronisation multi-agences</p>
+            <p class="panel-sub">Gérez les agences reliées à cet appareil et l'agence active</p>
+          </div>
+          <span class="sync-status-badge status-disconnected" id="syncStatusBadge"><span class="dot"></span><span id="syncStatusText">Non connecté</span></span>
+        </div>
+
+        <div class="lock-banner" id="agencyLockBanner" style="display:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <span>Veuillez renseigner un code agence pour accéder aux données.</span>
+        </div>
+
+        <div class="agency-section">
+          <p class="section-label">Agences enregistrées sur cet appareil</p>
+          <div class="agency-list" id="agenciesListEl"></div>
+          <p class="agency-empty-msg" id="agenciesEmptyMsg">Aucune agence enregistrée pour l'instant sur cet appareil.</p>
+        </div>
+
+        <div class="agency-section">
+          <p class="section-label">Rejoindre une nouvelle agence</p>
+          <div class="sync-row agency-join-row">
+            <input type="text" class="code-input" id="agencyCode" value="" maxlength="10" spellcheck="false" placeholder="Code agence">
+            <input type="text" class="code-input agency-label-input" id="agencyLabel" maxlength="30" spellcheck="false" placeholder="Nom (optionnel)">
+            <button class="btn-secondary" id="btnJoin">Rejoindre</button>
           </div>
         </div>
-        <div class="sync-row">
-          <span class="sync-label">Code agence :</span>
-          <input type="text" class="code-input" id="agencyCode" value="" maxlength="10" spellcheck="false" placeholder="Aucun appareil lié">
-          <button class="btn-secondary" id="btnJoin">Rejoindre</button>
+
+        <div class="sync-row agency-active-row" id="agencyActiveRow" style="display:none;">
+          <span class="sync-label">Agence active :</span>
+          <span class="agency-active-name" id="agencyActiveName">—</span>
           <button class="btn-secondary btn-logout" id="btnLogout">Se déconnecter</button>
-          <span class="sync-status-badge status-disconnected" id="syncStatusBadge"><span class="dot"></span><span id="syncStatusText">Non connecté</span></span>
         </div>
       </div>
 
-      <div class="panel obj-card">
+      <div class="panel obj-card" id="objCardPanel">
         <div class="panel-head">
           <div>
             <p class="panel-title">Paramétrage des objectifs de l'année</p>
@@ -1106,6 +1172,10 @@
   // ---------- Sidebar navigation ----------
   document.querySelectorAll('.nav-item:not(.has-dropdown)').forEach(item=>{
     item.addEventListener('click', ()=>{
+      if(typeof isAgencyActive === 'function' && !isAgencyActive() && item.dataset.name !== 'Settings'){
+        if(typeof applyLockState === 'function') applyLockState();
+        return;
+      }
       document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
       document.getElementById('analyticsToggle').classList.remove('open');
       document.getElementById('analyticsDropdown').classList.remove('open');
@@ -1152,6 +1222,10 @@
   const analyticsToggle = document.getElementById('analyticsToggle');
   const analyticsDropdown = document.getElementById('analyticsDropdown');
   analyticsToggle.addEventListener('click', ()=>{
+    if(typeof isAgencyActive === 'function' && !isAgencyActive()){
+      if(typeof applyLockState === 'function') applyLockState();
+      return;
+    }
     document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
     analyticsToggle.classList.add('active');
     analyticsToggle.classList.toggle('open');
@@ -1197,6 +1271,210 @@
   };
 
   const AGENCY_CODE_ACTIVE_KEY = 'agencyCodeActive';
+  const AGENCIES_LIST_KEY = 'agencesList';
+
+  // ---------- Liste des agences enregistrées sur cet appareil ----------
+  // Format : [{ code, label, lastUsed }]. Ceci ne fait que mémoriser
+  // localement quelles agences ont déjà été rejointes sur CET appareil, pour
+  // permettre de re-basculer rapidement entre elles ; ça ne supprime/crée
+  // jamais rien côté Firestore.
+  function loadAgenciesList(){
+    try{
+      const raw = localStorage.getItem(AGENCIES_LIST_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed)) return parsed;
+      }
+    }catch(e){}
+    return [];
+  }
+  function saveAgenciesList(){
+    localStorage.setItem(AGENCIES_LIST_KEY, JSON.stringify(agenciesList));
+  }
+  function upsertAgencyInList(code, label){
+    const existing = agenciesList.find(a => a.code === code);
+    if(existing){
+      if(label) existing.label = label;
+      existing.lastUsed = Date.now();
+    } else {
+      agenciesList.push({ code, label: (label || '').trim() || code, lastUsed: Date.now() });
+    }
+    saveAgenciesList();
+  }
+  function removeAgencyFromList(code){
+    agenciesList = agenciesList.filter(a => a.code !== code);
+    saveAgenciesList();
+  }
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+  }
+
+  let agenciesList = loadAgenciesList();
+  let agencyPendingRemoval = null;
+
+  // Rafraîchit TOUTES les vues du dashboard (après une mise à jour distante,
+  // une connexion à une agence, ou une déconnexion/réinitialisation).
+  // (Avant ce correctif, seules 2 à 4 fonctions de rendu sur ~16 étaient
+  // appelées après une synchro, ce qui laissait des écrans figés avec
+  // d'anciennes valeurs tant que l'utilisateur ne rechargeait pas la page
+  // ou ne changeait pas d'onglet.)
+  function refreshAllViews(){
+    const fns = [
+      'renderAnalyticsStatCards',
+      'renderYearTabs',
+      'renderYearFloatBar',
+      'renderCumulChart',
+      'renderDailyChart',
+      'renderVentesTheoriquesDuJour',
+      'renderVentesJourTable',
+      'renderVentesJourPage',
+      'renderVjHistoryRows'
+    ];
+    fns.forEach(fnName => {
+      try{
+        if(typeof window[fnName] === 'function') window[fnName]();
+      }catch(e){
+        console.warn('[Sync] Échec du rafraîchissement de', fnName, e);
+      }
+    });
+  }
+
+  // ---------- Verrouillage de l'accès aux données ----------
+  // Tant qu'aucune agence n'est active, seul l'onglet Réglages est
+  // accessible : les données (objectifs, ventes du jour) restent masquées.
+  function isAgencyActive(){
+    return !!fbCurrentCode;
+  }
+
+  function applyLockState(){
+    const locked = !isAgencyActive();
+    const appEl = document.querySelector('.app');
+    if(appEl) appEl.classList.toggle('locked', locked);
+
+    const lockBanner = document.getElementById('agencyLockBanner');
+    if(lockBanner) lockBanner.style.display = locked ? 'flex' : 'none';
+
+    const objCardPanel = document.getElementById('objCardPanel');
+    if(objCardPanel) objCardPanel.style.display = locked ? 'none' : '';
+
+    const activeRow = document.getElementById('agencyActiveRow');
+    if(activeRow) activeRow.style.display = locked ? 'none' : 'flex';
+
+    const activeNameEl = document.getElementById('agencyActiveName');
+    if(activeNameEl){
+      const meta = agenciesList.find(a => a.code === fbCurrentCode);
+      activeNameEl.textContent = fbCurrentCode ? (meta && meta.label && meta.label !== fbCurrentCode ? `${meta.label} (${fbCurrentCode})` : fbCurrentCode) : '—';
+    }
+
+    if(locked){
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      const settingsNav = document.querySelector('.nav-item[data-name="Settings"]');
+      if(settingsNav) settingsNav.classList.add('active');
+      if(typeof showPage === 'function') showPage('page-settings');
+    }
+
+    renderAgenciesList();
+  }
+
+  function renderAgenciesList(){
+    const listEl = document.getElementById('agenciesListEl');
+    const emptyMsg = document.getElementById('agenciesEmptyMsg');
+    if(!listEl) return;
+    listEl.innerHTML = '';
+
+    if(!agenciesList.length){
+      if(emptyMsg) emptyMsg.style.display = 'block';
+      return;
+    }
+    if(emptyMsg) emptyMsg.style.display = 'none';
+
+    const sorted = [...agenciesList].sort((a, b) => (b.lastUsed || 0) - (a.lastUsed || 0));
+    sorted.forEach(agency => {
+      const isActive = agency.code === fbCurrentCode;
+      const item = document.createElement('div');
+      item.className = 'agency-item' + (isActive ? ' is-active' : '');
+
+      if(agencyPendingRemoval === agency.code){
+        item.appendChild(renderConfirmRemoveAgency(agency));
+        listEl.appendChild(item);
+        return;
+      }
+
+      item.innerHTML = `
+        <div class="agency-item-info">
+          <span class="agency-item-name">${escapeHtml(agency.label || agency.code)}</span>
+          <span class="agency-item-code">${escapeHtml(agency.code)}</span>
+        </div>
+        <div class="agency-item-actions">
+          ${isActive
+            ? '<span class="agency-badge-active">Active</span>'
+            : '<button type="button" class="btn-secondary btn-sm btn-connect-agency">Se connecter</button>'}
+          <span class="btn-remove-agency" title="Retirer cette agence de cet appareil">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </span>
+        </div>
+      `;
+
+      if(!isActive){
+        const connectBtn = item.querySelector('.btn-connect-agency');
+        if(connectBtn) connectBtn.addEventListener('click', () => {
+          connectToAgency(agency.code);
+        });
+      }
+      item.querySelector('.btn-remove-agency').addEventListener('click', () => {
+        agencyPendingRemoval = agency.code;
+        renderAgenciesList();
+      });
+
+      listEl.appendChild(item);
+    });
+  }
+
+  function renderConfirmRemoveAgency(agency){
+    const row = document.createElement('div');
+    row.className = 'confirm-remove-row';
+    row.innerHTML = `
+      <span>Retirer « ${escapeHtml(agency.label || agency.code)} » de cet appareil ?</span>
+      <button type="button" class="btn-yes">Oui, retirer</button>
+      <button type="button" class="btn-no">Annuler</button>
+    `;
+    row.querySelector('.btn-yes').addEventListener('click', () => {
+      const wasActive = agency.code === fbCurrentCode;
+      removeAgencyFromList(agency.code);
+      agencyPendingRemoval = null;
+      if(wasActive){
+        // Ne supprime rien côté Firestore : on retire seulement l'accès
+        // rapide local et on réinitialise l'affichage de cet appareil.
+        disconnectFromAgency();
+        resetLocalAgencyData();
+      }
+      applyLockState();
+    });
+    row.querySelector('.btn-no').addEventListener('click', () => {
+      agencyPendingRemoval = null;
+      renderAgenciesList();
+    });
+    return row;
+  }
+
+  // Réinitialisation complète de l'état local (mémoire + localStorage) des
+  // données d'agence, utilisée à la déconnexion pour ne jamais laisser
+  // d'anciennes données affichées à l'écran.
+  function resetLocalAgencyData(){
+    objectives = {};
+    yearRows = [];
+    ventesJourData = { date: todayKey(), sales: [] };
+    openRowId = null;
+    openMonthKey = null;
+    rowPendingRemoval = null;
+
+    localStorage.removeItem(OBJ_STORAGE_KEY);
+    localStorage.removeItem(OBJ_ROWS_KEY);
+    localStorage.removeItem(VENTES_JOUR_KEY);
+    localStorage.removeItem(AGENCY_CODE_ACTIVE_KEY);
+
+    refreshAllViews();
+  }
 
   let fbApp = null;
   let fbDb = null;
@@ -1296,34 +1574,9 @@
     unsubscribeAllFirestoreListeners();
     fbCurrentCode = code;
     localStorage.setItem(AGENCY_CODE_ACTIVE_KEY, code);
+    upsertAgencyInList(code);
     setSyncStatus('online', `Connexion à ${code}...`);
-
-    // Rafraîchit TOUTES les vues du dashboard après une mise à jour distante.
-    // (Avant ce correctif, seules 2 à 4 fonctions de rendu sur ~16 étaient
-    // appelées après une synchro, ce qui laissait des écrans figés avec
-    // d'anciennes valeurs tant que l'utilisateur ne rechargeait pas la page
-    // ou ne changeait pas d'onglet — donnant l'impression que les appareils
-    // n'étaient pas synchronisés alors que les données Firestore l'étaient.)
-    function refreshAllViews(){
-      const fns = [
-        'renderAnalyticsStatCards',
-        'renderYearTabs',
-        'renderYearFloatBar',
-        'renderCumulChart',
-        'renderDailyChart',
-        'renderVentesTheoriquesDuJour',
-        'renderVentesJourTable',
-        'renderVentesJourPage',
-        'renderVjHistoryRows'
-      ];
-      fns.forEach(fnName => {
-        try{
-          if(typeof window[fnName] === 'function') window[fnName]();
-        }catch(e){
-          console.warn('[Sync] Échec du rafraîchissement de', fnName, e);
-        }
-      });
-    }
+    applyLockState();
 
     listenFirestoreDoc('objectives', (remote) => {
       objectives = remote;
@@ -1374,38 +1627,41 @@
     return out;
   }
   const agencyCode = document.getElementById('agencyCode');
+  const agencyLabelInput = document.getElementById('agencyLabel');
 
   document.getElementById('btnJoin').addEventListener('click', ()=>{
     const code = (agencyCode.value || '').trim().toUpperCase();
     if(!code){
-      agencyCode.readOnly = false;
-      agencyCode.placeholder = 'Saisir un code';
       agencyCode.focus();
       return;
     }
-    agencyCode.readOnly = true;
-    agencyCode.value = code;
+    const label = agencyLabelInput ? (agencyLabelInput.value || '').trim() : '';
+    upsertAgencyInList(code, label);
+    agencyCode.value = '';
+    if(agencyLabelInput) agencyLabelInput.value = '';
     connectToAgency(code);
   });
 
   document.getElementById('btnLogout').addEventListener('click', ()=>{
+    // Déconnexion + réinitialisation complète : on ne garde aucune donnée
+    // d'agence à l'écran ni en mémoire locale, seule la liste des agences
+    // déjà rejointes sur cet appareil est conservée pour un accès rapide.
     disconnectFromAgency();
-    agencyCode.value = '';
-    agencyCode.readOnly = false;
-    agencyCode.placeholder = 'Aucun appareil lié';
+    resetLocalAgencyData();
+    applyLockState();
   });
 
   // Initialisation au chargement de la page : on tente Firebase, puis on
   // reconnecte automatiquement à la dernière agence utilisée si elle existe.
+  // Tant qu'aucune agence active n'est trouvée, l'accès reste verrouillé.
   initFirebase();
   {
     const savedCode = localStorage.getItem(AGENCY_CODE_ACTIVE_KEY);
     if(savedCode){
-      agencyCode.value = savedCode;
-      agencyCode.readOnly = true;
       connectToAgency(savedCode);
     } else {
       setSyncStatus('disconnected', 'Non connecté');
+      applyLockState();
     }
   }
 
