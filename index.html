@@ -2577,7 +2577,8 @@
       id: 'v' + Date.now() + Math.random().toString(36).slice(2,7),
       client: '',
       ca: '',
-      marge: ''
+      marge: '',
+      tauxMarge: ''
     });
     saveVentesData();
     syncRealiseFromVentes();
@@ -2613,8 +2614,8 @@
         <tr>
           <th>Client</th>
           <th>C.A</th>
+          <th>% Marge</th>
           <th>Marge</th>
-          <th>Marge %</th>
           <th></th>
         </tr>
       </thead>
@@ -2649,46 +2650,53 @@
       tdCa.appendChild(inputCa);
       tr.appendChild(tdCa);
 
+      // % Marge : saisi par l'utilisateur (même principe que le taux de
+      // marge de l'Historique journalier), mémorisé dans sale.tauxMarge
+      // pour ne pas être perdu si le C.A est temporairement vide.
+      const tdTaux = document.createElement('td');
+      const inputTaux = document.createElement('input');
+      inputTaux.type = 'number';
+      inputTaux.step = '0.1';
+      inputTaux.className = 'vj-realise-input vj-taux-input';
+      inputTaux.placeholder = '0';
+      inputTaux.value = sale.tauxMarge !== undefined ? sale.tauxMarge : '';
+      tdTaux.appendChild(inputTaux);
+      tr.appendChild(tdTaux);
+
+      // Marge (€) : calculée automatiquement à partir du C.A et du % Marge,
+      // affichée en lecture seule.
       const tdMarge = document.createElement('td');
-      const inputMarge = document.createElement('input');
-      inputMarge.type = 'number';
-      inputMarge.className = 'vj-realise-input';
-      inputMarge.placeholder = '0';
-      inputMarge.value = sale.marge;
-      tdMarge.appendChild(inputMarge);
+      tdMarge.className = 'amount-cell';
       tr.appendChild(tdMarge);
 
-      const tdPct = document.createElement('td');
-      tdPct.className = 'amount-cell';
-      tr.appendChild(tdPct);
-
-      function updatePct(){
+      function recomputeMarge(){
         const ca = parseFloat(inputCa.value) || 0;
-        const marge = parseFloat(inputMarge.value) || 0;
-        const pct = ca > 0 ? (marge / ca) * 100 : 0;
-        tdPct.textContent = `${pct.toLocaleString('fr-FR', {maximumFractionDigits:1, minimumFractionDigits:1})} %`;
+        const taux = inputTaux.value === '' ? '' : parseFloat(inputTaux.value);
+        const newMarge = (ca > 0 && taux !== '') ? round2(ca * (taux / 100)) : '';
+        sale.marge = newMarge;
+        tdMarge.textContent = newMarge === '' ? '0 €' : `${formatNumber(newMarge)} €`;
       }
 
       inputCa.addEventListener('input', ()=>{
         sale.ca = inputCa.value === '' ? '' : round2(parseFloat(inputCa.value));
+        recomputeMarge();
         saveVentesData();
         syncRealiseFromVentes();
-        updatePct();
       });
       inputCa.addEventListener('blur', ()=>{
         renderVjHistoryRows();
       });
-      inputMarge.addEventListener('input', ()=>{
-        sale.marge = inputMarge.value === '' ? '' : round2(parseFloat(inputMarge.value));
+      inputTaux.addEventListener('input', ()=>{
+        sale.tauxMarge = inputTaux.value === '' ? '' : parseFloat(inputTaux.value);
+        recomputeMarge();
         saveVentesData();
         syncRealiseFromVentes();
-        updatePct();
       });
-      inputMarge.addEventListener('blur', ()=>{
+      inputTaux.addEventListener('blur', ()=>{
         renderVjHistoryRows();
       });
 
-      updatePct();
+      recomputeMarge();
 
       const tdDelete = document.createElement('td');
       const btnDelete = document.createElement('button');
