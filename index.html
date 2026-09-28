@@ -893,6 +893,13 @@
     .chart-wrap{ height: 220px; }
     .chart-wrap-cumul{ height: 300px; }
   }
+
+  /* Bouton Imprimer (PDF paysage) */
+  .print-bar{ display:flex; justify-content:flex-end; margin:40px 0 14px; position:relative; z-index:9998; } /* sous la zone fixe du sélecteur d'année (60px) */
+  .btn-print{ display:flex; align-items:center; gap:8px; }
+  .btn-print svg{ stroke: var(--blue-2); flex-shrink:0; }
+  .btn-print:disabled{ opacity:.6; cursor:wait; }
+  @media (max-width: 720px){ .print-bar{ justify-content:flex-start; margin-top:0; } }
 </style>
 
 <!--
@@ -960,6 +967,7 @@
 
   <main>
     <div id="page-dashboard" class="page active">
+    <div class="print-bar"><button type="button" class="btn-secondary btn-print" id="btnPrintYear" title="Exporter l'année sélectionnée en PDF (paysage)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Imprimer</span></button></div>
     <section class="stats">
       <div class="stat-card">
         <div class="stat-top">
@@ -3485,6 +3493,128 @@
   ensureSelectedAnalyticsYear();
   updateYearFloatBarVisibility();
   renderAnalyticsStatCards();
+</script>
+<script>
+/* ---------- Impression PDF paysage : les 12 mois de l'année sélectionnée ---------- */
+(function(){
+  const JSPDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  const INK=[26,34,51], GREY=[107,114,128], LINE=[217,222,232], TRACK=[229,231,235], BLUE=[79,109,245], VIOLET=[167,139,250];
+  const txt = id => ((document.getElementById(id)||{}).textContent||'—').replace(/[\u202f\u00a0]/g,' ').trim();
+  const nextFrame = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 40)));
+
+  function loadJsPdf(){
+    return new Promise((res, rej) => {
+      if(window.jspdf) return res();
+      const s = document.createElement('script');
+      s.src = JSPDF_URL; s.onload = res; s.onerror = () => rej(new Error('jsPDF'));
+      document.head.appendChild(s);
+    });
+  }
+  // fige le graphique (pas d'animation en cours) avant capture
+  function settle(inst){ if(inst){ try{ inst.stop(); inst.update('none'); }catch(e){} } }
+  // capture le canvas sur fond blanc (le thème sombre est inversé pour rester lisible sur papier)
+  function shot(id){
+    const c = document.getElementById(id);
+    if(!c || c.style.visibility === 'hidden' || !c.width) return null;
+    const w = document.createElement('canvas'); w.width = c.width; w.height = c.height;
+    const x = w.getContext('2d');
+    x.fillStyle = '#fff'; x.fillRect(0, 0, w.width, w.height);
+    x.filter = 'invert(1) hue-rotate(180deg)';
+    x.drawImage(c, 0, 0);
+    return { url: w.toDataURL('image/jpeg', 0.92), w: w.width, h: w.height };
+  }
+  function panel(d, x, y, w, h, title){
+    d.setDrawColor(...LINE); d.setLineWidth(0.3); d.roundedRect(x, y, w, h, 2, 2, 'S');
+    if(title){ d.setFont('helvetica','bold'); d.setFontSize(9); d.setTextColor(...INK); d.text(title, x+4, y+6); }
+  }
+  function fit(d, img, x, y, w, h){
+    if(!img) return;
+    const r = Math.min(w/img.w, h/img.h), iw = img.w*r, ih = img.h*r;
+    d.addImage(img.url, 'JPEG', x+(w-iw)/2, y+(h-ih)/2, iw, ih);
+  }
+  function kpi(d, x, y, w, h, title, label, val, obj, pct, color){
+    panel(d, x, y, w, h);
+    d.setFont('helvetica','bold'); d.setFontSize(8); d.setTextColor(...GREY); d.text(title, x+4, y+6);
+    d.setFont('helvetica','normal'); d.text(label, x+4, y+10.5);
+    d.setFont('helvetica','bold'); d.setFontSize(14); d.setTextColor(...INK);
+    d.text(obj === null ? val : val + '  /  ' + obj, x+4, y+18);
+    if(pct !== null){
+      const bw = w-22, p = Math.max(0, Math.min(100, parseFloat(String(pct).replace(',','.')) || 0));
+      d.setFillColor(...TRACK); d.roundedRect(x+4, y+21, bw, 2.4, 1.2, 1.2, 'F');
+      if(p > 0){ d.setFillColor(...color); d.roundedRect(x+4, y+21, bw*p/100, 2.4, 1.2, 1.2, 'F'); }
+      d.setFont('helvetica','normal'); d.setFontSize(8); d.setTextColor(...GREY); d.text(pct, x+w-4, y+23.4, {align:'right'});
+    }
+  }
+
+  async function printYear(){
+    const btn = document.getElementById('btnPrintYear');
+    ensureSelectedAnalyticsYear();
+    const year = selectedAnalyticsYear;
+    if(!isAgencyActive() || year === null || !objectives[year]){
+      showAnalyticsToast("Aucune donnée pour l'année sélectionnée : créez-la d'abord dans « Réglages ».");
+      return;
+    }
+    const prevMonth = selectedAnalyticsMonth, prevMetric = cumulActiveMetric;
+    const label = btn.querySelector('span'), oldLabel = label.textContent;
+    btn.disabled = true; label.textContent = 'Génération…';
+    try{
+      await loadJsPdf();
+      const doc = new window.jspdf.jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+      let ag = '';
+      try{ ag = (loadAgenciesList().find(a => a.code === fbCurrentCode) || {}).label || ''; }catch(e){}
+      ag = ag || fbCurrentCode;
+      const today = new Date().toLocaleDateString('fr-FR');
+
+      for(let m = 0; m < 12; m++){
+        if(m > 0) doc.addPage('a4', 'landscape');
+        selectedAnalyticsMonth = m; cumulActiveMetric = 'ca';
+        renderAnalyticsStatCards(); renderCumulChart(); renderDailyChart();
+        await nextFrame(); settle(cumulChartInstance); settle(dailyChartInstance);
+        const has = !!objectives[year][m];
+        const iCa = has ? shot('cumulChart') : null, iDay = has ? shot('dailyChart') : null;
+        let iMg = null;
+        if(has){ cumulActiveMetric = 'marge'; renderCumulChart(); await nextFrame(); settle(cumulChartInstance); iMg = shot('cumulChart'); }
+
+        // En-tête + pied de page
+        doc.setFont('helvetica','bold'); doc.setFontSize(17); doc.setTextColor(...INK);
+        doc.text('Analyse mensuelle - ' + MONTH_NAMES[m] + ' ' + year, 10, 16);
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...GREY);
+        doc.text(ag + '  ·  Édité le ' + today, 287, 16, {align:'right'});
+        doc.setDrawColor(...LINE); doc.line(10, 20, 287, 20);
+        doc.setFontSize(8); doc.text('Page ' + (m+1) + ' / 12', 287, 204, {align:'right'});
+        if(!has){ doc.setFontSize(13); doc.text('Aucune donnée pour ce mois', 148.5, 105, {align:'center'}); continue; }
+
+        // 3 cartes du mois
+        const cw = (277 - 10) / 3;
+        kpi(doc, 10,            25, cw, 26, "CHIFFRE D'AFFAIRES", 'Réalisé / Objectif', txt('analyticsCaCumul'), txt('analyticsCaObjectif'), txt('analyticsCaPct'), BLUE);
+        kpi(doc, 10+cw+5,       25, cw, 26, 'MARGE', 'Réalisé / Objectif', txt('analyticsMargeCumul'), txt('analyticsMargeObjectif'), txt('analyticsMargePct'), VIOLET);
+        kpi(doc, 10+2*(cw+5),   25, cw, 26, '% MARGE', 'Marge mensuelle', txt('analyticsMargePctMensuel'), null, null);
+
+        // Deux graphiques de cumul côte à côte
+        const pw = (277 - 5) / 2;
+        panel(doc, 10, 56, pw, 68, 'Cumul CA - Objectif vs Réalisé');
+        fit(doc, iCa, 13, 63, pw-6, 58);
+        panel(doc, 10+pw+5, 56, pw, 68, 'Cumul Marge - Objectif vs Réalisé');
+        fit(doc, iMg, 13+pw+5, 63, pw-6, 58);
+
+        // Cartes journalières + graphique journalier
+        kpi(doc, 10, 129, 62, 31, "CHIFFRE D'AFFAIRES", 'Réel / Théorique', txt('analyticsCaJourReel'), txt('analyticsCaJourTheorique'), null);
+        kpi(doc, 10, 164, 62, 31, 'MARGE', 'Réel / Théorique', txt('analyticsMargeJourReel'), txt('analyticsMargeJourTheorique'), null);
+        panel(doc, 77, 129, 210, 66, 'Graphique journalier - CA et Marge réalisés');
+        fit(doc, iDay, 80, 136, 204, 56);
+      }
+      doc.save('AdminDash_' + fbCurrentCode + '_' + year + '.pdf');
+    }catch(e){
+      console.error('Impression PDF :', e);
+      showAnalyticsToast("Impossible de générer le PDF (module PDF non chargé ? connexion requise).");
+    }finally{
+      selectedAnalyticsMonth = prevMonth; cumulActiveMetric = prevMetric;
+      renderAnalyticsStatCards(); renderCumulChart(); renderDailyChart();
+      btn.disabled = false; label.textContent = oldLabel;
+    }
+  }
+  document.getElementById('btnPrintYear').addEventListener('click', printYear);
+})();
 </script>
 </body>
 </html>
