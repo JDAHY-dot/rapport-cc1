@@ -533,6 +533,15 @@
   .panel-traffic-stack{ display:flex; flex-direction:column; gap:18px; height:100%; }
   .panel-traffic-stack .stat-card-daily{ flex:1; display:flex; flex-direction:column; justify-content:center; }
   .stat-daily-title{ font-size:15.5px; font-weight:700; color:#fff; margin:0 0 8px 0; }
+  .stat-daily-head{ font-size:10.5px; font-weight:700; color: var(--muted); letter-spacing:0.8px; text-transform:uppercase; margin:0 0 6px 0; }
+  /* Cartes du haut (Analyse mensuelle) : CA + Marge = largeur du graphique (3/4), % MARGE = largeur des cartes journalières (1/4) */
+  .stats.stats-analytics{ grid-template-columns: repeat(8, 1fr); }
+  .stats.stats-analytics .stat-card{ grid-column: span 3; }
+  .stats.stats-analytics .stat-card.stat-card-nobar{ grid-column: span 2; }
+  @media (max-width: 1100px){
+    .stats.stats-analytics{ grid-template-columns: 1fr; }
+    .stats.stats-analytics .stat-card, .stats.stats-analytics .stat-card.stat-card-nobar{ grid-column: span 1; }
+  }
   .panel{
     background: var(--panel);
     border: 1px solid var(--border);
@@ -679,49 +688,21 @@
     .stats{ grid-template-columns: 1fr; }
   }
 
-  /* ===== SÉLECTEUR D'ANNÉE FLOTTANT (Dashboard / Analytics) ===== */
-
-  /* Zone invisible de détection du survol en haut de l'écran (~40-60px) */
-  #yearFloatZone{
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 60px;
-    z-index: 9997;
-    pointer-events: auto;
-  }
-  #yearFloatZone.page-inactive{ display:none; }
-
-  /* Barre de cartouches, overlay discret */
+  /* ===== BULLES D'ANNÉES (toujours visibles, sur la ligne du bouton Imprimer) ===== */
   #yearFloatBar{
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-14px);
     display:flex;
     align-items:center;
+    flex-wrap:wrap;
     gap:8px;
-    background: rgba(21,27,46,0.85);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 7px 10px;
-    backdrop-filter: blur(8px);
-    z-index: 9998;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .18s ease, transform .18s ease;
-    box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+    margin:0;
+    padding:0;
+    min-width:0;
   }
-  #yearFloatBar.visible{
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-    pointer-events: auto;
-  }
-  #yearFloatBar.page-inactive{ display:none; }
 
   .year-chip{
-    font-size:11px; font-weight:700; color: var(--muted);
+    font-size:13px; font-weight:700; color: var(--muted);
     background: rgba(255,255,255,0.05); border:1px solid var(--border);
-    padding: 5px 13px; border-radius:999px; cursor:pointer; user-select:none;
+    padding: 7px 16px; border-radius:999px; cursor:pointer; user-select:none;
     white-space:nowrap;
     transition: background .15s ease, color .15s ease, border-color .15s ease;
   }
@@ -732,23 +713,6 @@
     border-color: rgba(124,92,255,0.5);
   }
   .year-chip-empty{ font-size:11.5px; color: var(--muted-2); padding:4px 8px; white-space:nowrap; }
-
-  /* Alternative tactile/mobile : bouton permanent au lieu du survol */
-  #yearFloatToggleMobile{
-    display:none;
-    position: fixed;
-    top: 14px; right: 14px;
-    z-index: 9998;
-    align-items:center; gap:6px;
-    background: rgba(21,27,46,0.9);
-    border: 1px solid var(--border);
-    color: #fff;
-    font-size: 11.5px; font-weight:700;
-    padding: 8px 13px;
-    border-radius: 999px;
-    cursor: pointer;
-  }
-  #yearFloatToggleMobile.page-inactive{ display:none !important; }
 
   /* Toast d'information (ex: année sélectionnée sans données) */
   #analyticsToast{
@@ -771,11 +735,6 @@
   }
   #analyticsToast.visible{ opacity: 1; }
 
-  @media (max-width: 720px){
-    #yearFloatZone{ display:none; }
-    #yearFloatToggleMobile{ display:flex; }
-    #yearFloatBar{ top: 58px; }
-  }
   /* Badge de statut de synchronisation multi-appareil */
   .sync-status-badge{
     display:inline-flex; align-items:center; gap:6px;
@@ -843,6 +802,7 @@
 
     /* Cartes stats et graphes en une seule colonne */
     .stats{ grid-template-columns: 1fr !important; }
+    .stats.stats-analytics .stat-card, .stats.stats-analytics .stat-card.stat-card-nobar{ grid-column: span 1 !important; }
     .grid-2{ grid-template-columns: 1fr !important; }
     .grid-cumul{ grid-template-columns: 1fr !important; }
     .month-body-grid{ grid-template-columns: 1fr !important; }
@@ -860,7 +820,7 @@
     .vj-taux-input{ width: 56px; }
 
     /* Zones tactiles minimales pour les boutons/icônes cliquables */
-    .vj-vente-delete, .yr-remove, #yearFloatToggleMobile{
+    .vj-vente-delete, .yr-remove, .year-chip{
       min-width: 44px; min-height: 44px;
     }
     .btn-secondary{ min-height: 44px; }
@@ -877,10 +837,6 @@
     .sync-row{ flex-direction: column; align-items: stretch; }
     .code-input{ width: 100%; }
 
-    /* Sélecteur d'année flottant : garde le bouton mobile déjà prévu,
-       mais laisse un peu plus d'espace pour ne pas chevaucher le hamburger */
-    #yearFloatToggleMobile{ top: 12px; right: 12px; }
-    #yearFloatBar{ top: 62px; }
   }
 
   @media (max-width: 480px){
@@ -895,11 +851,32 @@
   }
 
   /* Bouton Imprimer (PDF paysage) */
-  .print-bar{ display:flex; justify-content:flex-end; margin:40px 0 14px; position:relative; z-index:9998; } /* sous la zone fixe du sélecteur d'année (60px) */
+  /* Ligne d'en-tête : bulles d'années à gauche (collées à la carte CA), bouton Imprimer à droite */
+  .print-bar{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin:0 0 22px; position:relative; }
   .btn-print{ display:flex; align-items:center; gap:8px; }
   .btn-print svg{ stroke: var(--blue-2); flex-shrink:0; }
   .btn-print:disabled{ opacity:.6; cursor:wait; }
-  @media (max-width: 720px){ .print-bar{ justify-content:flex-start; margin-top:0; } }
+  @media (max-width: 720px){ .print-bar{ flex-wrap:wrap; margin-bottom:18px; } #yearFloatBar{ flex-wrap:nowrap; overflow-x:auto; max-width:100%; padding-bottom:2px; } .year-chip{ flex-shrink:0; } }
+
+  /* ===== ANALYSE ANNUELLE ===== */
+  .annual-bar{ display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:0 0 22px; }
+  .annual-bar .year-chip.active{ color:#fff; }
+  .annual-bar .sep{ width:1px; height:22px; background:var(--border); margin:0 4px; }
+  .annual-msg{ display:none; text-align:center; color:var(--muted); padding:60px 20px; font-size:14px; line-height:1.6; }
+  .annual-msg b{ color:#fff; }
+  .annual-opt{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); cursor:pointer; user-select:none; }
+  .annual-table th, .annual-table td{ padding:10px 12px; text-align:right; white-space:nowrap; font-size:13px; border-bottom:1px solid var(--border); }
+  .annual-table th:first-child, .annual-table td:first-child{ text-align:left; }
+  .annual-table th{ color:var(--muted); font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+  .annual-table tr.ann-year{ cursor:pointer; font-weight:700; color:#fff; }
+  .annual-table tr.ann-year:hover{ background:rgba(255,255,255,0.04); }
+  .annual-table tr.ann-month{ cursor:pointer; color:var(--muted); }
+  .annual-table tr.ann-month:hover{ background:rgba(255,255,255,0.04); color:#fff; }
+  .annual-table tr.ann-month td:first-child{ padding-left:34px; }
+  .annual-table tr.ann-total{ font-weight:800; color:#fff; background:rgba(79,109,245,0.10); }
+  .annual-table .ann-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px; }
+  .annual-table .ann-chev{ display:inline-block; width:14px; color:var(--muted); }
+  .ann-pos{ color:#34d399; } .ann-neg{ color:#f87171; }
 </style>
 
 <!--
@@ -929,6 +906,11 @@
         <span><b>ADMIN</b>DASH</span>
       </div>
       <nav class="main">
+        <div class="nav-item" id="annualNav" data-name="Analyse annuelle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 17v-3M12 17v-5M16 17v-2"/></svg>
+          Analyse annuelle
+        </div>
+
         <div class="nav-group">
           <div class="nav-item has-dropdown active" id="analyticsToggle" data-name="Analyse mensuelle">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-4 4"/></svg>
@@ -967,8 +949,8 @@
 
   <main>
     <div id="page-dashboard" class="page active">
-    <div class="print-bar"><button type="button" class="btn-secondary btn-print" id="btnPrintYear" title="Exporter l'année sélectionnée en PDF (paysage)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Imprimer</span></button></div>
-    <section class="stats">
+    <div class="print-bar"><div id="yearFloatBar"></div><button type="button" class="btn-secondary btn-print" id="btnPrintYear" title="Exporter l'année sélectionnée en PDF (paysage)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Imprimer</span></button></div>
+    <section class="stats stats-analytics">
       <div class="stat-card">
         <div class="stat-top">
           <div class="stat-analytics-title">CHIFFRE D'AFFAIRE</div>
@@ -1040,6 +1022,7 @@
 
       <div class="panel-traffic panel-traffic-stack">
         <div class="stat-card stat-card-daily">
+          <div class="stat-daily-head">Objectifs journaliers</div>
           <div class="stat-daily-title">Chiffre d'affaire</div>
           <div class="stat-label">Réel / Théorique</div>
           <div class="stat-analytics-row">
@@ -1050,6 +1033,7 @@
         </div>
 
         <div class="stat-card stat-card-daily">
+          <div class="stat-daily-head">Objectifs journaliers</div>
           <div class="stat-daily-title">MARGE</div>
           <div class="stat-label">Réel / Théorique</div>
           <div class="stat-analytics-row">
@@ -1077,6 +1061,56 @@
         <div class="chart-empty-msg" id="dailyChartEmptyMsg">Aucune donnée pour cette période — configurez vos objectifs CA/Marge dans <b>Réglages</b>.</div>
       </div>
     </section>
+    </div>
+
+    <div id="page-annual" class="page">
+      <div class="annual-bar" id="annualYearBar"></div>
+      <div class="annual-msg" id="annualMsg"></div>
+      <div id="annualContent">
+        <section class="stats stats-analytics">
+          <div class="stat-card">
+            <div class="stat-top"><div class="stat-analytics-title">CHIFFRE D'AFFAIRE</div><div class="stat-period" id="annualCaPeriod">—</div></div>
+            <div class="stat-label">Réalisé / Objectif</div>
+            <div class="stat-analytics-row"><span class="stat-analytics-value" id="annualCaCumul">0 €</span><span class="stat-analytics-sep">/</span><span class="stat-analytics-target" id="annualCaObjectif">0 €</span></div>
+            <div class="vj-progress-row"><div class="vj-progress-track"><div class="vj-progress-fill" id="annualCaFill"></div></div><span class="vj-progress-pct" id="annualCaPct">0 %</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top"><div class="stat-analytics-title">MARGE</div><div class="stat-period" id="annualMargePeriod">—</div></div>
+            <div class="stat-label">Réalisé / Objectif</div>
+            <div class="stat-analytics-row"><span class="stat-analytics-value" id="annualMargeCumul">0 €</span><span class="stat-analytics-sep">/</span><span class="stat-analytics-target" id="annualMargeObjectif">0 €</span></div>
+            <div class="vj-progress-row"><div class="vj-progress-track"><div class="vj-progress-fill" id="annualMargeFill"></div></div><span class="vj-progress-pct" id="annualMargePct">0 %</span></div>
+          </div>
+          <div class="stat-card stat-card-nobar">
+            <div class="stat-top"><div class="stat-analytics-title">% MARGE</div></div>
+            <div class="stat-label">Marge / CA réalisés</div>
+            <div class="stat-analytics-row"><span class="stat-analytics-value" id="annualMargePctVal">0 %</span></div>
+          </div>
+        </section>
+
+        <section class="panel" style="margin-bottom:18px;">
+          <div class="panel-head-cumul">
+            <div><p class="panel-title">Comparaison des années</p><p class="panel-sub" id="annualCumulSub">Cumul mensuel</p></div>
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+              <label class="annual-opt"><input type="checkbox" id="annualShowObj" checked> Afficher les objectifs</label>
+              <div class="cumul-tabs" id="annualTabs">
+                <button type="button" class="cumul-tab-btn active" data-metric="ca">CA</button>
+                <button type="button" class="cumul-tab-btn" data-metric="marge">MARGE</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrap chart-wrap-cumul"><canvas id="annualCumulChart"></canvas></div>
+        </section>
+
+        <section class="panel" style="margin-bottom:18px;">
+          <div class="panel-head"><div><p class="panel-title">Résultats mensuels</p><p class="panel-sub" id="annualMonthSub">—</p></div></div>
+          <div class="chart-wrap chart-wrap-cumul"><canvas id="annualMonthChart"></canvas></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><div><p class="panel-title">Récapitulatif par année</p><p class="panel-sub">Cliquez sur une année pour le détail, sur un mois pour ouvrir l'Analyse mensuelle</p></div></div>
+          <div class="table-wrap"><table class="annual-table" id="annualTable"></table></div>
+        </section>
+      </div>
     </div>
 
     <div id="page-settings" class="page">
@@ -1161,13 +1195,6 @@
   </main>
 </div>
 
-<!-- Sélecteur d'année flottant : uniquement actif/visible sur la page Dashboard -->
-<div id="yearFloatZone"></div>
-<div id="yearFloatBar"></div>
-<button type="button" id="yearFloatToggleMobile">
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-  Année
-</button>
 
 <script>
   // ---------- Page switching ----------
@@ -1177,6 +1204,7 @@
     if(target) target.classList.add('active');
     if(typeof updateYearFloatBarVisibility === 'function') updateYearFloatBarVisibility();
     if(id === 'page-dashboard' && typeof renderAnalyticsStatCards === 'function') renderAnalyticsStatCards();
+    if(id === 'page-annual' && typeof renderAnnualPage === 'function') renderAnnualPage();
   }
 
   // ---------- Sidebar navigation ----------
@@ -1193,6 +1221,8 @@
 
       if(item.dataset.name === 'Settings'){
         showPage('page-settings');
+      } else if(item.dataset.name === 'Analyse annuelle'){
+        showPage('page-annual');
       } else if(item.dataset.name === 'Ventes du jour'){
         showPage('page-ventes-jour');
         if(typeof renderVentesJourPage === 'function') renderVentesJourPage();
@@ -1337,6 +1367,7 @@
       'renderAnalyticsStatCards',
       'renderYearTabs',
       'renderYearFloatBar',
+      'renderAnnualPage',
       'renderCumulChart',
       'renderDailyChart',
       'renderVentesTheoriquesDuJour',
@@ -2771,7 +2802,6 @@
 
   let selectedAnalyticsYear = null; // mémorisée en mémoire, sert de contexte au clic sur un mois
   let selectedAnalyticsMonth = null; // mois explicitement cliqué dans le dropdown Analyse mensuelle (null = mois par défaut)
-  let yearFloatHideTimer = null;
   let analyticsToastTimer = null;
 
   function isDashboardPageActive(){
@@ -2802,11 +2832,7 @@
 
     bar.innerHTML = '';
     if(years.length === 0){
-      const empty = document.createElement('span');
-      empty.className = 'year-chip-empty';
-      empty.textContent = 'Aucune année configurée';
-      bar.appendChild(empty);
-      return;
+      return; // aucune année configurée : rien à afficher
     }
     years.forEach(y => {
       const chip = document.createElement('div');
@@ -2822,69 +2848,9 @@
     });
   }
 
-  function showYearFloatBar(){
-    if(!isDashboardPageActive()) return;
-    const bar = document.getElementById('yearFloatBar');
-    if(!bar) return;
-    renderYearFloatBar();
-    bar.classList.add('visible');
-    if(yearFloatHideTimer){ clearTimeout(yearFloatHideTimer); yearFloatHideTimer = null; }
-  }
-
-  function scheduleHideYearFloatBar(){
-    if(yearFloatHideTimer) clearTimeout(yearFloatHideTimer);
-    yearFloatHideTimer = setTimeout(() => {
-      const bar = document.getElementById('yearFloatBar');
-      if(bar) bar.classList.remove('visible');
-      yearFloatHideTimer = null;
-    }, 15000); // délai de grâce de 15s d'inactivité dans la zone
-  }
-
-  function hideYearFloatBarNow(){
-    if(yearFloatHideTimer){ clearTimeout(yearFloatHideTimer); yearFloatHideTimer = null; }
-    const bar = document.getElementById('yearFloatBar');
-    if(bar) bar.classList.remove('visible');
-  }
-
-  // N'active la zone de survol / le bouton mobile que sur la page Dashboard
-  function updateYearFloatBarVisibility(){
-    const onDash = isDashboardPageActive();
-    const zone = document.getElementById('yearFloatZone');
-    const mobileBtn = document.getElementById('yearFloatToggleMobile');
-    if(zone) zone.classList.toggle('page-inactive', !onDash);
-    if(mobileBtn) mobileBtn.classList.toggle('page-inactive', !onDash);
-    if(!onDash) hideYearFloatBarNow();
-  }
-
-  // ---- Survol du haut de l'écran (desktop) ----
-  const yearFloatZoneEl = document.getElementById('yearFloatZone');
-  const yearFloatBarEl = document.getElementById('yearFloatBar');
-  if(yearFloatZoneEl){
-    yearFloatZoneEl.addEventListener('mouseenter', () => showYearFloatBar());
-    yearFloatZoneEl.addEventListener('mouseleave', () => scheduleHideYearFloatBar());
-  }
-  if(yearFloatBarEl){
-    // La barre elle-même fait aussi partie de la "zone" active (survoler les cartouches
-    // pour cliquer ne doit pas déclencher la disparition).
-    yearFloatBarEl.addEventListener('mouseenter', () => showYearFloatBar());
-    yearFloatBarEl.addEventListener('mouseleave', () => scheduleHideYearFloatBar());
-  }
-
-  // ---- Alternative tactile / mobile : bouton toujours visible ----
-  const yearFloatToggleBtn = document.getElementById('yearFloatToggleMobile');
-  if(yearFloatToggleBtn){
-    yearFloatToggleBtn.addEventListener('click', () => {
-      if(!isDashboardPageActive()) return;
-      const bar = document.getElementById('yearFloatBar');
-      if(!bar) return;
-      if(bar.classList.contains('visible')){
-        hideYearFloatBarNow();
-      } else {
-        renderYearFloatBar();
-        bar.classList.add('visible');
-      }
-    });
-  }
+  // Les bulles sont toujours visibles (plus de masquage automatique) : fonction conservée
+  // pour compatibilité avec les appels existants.
+  function updateYearFloatBarVisibility(){ renderYearFloatBar(); }
 
   // ---- Carte "Cumul — Objectif vs Réalisé" (Dashboard) ----
   // Réutilise le même contexte que les cartes Analytics ci-dessus :
@@ -3615,6 +3581,201 @@
   }
   document.getElementById('btnPrintYear').addEventListener('click', printYear);
 })();
+</script>
+
+<script>
+  // ================= ANALYSE ANNUELLE (multi-années) =================
+  // Données : objectives[année][mois].ca / .marge (objectifs) et .realise{jour:{ca,marge}} (réalisé),
+  // mêmes sources que l'Analyse mensuelle (aucune nouvelle collection Firestore).
+  const ANNUAL_COLORS = ['#4f6df5','#a78bfa','#34d399','#f59e0b','#f472b6','#22d3ee','#f87171','#a3e635'];
+  const ANNUAL_LS_KEY = 'annualSelectedYears';
+  let annualSelected = null;      // tableau d'années cochées (null = pas encore chargé)
+  let annualMetric = 'ca';
+  let annualOpenYears = new Set();
+  let annualCumulChart = null, annualMonthChart = null;
+
+  function annualAllYears(){ return (typeof getAnalyticsYears === 'function') ? getAnalyticsYears() : []; }
+  function annualColor(y){ const i = annualAllYears().indexOf(y); return ANNUAL_COLORS[(i < 0 ? 0 : i) % ANNUAL_COLORS.length]; }
+  function annEur(n){ return Math.round(n || 0).toLocaleString('fr-FR') + ' €'; }
+  function annPct(n){ return (n || 0).toLocaleString('fr-FR', {minimumFractionDigits:1, maximumFractionDigits:1}) + ' %'; }
+
+  function annualLoadSelection(){
+    const all = annualAllYears();
+    if(annualSelected === null){
+      let saved = null;
+      try{ saved = JSON.parse(localStorage.getItem(ANNUAL_LS_KEY)); }catch(e){}
+      annualSelected = Array.isArray(saved) ? saved.map(Number) : null;
+      if(annualSelected === null){
+        const cy = new Date().getFullYear();
+        annualSelected = all.includes(cy) ? [cy] : (all.length ? [all[all.length - 1]] : []);
+      }
+    }
+    annualSelected = annualSelected.filter(y => all.includes(y));
+  }
+  function annualSaveSelection(){ try{ localStorage.setItem(ANNUAL_LS_KEY, JSON.stringify(annualSelected)); }catch(e){} }
+
+  // Données d'une année : 12 mois {ca, marge, objCa, objMarge}
+  function annualYearData(y){
+    const yo = (typeof objectives !== 'undefined') ? objectives[y] : null;
+    if(!yo) return null;
+    const months = [];
+    for(let m = 0; m < 12; m++){
+      const d = yo[m] || {};
+      let ca = 0, mg = 0;
+      Object.values(d.realise || {}).forEach(e => { if(e){ ca += parseFloat(e.ca) || 0; mg += parseFloat(e.marge) || 0; } });
+      months.push({ ca, marge: mg, objCa: parseFloat(d.ca) || 0, objMarge: parseFloat(d.marge) || 0 });
+    }
+    const sum = k => months.reduce((a, x) => a + x[k], 0);
+    return { months, ca: sum('ca'), marge: sum('marge'), objCa: sum('objCa'), objMarge: sum('objMarge') };
+  }
+
+  function annualRenderBar(){
+    const bar = document.getElementById('annualYearBar');
+    if(!bar) return;
+    const all = annualAllYears();
+    bar.innerHTML = '';
+    if(!all.length) return;
+    all.forEach(y => {
+      const on = annualSelected.includes(y), c = annualColor(y);
+      const chip = document.createElement('div');
+      chip.className = 'year-chip' + (on ? ' active' : '');
+      chip.textContent = y;
+      if(on){ chip.style.borderColor = c; chip.style.background = c + '33'; }
+      chip.addEventListener('click', () => {
+        annualSelected = on ? annualSelected.filter(v => v !== y) : [...annualSelected, y].sort((a, b) => a - b);
+        annualSaveSelection(); renderAnnualPage();
+      });
+      bar.appendChild(chip);
+    });
+    const sep = document.createElement('span'); sep.className = 'sep'; bar.appendChild(sep);
+    [['Tout sélectionner', () => all.slice()], ['Aucune', () => []]].forEach(([label, fn]) => {
+      const b = document.createElement('div'); b.className = 'year-chip'; b.textContent = label;
+      b.addEventListener('click', () => { annualSelected = fn(); annualSaveSelection(); renderAnnualPage(); });
+      bar.appendChild(b);
+    });
+  }
+
+  function annualSetKpi(prefix, real, obj, period){
+    document.getElementById('annual' + prefix + 'Cumul').textContent = annEur(real);
+    document.getElementById('annual' + prefix + 'Objectif').textContent = annEur(obj);
+    const pct = obj > 0 ? (real / obj) * 100 : 0;
+    const fill = document.getElementById('annual' + prefix + 'Fill'), pe = document.getElementById('annual' + prefix + 'Pct');
+    fill.style.width = Math.min(pct, 100) + '%';
+    fill.classList.toggle('over', pct > 100); pe.classList.toggle('over', pct > 100);
+    pe.textContent = Math.round(pct) + ' %';
+    document.getElementById('annual' + prefix + 'Period').textContent = period;
+  }
+
+  function annualRenderCharts(items){
+    if(typeof Chart === 'undefined') return;
+    const MONTHS_SHORT = ['Janv','Févr','Mars','Avr','Mai','Juin','Juil','Août','Sept','Oct','Nov','Déc'];
+    const key = annualMetric === 'ca' ? 'ca' : 'marge', objKey = annualMetric === 'ca' ? 'objCa' : 'objMarge';
+    const label = annualMetric === 'ca' ? 'CA' : 'Marge';
+    const showObj = document.getElementById('annualShowObj').checked;
+    const now = new Date(), cy = now.getFullYear(), cm = now.getMonth();
+    const tick = { color: '#8b93b0' }, grid = { color: 'rgba(255,255,255,0.06)' };
+    const fmtTip = c => ' ' + c.dataset.label + ' : ' + annEur(c.parsed.y);
+
+    const cumDatasets = [];
+    items.forEach(it => {
+      const col = annualColor(it.y); let acc = 0, accO = 0;
+      const real = it.d.months.map((m, i) => { acc += m[key]; return (it.y === cy && i > cm) ? null : Math.round(acc); });
+      cumDatasets.push({ label: it.y + ' réalisé', data: real, borderColor: col, backgroundColor: col, tension: .25, pointRadius: 2, borderWidth: 2.5, spanGaps: false });
+      if(showObj){
+        const obj = it.d.months.map(m => Math.round(accO += m[objKey]));
+        cumDatasets.push({ label: it.y + ' objectif', data: obj, borderColor: col, borderDash: [6, 5], borderWidth: 1.5, pointRadius: 0, tension: .25, backgroundColor: col });
+      }
+    });
+    const todayPlugin = { id: 'annualToday', afterDatasetsDraw(ch){
+      if(!items.some(i => i.y === cy)) return;
+      const x = ch.scales.x.getPixelForValue(cm), a = ch.chartArea, c = ch.ctx;
+      c.save(); c.setLineDash([3, 4]); c.strokeStyle = 'rgba(255,255,255,0.45)'; c.beginPath(); c.moveTo(x, a.top); c.lineTo(x, a.bottom); c.stroke(); c.restore();
+    }};
+    if(annualCumulChart) annualCumulChart.destroy();
+    annualCumulChart = new Chart(document.getElementById('annualCumulChart'), {
+      type: 'line', data: { labels: MONTHS_SHORT, datasets: cumDatasets }, plugins: [todayPlugin],
+      options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { labels: { color: '#c7cce0', usePointStyle: true, boxWidth: 8 } }, tooltip: { callbacks: { label: fmtTip } } },
+        scales: { x: { ticks: tick, grid }, y: { ticks: { ...tick, callback: v => v.toLocaleString('fr-FR') }, grid } } }
+    });
+
+    const barDatasets = items.map(it => ({ label: String(it.y), data: it.d.months.map(m => Math.round(m[key])), backgroundColor: annualColor(it.y), borderRadius: 4 }));
+    if(annualMonthChart) annualMonthChart.destroy();
+    annualMonthChart = new Chart(document.getElementById('annualMonthChart'), {
+      type: 'bar', data: { labels: MONTHS_SHORT, datasets: barDatasets },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#c7cce0', usePointStyle: true, boxWidth: 8 } }, tooltip: { callbacks: { label: fmtTip } } },
+        scales: { x: { ticks: tick, grid: { display: false } }, y: { ticks: { ...tick, callback: v => v.toLocaleString('fr-FR') }, grid } } }
+    });
+    document.getElementById('annualMonthSub').textContent = label + ' réalisé par mois';
+    document.getElementById('annualCumulSub').textContent = label + ' cumulé — ' + items.map(i => i.y).join(', ');
+  }
+
+  function annualOpenMonth(y, m){
+    selectedAnalyticsYear = y; selectedAnalyticsMonth = m;
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.getElementById('analyticsToggle').classList.add('active');
+    showPage('page-dashboard');
+    if(typeof renderYearFloatBar === 'function') renderYearFloatBar();
+    if(typeof renderAnalyticsStatCards === 'function') renderAnalyticsStatCards();
+  }
+
+  function annualRenderTable(items){
+    const MN = (typeof MONTH_NAMES !== 'undefined') ? MONTH_NAMES : [];
+    const evo = (y, d) => {
+      const prev = annualYearData(y - 1);
+      if(!prev || prev.ca <= 0 || d.ca <= 0) return '—';
+      const v = (d.ca / prev.ca - 1) * 100;
+      return `<span class="${v >= 0 ? 'ann-pos' : 'ann-neg'}">${v >= 0 ? '+' : ''}${annPct(v)}</span>`;
+    };
+    const row = (cls, first, d, last) => `<td>${first}</td><td>${annEur(d.ca)}</td><td>${annEur(d.objCa)}</td><td>${d.objCa > 0 ? Math.round(d.ca / d.objCa * 100) + ' %' : '—'}</td><td>${annEur(d.marge)}</td><td>${annEur(d.objMarge)}</td><td>${d.objMarge > 0 ? Math.round(d.marge / d.objMarge * 100) + ' %' : '—'}</td><td>${d.ca > 0 ? annPct(d.marge / d.ca * 100) : '—'}</td><td>${last}</td>`;
+    let h = '<thead><tr><th>Année</th><th>CA réalisé</th><th>Obj. CA</th><th>% atteinte</th><th>Marge réalisée</th><th>Obj. marge</th><th>% atteinte</th><th>% marge</th><th>Évol. CA vs N-1</th></tr></thead><tbody>';
+    items.forEach(it => {
+      const open = annualOpenYears.has(it.y);
+      h += `<tr class="ann-year" data-y="${it.y}">${row('', `<span class="ann-chev">${open ? '▾' : '▸'}</span><span class="ann-dot" style="background:${annualColor(it.y)}"></span>${it.y}`, it.d, evo(it.y, it.d))}</tr>`;
+      if(open) it.d.months.forEach((m, i) => { h += `<tr class="ann-month" data-y="${it.y}" data-m="${i}">${row('', MN[i] || i + 1, m, '')}</tr>`; });
+    });
+    if(items.length > 1){
+      const t = items.reduce((a, it) => ({ ca: a.ca + it.d.ca, marge: a.marge + it.d.marge, objCa: a.objCa + it.d.objCa, objMarge: a.objMarge + it.d.objMarge }), { ca: 0, marge: 0, objCa: 0, objMarge: 0 });
+      h += `<tr class="ann-total">${row('', 'Total sélection', t, '')}</tr>`;
+    }
+    const tbl = document.getElementById('annualTable');
+    tbl.innerHTML = h + '</tbody>';
+    tbl.querySelectorAll('tr.ann-year').forEach(tr => tr.addEventListener('click', () => {
+      const y = +tr.dataset.y; annualOpenYears.has(y) ? annualOpenYears.delete(y) : annualOpenYears.add(y); annualRenderTable(items);
+    }));
+    tbl.querySelectorAll('tr.ann-month').forEach(tr => tr.addEventListener('click', () => annualOpenMonth(+tr.dataset.y, +tr.dataset.m)));
+  }
+
+  function renderAnnualPage(){
+    const page = document.getElementById('page-annual');
+    if(!page || !page.classList.contains('active')) return;
+    annualLoadSelection();
+    annualRenderBar();
+    const msg = document.getElementById('annualMsg'), content = document.getElementById('annualContent');
+    const items = annualSelected.map(y => ({ y, d: annualYearData(y) })).filter(i => i.d);
+    let text = '';
+    if(!annualAllYears().length || (annualSelected.length && !items.length)) text = "Aucune donnée pour cette période — configurez vos objectifs CA/Marge dans <b>Réglages</b>.";
+    else if(!annualSelected.length) text = 'Sélectionnez au moins une année.';
+    msg.innerHTML = text; msg.style.display = text ? 'block' : 'none';
+    content.style.display = text ? 'none' : '';
+    if(text){ if(annualCumulChart){ annualCumulChart.destroy(); annualCumulChart = null; } if(annualMonthChart){ annualMonthChart.destroy(); annualMonthChart = null; } return; }
+
+    const tot = items.reduce((a, it) => ({ ca: a.ca + it.d.ca, marge: a.marge + it.d.marge, objCa: a.objCa + it.d.objCa, objMarge: a.objMarge + it.d.objMarge }), { ca: 0, marge: 0, objCa: 0, objMarge: 0 });
+    const period = items.length === 1 ? String(items[0].y) : items.map(i => i.y).join(' + ');
+    annualSetKpi('Ca', tot.ca, tot.objCa, period);
+    annualSetKpi('Marge', tot.marge, tot.objMarge, period);
+    document.getElementById('annualMargePctVal').textContent = annPct(tot.ca > 0 ? tot.marge / tot.ca * 100 : 0);
+    annualRenderCharts(items);
+    annualRenderTable(items);
+  }
+
+  document.querySelectorAll('#annualTabs .cumul-tab-btn').forEach(b => b.addEventListener('click', () => {
+    annualMetric = b.dataset.metric;
+    document.querySelectorAll('#annualTabs .cumul-tab-btn').forEach(x => x.classList.toggle('active', x === b));
+    renderAnnualPage();
+  }));
+  document.getElementById('annualShowObj').addEventListener('change', renderAnnualPage);
 </script>
 </body>
 </html>
