@@ -582,6 +582,20 @@
     width:0; height:12px; border-left:2px dashed var(--orange); border-radius:0; background:transparent;
   }
   .chart-wrap-cumul{ height: 380px; }
+  /* Infobulle personnalisée (Analyse mensuelle) : écart Réalisé − Objectif */
+  .ad-tip{
+    position:absolute; z-index:5; pointer-events:none; opacity:0; transition:opacity .12s ease;
+    background:#1b2338; border:1px solid #2c3550; border-radius:6px; padding:10px 12px;
+    font-size:12px; line-height:1.4; color:#fff; white-space:nowrap; box-shadow:0 6px 18px rgba(0,0,0,.35);
+  }
+  .ad-tip-title{ color:#8891a8; font-weight:700; margin-bottom:6px; }
+  .ad-tip-row{ display:flex; align-items:center; gap:7px; margin-top:2px; }
+  .ad-tip-dot{ width:8px; height:8px; border-radius:2px; flex:none; }
+  .ad-tip-delta{ display:flex; justify-content:space-between; gap:14px; margin:1px 0 4px 15px; font-size:11.5px; color:#8891a8; }
+  .ad-tip-delta b{ font-weight:700; }
+  .ad-tip-delta b.pos{ color:#34d399; }
+  .ad-tip-delta b.neg{ color:#f75c5c; }
+  .ad-tip-delta b.zero{ color:#c9cfe0; }
   .chart-empty-msg{
     position:absolute; inset:0; display:none; align-items:center; justify-content:center;
     text-align:center; padding: 0 30px; font-size:13.5px; color: var(--muted); line-height:1.6;
@@ -2906,11 +2920,50 @@ body{background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-s
       ctx.setLineDash([]);
       ctx.fillStyle = '#f59e0b';
       ctx.font = '700 11px Inter, sans-serif';
+      const txt = "Aujourd'hui";
+      const half = ctx.measureText(txt).width / 2;
+      let tx = x;
+      if(x + half > chart.width - 2) tx = chart.width - 2 - half;   // évite d'être coupé à droite
+      if(x - half < 2) tx = 2 + half;                                // ... ou à gauche
       ctx.textAlign = 'center';
-      ctx.fillText("Aujourd'hui", x, yScale.top - 8);
+      ctx.fillText(txt, tx, yScale.top - 8);
       ctx.restore();
     }
   };
+
+  // ---- Infobulle personnalisée : valeurs + écart Réalisé − Objectif (vert si positif, rouge si négatif) ----
+  function adFmtEuro(n){ return formatNumber(Math.round(n)) + ' €'; }
+  function adFmtDelta(d){
+    const r = Math.round(d);
+    if(r === 0) return { text: '0 €', cls: 'zero' };
+    return { text: (r > 0 ? '+' : '−') + formatNumber(Math.abs(r)) + ' €', cls: r > 0 ? 'pos' : 'neg' };
+  }
+  function adRenderTooltip(context, build){
+    const chart = context.chart, tooltip = context.tooltip;
+    const parent = chart.canvas.parentNode;
+    let el = parent.querySelector('.ad-tip');
+    if(!el){ el = document.createElement('div'); el.className = 'ad-tip'; parent.appendChild(el); }
+    if(tooltip.opacity === 0 || !tooltip.dataPoints || !tooltip.dataPoints.length){ el.style.opacity = '0'; return; }
+    const m = build(tooltip.dataPoints[0].dataIndex);
+    let html = '<div class="ad-tip-title">' + m.title + '</div>';
+    m.lines.forEach(l => {
+      if(l.type === 'row'){
+        html += '<div class="ad-tip-row"><span class="ad-tip-dot" style="background:' + l.color + '"></span><span>' + l.label + ' : ' + l.value + '</span></div>';
+      } else {
+        const f = adFmtDelta(l.delta);
+        html += '<div class="ad-tip-delta"><span>' + l.label + '</span><b class="' + f.cls + '">' + f.text + '</b></div>';
+      }
+    });
+    el.innerHTML = html;
+    const w = el.offsetWidth, h = el.offsetHeight;
+    let left = tooltip.caretX + 16;
+    if(left + w > chart.width) left = tooltip.caretX - w - 16;
+    if(left < 0) left = 0;
+    const top = Math.max(0, Math.min(tooltip.caretY - h / 2, chart.height - h));
+    el.style.left = left + 'px';
+    el.style.top = top + 'px';
+    el.style.opacity = '1';
+  }
 
   function renderCumulChart(){
     const canvas = document.getElementById('cumulChart');
@@ -2959,6 +3012,8 @@ body{background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-s
     const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
     const isCurrentMonth = (year === currentYear && monthIndex === currentDate.getMonth());
     const cutoffDay = isCurrentMonth ? currentDate.getDate() : daysInMonth;
+    const isFutureMonth = year > currentYear || (year === currentYear && monthIndex > currentDate.getMonth());
+    const deltaUntil = isFutureMonth ? 0 : cutoffDay; // pas d'écart affiché pour les jours à venir
 
     const labels = [];
     const objCumulArr = [];
@@ -3060,19 +3115,20 @@ body{background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-s
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
+        layout: { padding: { top: 24 } }, // place pour le mot « Aujourd'hui » au-dessus de la ligne pointillée
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: '#1b2338',
-            borderColor: '#2c3550',
-            borderWidth: 1,
-            titleColor: '#8891a8',
-            bodyColor: '#fff',
-            padding: 10,
+            enabled: false,
             filter: (item) => item.datasetIndex === 4 || item.datasetIndex === 5,
-            callbacks: {
-              label: (item) => `${item.dataset.label} : ${formatNumber(Math.round(item.parsed.y))} €`
-            }
+            external: (ctx) => adRenderTooltip(ctx, (i) => {
+              const lines = [
+                { type: 'row', color: '#8891a8', label: 'Objectif cumulé', value: adFmtEuro(objCumulArr[i]) },
+                { type: 'row', color: '#4f6df5', label: 'Réalisé cumulé', value: adFmtEuro(realCumulArr[i]) }
+              ];
+              if(i + 1 <= deltaUntil) lines.push({ type: 'delta', label: 'Écart réalisé − objectif', delta: realCumulArr[i] - objCumulArr[i] });
+              return { title: String(labels[i]), lines };
+            })
           },
           cumulTodayMarker: { show: isCurrentMonth, index: cutoffDay - 1 }
         },
@@ -3179,6 +3235,10 @@ body{background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-s
     const workedDays = data.workedDays || [];
     const realise = ensureRealise(year, monthIndex);
     const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+    const { caDaily, margeDaily } = computeMonthStats(year, monthIndex);
+    const isCurMonthD = (year === currentYear && monthIndex === currentDate.getMonth());
+    const isFutureMonthD = year > currentYear || (year === currentYear && monthIndex > currentDate.getMonth());
+    const deltaUntil = isFutureMonthD ? 0 : (isCurMonthD ? currentDate.getDate() : daysInMonth);
 
     const labels = [];
     const caArr = [];
@@ -3224,15 +3284,16 @@ body{background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-s
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: '#1b2338',
-            borderColor: '#2c3550',
-            borderWidth: 1,
-            titleColor: '#8891a8',
-            bodyColor: '#fff',
-            padding: 10,
-            callbacks: {
-              label: (item) => `${item.dataset.label} : ${formatNumber(Math.round(item.parsed.y))} €`
-            }
+            enabled: false,
+            external: (ctx) => adRenderTooltip(ctx, (i) => {
+              const day = i + 1;
+              const showDelta = workedDays.includes(day) && day <= deltaUntil; // écart vs objectif du jour (jours ouvrés écoulés)
+              const lines = [{ type: 'row', color: '#4f6df5', label: "Chiffre d'affaires réalisé", value: adFmtEuro(caArr[i]) }];
+              if(showDelta) lines.push({ type: 'delta', label: 'Écart vs objectif du jour', delta: caArr[i] - caDaily });
+              lines.push({ type: 'row', color: '#a78bfa', label: 'Marge réalisée', value: adFmtEuro(margeArr[i]) });
+              if(showDelta) lines.push({ type: 'delta', label: 'Écart vs objectif du jour', delta: margeArr[i] - margeDaily });
+              return { title: String(labels[i]), lines };
+            })
           }
         },
         scales: {
