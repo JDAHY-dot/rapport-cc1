@@ -872,6 +872,87 @@
   .btn-print:disabled{ opacity:.6; cursor:wait; }
   @media (max-width: 720px){ .print-bar{ flex-wrap:wrap; margin-bottom:18px; } #yearFloatBar{ flex-wrap:nowrap; overflow-x:auto; max-width:100%; padding-bottom:2px; } .year-chip{ flex-shrink:0; } }
 
+  /* ===== MOBILE : menu burger à droite, aligné avec les années et le bouton Imprimer ===== */
+  @media (max-width: 720px){
+    /* Le burger passe à droite, sur la même ligne que les bulles d'années */
+    .mobile-menu-toggle{ top: 14px; left: auto; right: 14px; }
+    main{ padding-top: 14px; }
+    /* Les pages sans barre d'années laissent la place au burger */
+    .page:not(#page-dashboard){ padding-top: 58px; }
+
+    /* Ligne unique : années (gauche) | Imprimer | espace réservé au burger (droite) */
+    .print-bar{ flex-wrap: nowrap; gap: 10px; padding-right: 54px; margin-bottom: 18px; min-height: 44px; }
+    #yearFloatBar{ flex: 1 1 auto; min-width: 0; }
+
+    /* Bouton Imprimer : icône seule, carré de 44 px comme le burger */
+    .btn-print{ width: 44px; min-width: 44px; height: 44px; padding: 0; justify-content: center; gap: 0; flex-shrink: 0; }
+    .btn-print span{ display: none; }
+    .btn-print svg{ width: 20px; height: 20px; }
+  }
+  @media (max-width: 480px){
+    .mobile-menu-toggle{ top: 10px; right: 10px; }
+    main{ padding-top: 10px; }
+    .page:not(#page-dashboard){ padding-top: 58px; }
+    .print-bar{ padding-right: 54px; }
+  }
+
+  /* ===== BANDEAU DU MOIS SÉLECTIONNÉ (sous la barre années / imprimer) ===== */
+  .month-banner{
+    display:flex; align-items:center; gap:8px;
+    margin: -6px 0 16px; color: var(--muted);
+  }
+  .month-banner svg{ flex-shrink:0; stroke: var(--blue-2); }
+  .month-banner-label{ font-size:11.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color: var(--muted-2); }
+  .month-banner-value{ font-size:15px; font-weight:800; color: var(--text); margin-left:auto; }
+  .month-banner-label + .month-banner-value{ margin-left:2px; }
+  .month-banner-label + .month-banner-value::before{ content:'·'; margin-right:8px; color: var(--muted-2); }
+
+  /* ===== MOBILE : tiroir depuis la droite + cartes CA / Marge / % Marge affinées ===== */
+  @media (max-width: 720px){
+    /* Tiroir de navigation : s'ouvre depuis la droite */
+    .sidebar{ left:auto; right:0; transform: translateX(100%); box-shadow: -12px 0 30px rgba(0,0,0,0.4); }
+    .sidebar.open{ transform: translateX(0); }
+
+    .month-banner{ margin: -4px 2px 14px; }
+
+    /* Cartes : plus compactes, hiérarchie plus nette */
+    .stats.stats-analytics{ gap: 10px; margin-bottom: 14px; }
+    .stats.stats-analytics .stat-card{ padding: 14px 16px; border-radius: 20px; }
+    .stats.stats-analytics .stat-top{ margin-bottom: 8px; }
+    /* Le mois est déjà indiqué dans le bandeau : on retire les pastilles redondantes */
+    .stats.stats-analytics .stat-period{ display:none; }
+
+    .stat-analytics-title{
+      display:flex; align-items:center; gap:8px;
+      font-size:12px; font-weight:800; letter-spacing:1.2px; color: var(--muted);
+    }
+    .stat-analytics-title::before{
+      content:''; width:8px; height:8px; border-radius:50%;
+      background: linear-gradient(135deg, var(--blue), var(--blue-2));
+    }
+    .stats.stats-analytics .stat-label{ font-size:10.5px; letter-spacing:.8px; color: var(--muted-2); margin-bottom:2px; }
+
+    .stats.stats-analytics .stat-analytics-row{ gap:8px; margin-bottom:0; font-variant-numeric: tabular-nums; }
+    .stats.stats-analytics .stat-analytics-value{ font-size:28px; font-weight:800; letter-spacing:-.3px; line-height:1.1; }
+    .stats.stats-analytics .stat-analytics-sep{ font-size:14px; font-weight:600; }
+    .stats.stats-analytics .stat-analytics-target{ font-size:14px; font-weight:600; }
+
+    .stats.stats-analytics .vj-progress-row{ margin-top:12px; gap:10px; }
+    .stats.stats-analytics .vj-progress-track{ height:5px; }
+    .stats.stats-analytics .vj-progress-pct{ font-size:13px; font-weight:800; color: var(--text); min-width:56px; }
+    .stats.stats-analytics .vj-progress-pct.over{ color: var(--green); }
+
+    /* % MARGE : carte horizontale compacte (titre à gauche, valeur à droite) */
+    .stats.stats-analytics .stat-card-nobar{
+      display:grid; grid-template-columns: 1fr auto; align-items:center;
+      grid-template-areas: "top row" "label row"; column-gap:12px; row-gap:2px;
+    }
+    .stats.stats-analytics .stat-card-nobar .stat-top{ grid-area: top; margin:0; }
+    .stats.stats-analytics .stat-card-nobar .stat-label{ grid-area: label; margin:0; }
+    .stats.stats-analytics .stat-card-nobar .stat-analytics-row{ grid-area: row; }
+    .stats.stats-analytics .stat-card-nobar .stat-analytics-value{ font-size:30px; }
+  }
+
   /* ===== ANALYSE ANNUELLE ===== */
   .annual-bar{ display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:0 0 22px; }
   .annual-bar .year-chip.active{ color:var(--text); }
@@ -988,7 +1069,8 @@ body{background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-s
 
   <main>
     <div id="page-dashboard" class="page active">
-    <div class="print-bar"><div id="yearFloatBar"></div><button type="button" class="btn-secondary btn-print" id="btnPrintYear" title="Exporter l'année sélectionnée en PDF (paysage)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Imprimer</span></button></div>
+    <div class="print-bar"><div id="yearFloatBar"></div><button type="button" class="btn-secondary btn-print" id="btnPrintYear" aria-label="Imprimer" title="Exporter l'année sélectionnée en PDF (paysage)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Imprimer</span></button></div>
+    <div class="month-banner" id="analyticsMonthBanner"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="month-banner-label">Mois sélectionné</span><span class="month-banner-value" id="analyticsMonthValue">—</span></div>
     <section class="stats stats-analytics">
       <div class="stat-card">
         <div class="stat-top">
@@ -3369,6 +3451,7 @@ body{background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-s
 
     function setEmptyState(){
       if(caPeriodEl) caPeriodEl.textContent = '—';
+      { const mv = document.getElementById('analyticsMonthValue'); if(mv) mv.textContent = '—'; }
       if(margePeriodEl) margePeriodEl.textContent = '—';
       if(caCumulEl) caCumulEl.textContent = '0 €';
       if(caObjectifEl) caObjectifEl.textContent = '0 €';
@@ -3409,6 +3492,7 @@ body{background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-s
 
     const periodLabel = `${MONTH_NAMES[monthIndex]} ${year}`;
     if(caPeriodEl) caPeriodEl.textContent = periodLabel;
+    { const mv = document.getElementById('analyticsMonthValue'); if(mv) mv.textContent = periodLabel; }
     if(margePeriodEl) margePeriodEl.textContent = periodLabel;
 
     const realise = ensureRealise(year, monthIndex);
